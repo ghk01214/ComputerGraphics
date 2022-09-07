@@ -52,7 +52,7 @@ void run2()
 {
 	std::ifstream in{ "data.txt" };
 
-	if (in.is_open() == false)
+	if (in.fail())
 	{
 		std::cout << std::format("File open failed\n");
 		return;

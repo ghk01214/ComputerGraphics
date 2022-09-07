@@ -286,50 +286,50 @@ void run1()
 
 		switch (command)
 		{
-			case 'A': [[fallthrough]];
+			case 'A': FALLTHROUGH
 			case 'a':
 			{
 				Add(a, b);
 			}
 			break;
-			case 'D': [[fallthrough]];
+			case 'D': FALLTHROUGH
 			case 'd':
 			{
 				Subtract(a, b);
 			}
 			break;
-			case 'M': [[fallthrough]];
+			case 'M': FALLTHROUGH
 			case 'm':
 			{
 				Multiply(a, b);
 			}
 			break;
-			case 'R': [[fallthrough]];
+			case 'R': FALLTHROUGH
 			case 'r':
 			{
 				Determinant3(a, b);
 			}
 			break;
-			case 'T': [[fallthrough]];
+			case 'T': FALLTHROUGH
 			case 't':
 			{
 				Transpose(a, b);
 			}
 			break;
-			case 'H': [[fallthrough]];
+			case 'H': FALLTHROUGH
 			case 'h':
 			{
 				Determinant4(a, b);
 			}
 			break;
-			case 'S': [[fallthrough]];
+			case 'S': FALLTHROUGH
 			case 's':
 			{
 				Reset(a, b);
 				std::cout << std::format("리셋 완료");
 			}
 			break;
-			case 'Q': [[fallthrough]];
+			case 'Q': FALLTHROUGH
 			case 'q':
 			{
 				std::cout << std::format("프로그램 종료\n");

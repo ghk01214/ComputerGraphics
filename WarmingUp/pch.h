@@ -10,6 +10,8 @@
 #include <vector>
 #include <list>
 
+#define FALLTHROUGH [[fallthrough]];
+
 using int8 = char;
 using int32 = int;
 using int64 = long long;

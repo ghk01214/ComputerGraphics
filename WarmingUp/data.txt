@@ -5,7 +5,6 @@ File input output sample program
 2022 Fall semester
 Tech University Korea
 Game and multimedia engineering department
-1001
-ada_ada 1001
+1001 ada_ada 1001
 Monday Tuesday Wednesday Thursday Friday
 abcdefghidcba
