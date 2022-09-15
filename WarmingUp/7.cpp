@@ -56,6 +56,8 @@ std::vector<std::vector<char>> Init(std::map<char, bool>* found)
 	{
 		found->insert(std::make_pair('A' + i, false));
 	}
+
+	return board;
 }
 
 int32 ChangeAToI(char c)
@@ -216,6 +218,7 @@ void run7()
 
 		PrintBoard(&board, &found);
 
+		std::cout << std::format("try count : {}\n", try_limit);
 		std::cout << std::format("input card 1 : ");
 
 		switch (Command(&board, &found, &card1, &card1, nullptr))
@@ -226,6 +229,7 @@ void run7()
 			return;
 		}
 
+		std::cout << std::format("try count : {}\n", try_limit);
 		std::cout << std::format("input card 2 : ");
 
 		switch (Command(&board, &found, &card2, &card1, &card2))

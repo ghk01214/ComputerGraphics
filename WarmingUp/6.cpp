@@ -8,7 +8,7 @@ struct POINT
 
 enum
 {
-	left = 0,
+	left = 1,
 	right,
 	up,
 	down
