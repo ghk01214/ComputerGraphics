@@ -1,10 +1,12 @@
 ﻿root = true
 
 [*]
+
 indent_style = tab
 indent_size = 4
 
-[*.{glsl, txt}]
+[*.{glsl, txt, vs, fs, ps}]
+
 charset = utf-8
 
 [*.{c++,cc,cpp,cppm,cxx,h,h++,hh,hpp,hxx,inl,ipp,ixx,tlh,tli}]

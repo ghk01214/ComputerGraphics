@@ -92,6 +92,8 @@ bld/
 [Oo]bj/
 [Ll]og/
 [Ll]ogs/
+[Bb]uild/
+[Oo]utput/
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
@@ -444,3 +446,6 @@ FodyWeavers.xsd
 ### VisualStudio Patch ###
 # Additional files built by Visual Studio
 
+!Dependencies/*
+!Dependencies/bin/*
+!Dependencies/lib/*
