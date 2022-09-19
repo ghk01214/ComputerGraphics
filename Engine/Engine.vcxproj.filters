@@ -50,8 +50,5 @@
     <ClCompile Include="..\Dependencies\include\Util.cpp">
       <Filter>Util</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
-      <Filter>Engine</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>

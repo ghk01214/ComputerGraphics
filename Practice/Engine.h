@@ -1,5 +1,18 @@
 ﻿#pragma once
 
+struct Rect
+{
+	float left;
+	float top;
+	float right;
+	float bottom;
+};
+
+struct Color
+{
+	float r, g, b;
+};
+
 class Engine : public Singleton<Engine>
 {
 public:
@@ -22,4 +35,7 @@ public:
 private:
 	Window* _window;
 	bool _start_timer;
+	Rect _rect;
+	Color _back_color;
+	Color _rect_color;
 };

@@ -12,7 +12,10 @@ std::uniform_real_distribution<float> uid{ 0.f, 1.f };
 
 Engine::Engine() :
 	_window{ nullptr },
-	_start_timer{ false }
+	_start_timer{ false },
+	_rect{ -0.5f, 0.5f, 0.5f, -0.5f },
+	_back_color{ RANDOM },
+	_rect_color{ RANDOM }
 {
 }
 
@@ -83,9 +86,12 @@ void Engine::Update()
 
 void Engine::Render()
 {
+	glClearColor(inst->_back_color.r, inst->_back_color.g, inst->_back_color.b, 1.f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
+
 	// TODO : 그리기
+	glColor4f(inst->_rect_color.r, inst->_rect_color.g, inst->_rect_color.b, 1.f);
+	glRectf(inst->_rect.left, inst->_rect.bottom, inst->_rect.right, inst->_rect.top);
 
 	glutSwapBuffers();
 }
@@ -112,37 +118,37 @@ void Engine::OnKeyboardDownMessage(uchar key, int32_t x, int32_t y)
 		case 'R': FALLTHROUGH
 		case 'r':
 		{
-			glClearColor(RED, 1.f);
+			inst->_back_color = { RED };
 		}
 		break;
 		case 'G': FALLTHROUGH
 		case 'g':
 		{
-			glClearColor(GREEN, 1.f);
+			inst->_back_color = { GREEN };
 		}
 		break;
 		case 'B': FALLTHROUGH
 		case 'b':
 		{
-			glClearColor(BLUE, 1.f);
+			inst->_back_color = { BLUE };
 		}
 		break;
 		case 'A': FALLTHROUGH
 		case 'a':
 		{
-			glClearColor(RANDOM, 1.f);
+			inst->_back_color = { RANDOM };
 		}
 		break;
 		case 'W': FALLTHROUGH
 		case 'w':
 		{
-			glClearColor(WHITE, 1.f);
+			inst->_back_color = { WHITE };
 		}
 		break;
 		case 'K': FALLTHROUGH
 		case 'k':
 		{
-			glClearColor(BLACK, 1.f);
+			inst->_back_color = { BLACK };
 		}
 		break;
 		case 'T': FALLTHROUGH
@@ -175,6 +181,46 @@ void Engine::OnKeyboardUpMessage(uchar key, int32_t x, int32_t y)
 
 void Engine::OnMouseMessage(int32_t button, int32_t state, int32_t x, int32_t y)
 {
+	float x2{ Convert::ToFloat(x) / 400.f - 1.f };
+	float y2{ 1.f - Convert::ToFloat(y) / 300.f };
+
+	std::cout << y << ", " << y2 << std::endl;
+
+	if (state == GLUT_DOWN)
+	{
+		if (button == GLUT_LEFT_BUTTON)
+		{
+			if (inst->_rect.left < x2 and x2 < inst->_rect.right)
+			{
+				if (inst->_rect.bottom < y2 and y2 < inst->_rect.top)
+				{
+					inst->_rect_color = { RANDOM };
+					glutPostRedisplay();
+
+					return;
+				}
+			}
+			
+			inst->_back_color = { RANDOM };
+		}
+		else if (button == GLUT_RIGHT_BUTTON)
+		{
+			int32_t sign{ -1 };
+
+			if (inst->_rect.left < x2 and x2 < inst->_rect.right)
+			{
+				if (inst->_rect.bottom < y2 and y2 < inst->_rect.top)
+					sign = 1;
+			}
+
+			inst->_rect.left += -sign * 0.1f;
+			inst->_rect.top += -sign * 0.1f;
+			inst->_rect.right += sign * 0.1f;
+			inst->_rect.bottom += sign * 0.1f;
+		}
+	}
+
+	glutPostRedisplay();
 }
 
 void Engine::Timer(int32_t value)
@@ -182,7 +228,7 @@ void Engine::Timer(int32_t value)
 	if (inst->_start_timer == false)
 		return;
 
-	glClearColor(RANDOM, 1.f);
+	inst->_back_color = { RANDOM };
 	glutPostRedisplay();
 	glutTimerFunc(1, Timer, 1);
 }
