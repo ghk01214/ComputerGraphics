@@ -21,4 +21,4 @@ using uint32 = unsigned int;
 using uint64 = unsigned long long;
 
 extern std::default_random_engine dre;
-extern std::uniform_int_distribution<int32> uid;
+extern std::uniform_int_distribution<int32> uid_color;

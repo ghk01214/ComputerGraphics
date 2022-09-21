@@ -86,24 +86,24 @@ void run4()
 	std::vector<int32> size;
 	size.reserve(2);
 
-	switch (uid(dre))
+	switch (uid_color(dre))
 	{
 		case 0:
 		{
 			size.push_back(50);
-			size.push_back((uid(dre) + 1) * 70);
+			size.push_back((uid_color(dre) + 1) * 70);
 		}
 		break;
 		case 1:
 		{
 			size.push_back(100);
-			size.push_back((uid(dre) + 1) * 70);
+			size.push_back((uid_color(dre) + 1) * 70);
 		}
 		break;
 		case 2:
 		{
 			size.push_back(200);
-			size.push_back((uid(dre) + 1) * 70);
+			size.push_back((uid_color(dre) + 1) * 70);
 		}
 		break;
 	}

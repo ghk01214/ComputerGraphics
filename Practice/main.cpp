@@ -6,7 +6,7 @@ int main(int32_t argc, char** argv)
 	glutInit(&argc, argv);
 
 	Engine engine;
-	Window window{ 800, 600, true };
+	Window window{ 800, 800, true };
 
 	engine.Init(&window);
 	engine.Update();

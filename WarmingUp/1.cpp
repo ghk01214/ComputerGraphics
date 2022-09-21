@@ -50,7 +50,7 @@ void Matrix::Reset()
 
 		for (int32 j = 0; j < 4; ++j)
 		{
-			v[j] = uid(dre);
+			v[j] = uid_color(dre);
 		}
 
 		matrix[i] = v;

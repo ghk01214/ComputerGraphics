@@ -9,13 +9,13 @@ std::uniform_real_distribution<float> uid{ 0.f, 1.f };
 #define RANDOM uid(dre), uid(dre), uid(dre)
 #define WHITE 1.f, 1.f, 1.f
 #define BLACK 0.f, 0.f, 0.f
+#define GRAY 0.5f, 0.5f, 0.5f
 
 Engine::Engine() :
 	_window{ nullptr },
 	_start_timer{ false },
-	_rect{ -0.5f, 0.5f, 0.5f, -0.5f },
-	_back_color{ RANDOM },
-	_rect_color{ RANDOM }
+	_rect{},
+	_move_rect{ -1 }
 {
 }
 
@@ -44,13 +44,15 @@ void Engine::Init(const Window* window)
 		std::cout << std::format("GLEW 4.6 not supported") << std::endl;
 
 	glClearDepth(1.f);
-	glClearColor(WHITE, 1.f);
+
+	inst->_rect.push_back({ -0.1f, 0.1f, 0.1f, -0.1f, RANDOM });
 
 	glutDisplayFunc(Render);
 	glutReshapeFunc(Reshape);
 	glutKeyboardFunc(OnKeyboardDownMessage);
 	glutKeyboardUpFunc(OnKeyboardUpMessage);
 	glutMouseFunc(OnMouseMessage);
+	glutMotionFunc(OnMouseMotionMessage);
 }
 
 void Engine::Init(const Window* window, const std::string& name)
@@ -77,6 +79,10 @@ void Engine::Init(const Window* window, const std::string& name)
 
 	glutDisplayFunc(Render);
 	glutReshapeFunc(Reshape);
+	glutKeyboardFunc(OnKeyboardDownMessage);
+	glutKeyboardUpFunc(OnKeyboardUpMessage);
+	glutMouseFunc(OnMouseMessage);
+	glutMotionFunc(OnMouseMotionMessage);
 }
 
 void Engine::Update()
@@ -86,12 +92,15 @@ void Engine::Update()
 
 void Engine::Render()
 {
-	glClearColor(inst->_back_color.r, inst->_back_color.g, inst->_back_color.b, 1.f);
+	glClearColor(GRAY, 1.f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// TODO : 그리기
-	glColor4f(inst->_rect_color.r, inst->_rect_color.g, inst->_rect_color.b, 1.f);
-	glRectf(inst->_rect.left, inst->_rect.bottom, inst->_rect.right, inst->_rect.top);
+	for (auto& rect : inst->_rect)
+	{
+		glColor4f(rect.r, rect.g, rect.b, 1.f);
+		glRectf(rect.left, rect.bottom, rect.right, rect.top);
+	}
 
 	glutSwapBuffers();
 }
@@ -115,53 +124,11 @@ void Engine::OnKeyboardDownMessage(uchar key, int32_t x, int32_t y)
 {
 	switch (key)
 	{
-		case 'R': FALLTHROUGH
-		case 'r':
-		{
-			inst->_back_color = { RED };
-		}
-		break;
-		case 'G': FALLTHROUGH
-		case 'g':
-		{
-			inst->_back_color = { GREEN };
-		}
-		break;
-		case 'B': FALLTHROUGH
-		case 'b':
-		{
-			inst->_back_color = { BLUE };
-		}
-		break;
 		case 'A': FALLTHROUGH
 		case 'a':
 		{
-			inst->_back_color = { RANDOM };
-		}
-		break;
-		case 'W': FALLTHROUGH
-		case 'w':
-		{
-			inst->_back_color = { WHITE };
-		}
-		break;
-		case 'K': FALLTHROUGH
-		case 'k':
-		{
-			inst->_back_color = { BLACK };
-		}
-		break;
-		case 'T': FALLTHROUGH
-		case 't':
-		{
-			inst->_start_timer = true;
-			glutTimerFunc(1, Timer, 1);
-		}
-		break;
-		case 'S': FALLTHROUGH
-		case 's':
-		{
-			inst->_start_timer = false;
+			if (inst->_rect.size() < 5)
+				inst->_rect.push_back({ -0.1f, 0.1f, 0.1f, -0.1f, RANDOM });
 		}
 		break;
 		case 'Q': FALLTHROUGH
@@ -181,54 +148,54 @@ void Engine::OnKeyboardUpMessage(uchar key, int32_t x, int32_t y)
 
 void Engine::OnMouseMessage(int32_t button, int32_t state, int32_t x, int32_t y)
 {
-	float x2{ Convert::ToFloat(x) / 400.f - 1.f };
-	float y2{ 1.f - Convert::ToFloat(y) / 300.f };
-
-	std::cout << y << ", " << y2 << std::endl;
+	float x2{ Convert::ToFloat(x) / (inst->_window->width / 2) - 1.f };
+	float y2{ 1.f - Convert::ToFloat(y) / (inst->_window->height / 2) };
 
 	if (state == GLUT_DOWN)
 	{
 		if (button == GLUT_LEFT_BUTTON)
 		{
-			if (inst->_rect.left < x2 and x2 < inst->_rect.right)
+			for (auto iter = inst->_rect.rbegin(); iter != inst->_rect.rend(); ++iter)
 			{
-				if (inst->_rect.bottom < y2 and y2 < inst->_rect.top)
+				if (iter->left <= x2 and x2 <= iter->right)
 				{
-					inst->_rect_color = { RANDOM };
-					glutPostRedisplay();
-
-					return;
+					if (iter->bottom <= y2 and y2 <= iter->top)
+					{
+						inst->_move_rect = std::distance(iter, --inst->_rect.rend());
+						break;
+					}
 				}
 			}
-			
-			inst->_back_color = { RANDOM };
-		}
-		else if (button == GLUT_RIGHT_BUTTON)
-		{
-			int32_t sign{ -1 };
-
-			if (inst->_rect.left < x2 and x2 < inst->_rect.right)
-			{
-				if (inst->_rect.bottom < y2 and y2 < inst->_rect.top)
-					sign = 1;
-			}
-
-			inst->_rect.left += -sign * 0.1f;
-			inst->_rect.top += -sign * 0.1f;
-			inst->_rect.right += sign * 0.1f;
-			inst->_rect.bottom += sign * 0.1f;
 		}
 	}
+	else if (state == GLUT_UP)
+	{
+		inst->_move_rect = -1;
+	}
+
+	glutPostRedisplay();
+}
+
+void Engine::OnMouseMotionMessage(int32_t x, int32_t y)
+{
+	if (inst->_move_rect == -1)
+		return;
+
+	float x2{ Convert::ToFloat(x) / (inst->_window->width / 2) - 1.f };
+	float y2{ 1.f - Convert::ToFloat(y) / (inst->_window->height / 2) };
+
+	auto iter{ inst->_rect.begin() };
+	std::advance(iter, inst->_move_rect);
+
+	iter->left = x2 - 0.1f;
+	iter->top = y2 + 0.1f;
+	iter->right = x2 + 0.1f;
+	iter->bottom = y2 - 0.1f;
 
 	glutPostRedisplay();
 }
 
 void Engine::Timer(int32_t value)
 {
-	if (inst->_start_timer == false)
-		return;
-
-	inst->_back_color = { RANDOM };
-	glutPostRedisplay();
-	glutTimerFunc(1, Timer, 1);
+	
 }
