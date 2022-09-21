@@ -9,6 +9,14 @@ struct Rect
 	float r, g, b;
 };
 
+struct Info
+{
+	Rect rect;
+	float size;
+	int32_t direction;
+	bool expand;
+};
+
 class Engine : public Singleton<Engine>
 {
 public:
@@ -29,9 +37,14 @@ public:
 	static void OnMouseMotionMessage(int32_t x, int32_t y);
 	static void Timer(int32_t value);
 
+	static void Move(int32_t value);
+	static void ZigZag(int32_t value);
+	static void Expand(int32_t value);
+
 private:
 	Window* _window;
-	bool _start_timer;
-	std::list<Rect> _rect;
-	int32_t _move_rect;
+	bool _start_move;
+	bool _start_zigzag;
+	bool _start_expand;
+	std::list<std::pair<Rect, Info>> _rect;
 };
