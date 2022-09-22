@@ -13,6 +13,7 @@ struct Info
 {
 	Rect rect;
 	float size;
+	bool zigzag;
 	int32_t direction;
 	bool expand;
 };

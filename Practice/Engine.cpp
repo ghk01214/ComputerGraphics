@@ -209,7 +209,7 @@ void Engine::OnMouseMessage(int32_t button, int32_t state, int32_t x, int32_t y)
 			if (inst->_rect.size() < 5)
 			{
 				Rect temp{ x2 - 0.1f, y2 + 0.1f, x2 + 0.1f, y2 - 0.1f, RANDOM };
-				Info info{ temp, uid_size(dre), UP, true };
+				Info info{ temp, uid_size(dre), true, UP, true };
 
 				inst->_rect.push_back(std::make_pair(temp, info));
 			}
@@ -300,8 +300,24 @@ void Engine::ZigZag(int32_t value)
 	if (inst->_start_zigzag == false)
 		return;
 
+	for (auto& [rect, info] : inst->_rect)
+	{
+		float sign{ 1.f };
+
+		if (info.rect.right >= 1.f)
+			info.zigzag = false;
+		else if (info.rect.left <= -1.f)
+			info.zigzag = true;
+
+		if (info.zigzag == false)
+			sign = -1.f;
+
+		info.rect.left += sign * 0.01f;
+		info.rect.right += sign * 0.01f;
+	}
+
 	glutPostRedisplay();
-	glutTimerFunc(100, ZigZag, value);
+	glutTimerFunc(10, ZigZag, value);
 }
 
 void Engine::Expand(int32_t value)
