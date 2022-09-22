@@ -38,14 +38,7 @@ public:
 	static void OnMouseMotionMessage(int32_t x, int32_t y);
 	static void Timer(int32_t value);
 
-	static void Move(int32_t value);
-	static void ZigZag(int32_t value);
-	static void Expand(int32_t value);
-
 private:
 	Window* _window;
-	bool _start_move;
-	bool _start_zigzag;
-	bool _start_expand;
-	std::list<std::pair<Rect, Info>> _rect;
+	std::list<Rect> _rect;
 };

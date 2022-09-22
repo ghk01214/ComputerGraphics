@@ -2,7 +2,8 @@
 #include "Engine.h"
 
 std::uniform_real_distribution<float> uid_color{ 0.f, 1.f };
-std::uniform_real_distribution<float> uid_size{ 0.f, 0.3f };
+std::uniform_real_distribution<float> uid_coord{ -1.f, 0.8f };
+std::uniform_int_distribution<int32_t> uid_rect{ 1, 100 };
 
 #define RED 1.f, 0.f, 0.f
 #define GREEN 0.f, 1.f, 0.f
@@ -26,9 +27,6 @@ enum
 
 Engine::Engine() :
 	_window{ nullptr },
-	_start_move{ false },
-	_start_zigzag{ false },
-	_start_expand{ false },
 	_rect{}
 {
 }
@@ -58,6 +56,14 @@ void Engine::Init(const Window* window)
 		std::cout << std::format("GLEW 4.6 not supported") << std::endl;
 
 	glClearDepth(1.f);
+
+	for (int32_t i = 0; i < uid_rect(dre); ++i)
+	{
+		float left{ uid_coord(dre) };
+		float bottom{ uid_coord(dre) };
+
+		inst->_rect.push_back({ left, bottom + 0.2f, left + 0.2f, bottom, RANDOM });
+	}
 
 	glutDisplayFunc(Render);
 	glutReshapeFunc(Reshape);
@@ -108,10 +114,10 @@ void Engine::Render()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// TODO : 그리기
-	for (auto& [origin, info] : inst->_rect)
+	for (auto& rect : inst->_rect)
 	{
-		glColor4f(info.rect.r, info.rect.g, info.rect.b, 1.f);
-		glRectf(info.rect.left, info.rect.bottom, info.rect.right, info.rect.top);
+		glColor4f(rect.r, rect.g, rect.b, 1.f);
+		glRectf(rect.left, rect.bottom, rect.right, rect.top);
 	}
 
 	glutSwapBuffers();
@@ -136,52 +142,6 @@ void Engine::OnKeyboardDownMessage(uchar key, int32_t x, int32_t y)
 {
 	switch (key)
 	{
-		case 'A': FALLTHROUGH
-		case 'a':
-		{
-			inst->_start_move = !inst->_start_move;
-			glutTimerFunc(10, Move, MOVE);
-		}
-		break;
-		case 'I': FALLTHROUGH
-		case 'i':
-		{
-			inst->_start_zigzag = !inst->_start_zigzag;
-			glutTimerFunc(10, ZigZag, ZIGZAG);
-		}
-		break;
-		case 'C': FALLTHROUGH
-		case 'c':
-		{
-			inst->_start_expand = !inst->_start_expand;
-			glutTimerFunc(10, Expand, EXPAND);
-		}
-		break;
-		case 'S': FALLTHROUGH
-		case 's':
-		{
-			inst->_start_move = false;
-			inst->_start_zigzag = false;
-			inst->_start_expand = false;
-		}
-		break;
-		case 'M': FALLTHROUGH
-		case 'm':
-		{
-			for (auto& [origin, info] : inst->_rect)
-			{
-				info.rect = origin;
-				info.direction = UP;
-				info.expand = true;
-			}
-		}
-		break;
-		case 'R': FALLTHROUGH
-		case 'r':
-		{
-			inst->_rect.clear();
-		}
-		break;
 		case 'Q': FALLTHROUGH
 		case 'q':
 		{
@@ -206,14 +166,12 @@ void Engine::OnMouseMessage(int32_t button, int32_t state, int32_t x, int32_t y)
 	{
 		if (button == GLUT_LEFT_BUTTON)
 		{
-			if (inst->_rect.size() < 5)
-			{
-				Rect temp{ x2 - 0.1f, y2 + 0.1f, x2 + 0.1f, y2 - 0.1f, RANDOM };
-				Info info{ temp, uid_size(dre), true, UP, true };
-
-				inst->_rect.push_back(std::make_pair(temp, info));
-			}
+			inst->_rect.push_back({ x2 - 0.2f, y2 + 0.2f, x2 + 0.2f, y2 - 0.2f, RANDOM });
 		}
+	}
+	if (state == GLUT_UP)
+	{
+		inst->_rect.pop_back();
 	}
 
 	glutPostRedisplay();
@@ -221,7 +179,48 @@ void Engine::OnMouseMessage(int32_t button, int32_t state, int32_t x, int32_t y)
 
 void Engine::OnMouseMotionMessage(int32_t x, int32_t y)
 {
+	float x2{ Convert::ToFloat(x) / (inst->_window->width / 2) - 1.f };
+	float y2{ 1.f - Convert::ToFloat(y) / (inst->_window->height / 2) };
 
+	auto iter{ inst->_rect.rbegin() };
+
+	iter->left = x2 - 0.2f;
+	iter->top = y2 + 0.2f;
+	iter->right = x2 + 0.2f;
+	iter->bottom = y2 - 0.2f;
+
+	for (auto rect = inst->_rect.begin(); rect != inst->_rect.end(); ++rect)
+	{
+		if (iter->left < rect->right and rect->right < iter->right)
+		{
+			if (iter->bottom < rect->top and rect->top < iter->top)
+			{
+				inst->_rect.erase(rect);
+				break;
+			}
+
+			if (iter->bottom < rect->bottom and rect->bottom < iter->top)
+			{
+				inst->_rect.erase(rect);
+				break;
+			}
+		}
+
+		if (iter->left < rect->left and rect->left < iter->right)
+		{
+			if (iter->bottom < rect->top and rect->top < iter->top)
+			{
+				inst->_rect.erase(rect);
+				break;
+			}
+
+			if (iter->bottom < rect->bottom and rect->bottom < iter->top)
+			{
+				inst->_rect.erase(rect);
+				break;
+			}
+		}
+	}
 
 	glutPostRedisplay();
 }
@@ -233,119 +232,4 @@ void Engine::Timer(int32_t value)
 
 	glutPostRedisplay();
 	glutTimerFunc(10, Timer, value);
-}
-
-void Engine::Move(int32_t value)
-{
-	if (inst->_start_move == false)
-		return;
-
-	for (auto& [rect, info] : inst->_rect)
-	{
-		switch (info.direction)
-		{
-			case LEFT:
-			{
-				info.rect.left -= 0.01f;
-				info.rect.top += 0.01f;
-				info.rect.right -= 0.01f;
-				info.rect.bottom += 0.01f;
-			}
-			break;
-			case RIGHT:
-			{
-				info.rect.left += 0.01f;
-				info.rect.top -= 0.01f;
-				info.rect.right += 0.01f;
-				info.rect.bottom -= 0.01f;
-			}
-			break;
-			case UP:
-			{
-				info.rect.left += 0.01f;
-				info.rect.top += 0.01f;
-				info.rect.right += 0.01f;
-				info.rect.bottom += 0.01f;
-			}
-			break;
-			case DOWN:
-			{
-				info.rect.left -= 0.01f;
-				info.rect.top -= 0.01f;
-				info.rect.right -= 0.01f;
-				info.rect.bottom -= 0.01f;
-			}
-			break;
-		}
-
-		if (info.rect.left <= -1.f)
-			info.direction = UP;
-
-		if (info.rect.right >= 1.f)
-			info.direction = DOWN;
-
-		if (info.rect.top >= 1.f)
-			info.direction = RIGHT;
-
-		if (info.rect.bottom <= -1.f)
-			info.direction = LEFT;
-	}
-
-	glutPostRedisplay();
-	glutTimerFunc(10, Move, value);
-}
-
-void Engine::ZigZag(int32_t value)
-{
-	if (inst->_start_zigzag == false)
-		return;
-
-	for (auto& [rect, info] : inst->_rect)
-	{
-		float sign{ 1.f };
-
-		if (info.rect.right >= 1.f)
-			info.zigzag = false;
-		else if (info.rect.left <= -1.f)
-			info.zigzag = true;
-
-		if (info.zigzag == false)
-			sign = -1.f;
-
-		info.rect.left += sign * 0.01f;
-		info.rect.right += sign * 0.01f;
-	}
-
-	glutPostRedisplay();
-	glutTimerFunc(10, ZigZag, value);
-}
-
-void Engine::Expand(int32_t value)
-{
-	if (inst->_start_expand == false)
-		return;
-
-
-
-	for (auto& [origin, info] : inst->_rect)
-	{
-		float sign{ 1 };
-		float diff{ info.rect.right - info.rect.left };
-
-		if (diff >= info.size * 2 + 0.2f)
-			info.expand = false;
-		else if (diff <= 0.2f)
-			info.expand = true;
-
-		if (info.expand == false)
-			sign = -1;
-
-		info.rect.left -= sign * 0.01f;
-		info.rect.top += sign * 0.01f;
-		info.rect.right += sign * 0.01f;
-		info.rect.bottom -= sign * 0.01f;
-	}
-
-	glutPostRedisplay();
-	glutTimerFunc(10, Expand, value);
 }
