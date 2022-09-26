@@ -142,6 +142,20 @@ void Engine::OnKeyboardDownMessage(uchar key, int32_t x, int32_t y)
 {
 	switch (key)
 	{
+		case 'R': FALLTHROUGH
+		case 'r':
+		{
+			inst->_rect.clear();
+
+			for (int32_t i = 0; i < uid_rect(dre); ++i)
+			{
+				float left{ uid_coord(dre) };
+				float bottom{ uid_coord(dre) };
+
+				inst->_rect.push_back({ left, bottom + 0.2f, left + 0.2f, bottom, RANDOM });
+			}
+		}
+		break;
 		case 'Q': FALLTHROUGH
 		case 'q':
 		{
