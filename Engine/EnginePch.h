@@ -25,7 +25,6 @@
 
 #pragma region [MACRO]
 #define DEPRECATED [[deprecated]]
-#define DEPRECATED(str) [[deprecated(str)]]
 #define MAYBE_UNUSED [[maybe_unused]]
 #define FALLTHROUGH [[fallthrough]];
 #define LIKELY [[likely]]
@@ -47,10 +46,15 @@ struct Window
 	uint32_t width;
 	uint32_t height;
 	bool windowed;
+
+	Window(uint32_t width, uint32_t height, bool windowed) :
+		width{ width }, height{ height }, windowed{ windowed } {}
 };
 
 extern std::unique_ptr<class Engine> game_engine;
 extern std::default_random_engine dre;
 
-#include <Def.h>
+#include <Define.h>
 #include <Util.h>
+
+#define SCENE_MGR game_engine->GetSceneMgr()

@@ -1,8 +1,10 @@
 ﻿#include "pch.h"
+#include "SceneMgr.h"
 #include "Engine.h"
 
 Engine::Engine() :
-	_window{ nullptr }
+	_window{ nullptr },
+	_scene_mgr{ nullptr }
 {
 }
 
@@ -12,7 +14,7 @@ Engine::~Engine()
 
 void Engine::Init(const Window* window)
 {
-	inst->_window = const_cast<Window*>(window);
+	inst->_window.reset(const_cast<Window*>(window));
 
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 	glutInitWindowPosition((glutGet(GLUT_SCREEN_WIDTH) - window->width) / 2, (glutGet(GLUT_SCREEN_HEIGHT) - window->height) / 2);
@@ -38,7 +40,7 @@ void Engine::Init(const Window* window)
 
 void Engine::Init(const Window* window, const std::string& name)
 {
-	inst->_window = const_cast<Window*>(window);
+	inst->_window.reset(const_cast<Window*>(window));
 
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 	glutInitWindowPosition((glutGet(GLUT_SCREEN_WIDTH) - window->width) / 2, (glutGet(GLUT_SCREEN_HEIGHT) - window->height) / 2);
@@ -60,6 +62,57 @@ void Engine::Init(const Window* window, const std::string& name)
 
 	glutDisplayFunc(Render);
 	glutReshapeFunc(Reshape);
+	//glutIdleFunc(OnIdleMessage);
+	glutKeyboardFunc(OnKeyboardMessage);
+	glutKeyboardUpFunc(OnKeyboardUpMessage);
+	glutSpecialFunc(OnSpecialKeyMessage);
+	glutSpecialUpFunc(OnSpecialKeyUpMessage);
+	glutMouseFunc(OnMouseMessage);
+	//glutMotionFunc(OnMouseMotionMessage);
+	//glutPassiveMotionFunc(OnMousePassiveMotionMessage);
+}
+
+void Engine::OnIdleMessage()
+{
+	inst->_scene_mgr->OnIdleMessage();
+}
+
+void Engine::OnKeyboardMessage(uchar key, int32_t x, int32_t y)
+{
+	inst->_scene_mgr->OnKeyboardMessage(key, x, y);
+}
+
+void Engine::OnSpecialKeyMessage(int32_t key, int32_t x, int32_t y)
+{
+	inst->_scene_mgr->OnSpecialKeyMessage(key, x, y);
+}
+
+void Engine::OnKeyboardUpMessage(uchar key, int32_t x, int32_t y)
+{
+	inst->_scene_mgr->OnKeyboardUpMessage(key, x, y);
+}
+
+void Engine::OnSpecialKeyUpMessage(int32_t key, int32_t x, int32_t y)
+{
+	inst->_scene_mgr->OnSpecialKeyMessage(key, x, y);
+}
+
+void Engine::OnMouseMessage(int32_t button, int32_t state, int32_t x, int32_t y)
+{
+	if (state == GLUT_DOWN)
+		inst->_scene_mgr->OnMouseMessage(button, x, y);
+	else if (state == GLUT_UP)
+		inst->_scene_mgr->OnMouseUpMessage(button, x, y);
+}
+
+void Engine::OnMouseMotionMessage(int32_t x, int32_t y)
+{
+	inst->_scene_mgr->OnMouseMotionMessage(x, y);
+}
+
+void Engine::OnMousePassiveMotionMessage(int32_t x, int32_t y)
+{
+	inst->_scene_mgr->OnMousePassiveMotionMessage(x, y);
 }
 
 void Engine::Update()
@@ -73,6 +126,7 @@ void Engine::Render()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	// TODO : 그리기
+	inst->_scene_mgr->OnRender();
 
 	glutSwapBuffers();
 }
@@ -87,7 +141,7 @@ void Engine::Reshape(int32_t width, int32_t height)
 
 void Engine::Resize(const Window* window)
 {
-	inst->_window = const_cast<Window*>(window);
+	inst->_window.reset(const_cast<Window*>(window));
 
 	glutReshapeWindow(window->width, window->height);
 }

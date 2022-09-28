@@ -1,5 +1,14 @@
 ﻿#pragma once
 
+enum class SCENE
+{
+	NONE = 0,
+	START,
+	GAME,
+	END,
+	MAX
+};
+
 namespace glm
 {
 	template<typename T>

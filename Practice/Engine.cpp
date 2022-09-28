@@ -1,4 +1,6 @@
-﻿#include "pch.h"
+﻿#include "Engine.h"
+#include "Engine.h"
+#include "pch.h"
 #include "Engine.h"
 
 std::uniform_real_distribution<float> uid_color{ 0.f, 1.f };
@@ -165,10 +167,6 @@ void Engine::OnKeyboardDownMessage(uchar key, int32_t x, int32_t y)
 	}
 
 	glutPostRedisplay();
-}
-
-void Engine::OnKeyboardUpMessage(uchar key, int32_t x, int32_t y)
-{
 }
 
 void Engine::OnMouseMessage(int32_t button, int32_t state, int32_t x, int32_t y)

@@ -16,6 +16,18 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
+    <Filter Include="Manager">
+      <UniqueIdentifier>{1965de82-9b6b-43ff-b527-a14f48866867}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource">
+      <UniqueIdentifier>{8faa1c3e-34b2-4064-ac97-6b36796f76db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource\Shader">
+      <UniqueIdentifier>{c1a2ec74-7e92-4dec-a762-336810210ae9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource\Scene">
+      <UniqueIdentifier>{d0c81774-9de0-4d6d-9c3e-1aee4d8f5cdf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h">
@@ -27,7 +39,7 @@
     <ClInclude Include="pch.h">
       <Filter>Util</Filter>
     </ClInclude>
-    <ClInclude Include="..\Dependencies\include\Def.h">
+    <ClInclude Include="..\Dependencies\include\Define.h">
       <Filter>Util</Filter>
     </ClInclude>
     <ClInclude Include="..\Dependencies\include\Util.h">
@@ -35,6 +47,15 @@
     </ClInclude>
     <ClInclude Include="..\Dependencies\include\Singleton.hpp">
       <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneMgr.h">
+      <Filter>Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>Resource\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>Resource\Shader</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -49,6 +70,15 @@
     </ClCompile>
     <ClCompile Include="..\Dependencies\include\Util.cpp">
       <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneMgr.cpp">
+      <Filter>Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>Resource\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>Resource\Shader</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

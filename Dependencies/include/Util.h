@@ -17,6 +17,9 @@ concept IsPointer = requires
 
 namespace Util
 {
+	bool ReadFile(const std::string& path, std::string* blob);
+	std::string ReadFile(const std::string& path);
+
 	template<typename T> requires std::is_floating_point_v<T>
 	inline bool IsEqual(T a, T b) { return (a - b) < 0.000001f; }
 
