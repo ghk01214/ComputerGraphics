@@ -8,7 +8,9 @@ public:
 	SceneMgr();
 	~SceneMgr();
 
-	void AddScene(SCENE type, Scene scene);
+	void AddScene(SCENE_TYPE type, Scene* scene);
+	void ChangeScene(SCENE_TYPE type);
+	void LoadScene();
 
 #pragma region [CALLBACK]
 	void OnIdleMessage();
@@ -24,6 +26,7 @@ public:
 #pragma endregion
 
 private:
-	std::unordered_map<SCENE, Scene> _scene;
+	std::unordered_map<SCENE_TYPE, Scene*> _scene;
+	SCENE_TYPE _current;
 };
 

@@ -1,6 +1,13 @@
 ﻿#pragma once
 
-enum class SCENE
+#define RED 1.f, 0.f, 0.f
+#define GREEN 0.f, 1.f, 0.f
+#define BLUE 0.f, 0.f, 1.f
+#define BLACK 0.f, 0.f, 0.f
+#define WHITE 1.f, 1.f, 1.f
+#define GRAY 0.5f, 0.5f, 0.5f
+
+enum class SCENE_TYPE
 {
 	NONE = 0,
 	START,

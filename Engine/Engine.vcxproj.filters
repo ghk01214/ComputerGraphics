@@ -25,17 +25,20 @@
     <Filter Include="Resource\Shader">
       <UniqueIdentifier>{c1a2ec74-7e92-4dec-a762-336810210ae9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource\Scene">
+    <Filter Include="Resource\Object">
+      <UniqueIdentifier>{f8db57b7-aa00-4d9b-b8e4-20decf78e267}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource\Mesh">
+      <UniqueIdentifier>{015e0acb-6eab-42bf-82ce-5ee90788c2e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource\Material">
+      <UniqueIdentifier>{818bcf0e-79f8-4003-a465-9b58c1eacce4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scene">
       <UniqueIdentifier>{d0c81774-9de0-4d6d-9c3e-1aee4d8f5cdf}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Engine.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="EnginePch.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="pch.h">
       <Filter>Util</Filter>
     </ClInclude>
@@ -52,10 +55,34 @@
       <Filter>Manager</Filter>
     </ClInclude>
     <ClInclude Include="Scene.h">
-      <Filter>Resource\Scene</Filter>
+      <Filter>Scene</Filter>
     </ClInclude>
     <ClInclude Include="Shader.h">
       <Filter>Resource\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="Object.h">
+      <Filter>Resource\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Resource\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>Resource\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="Triangle.h">
+      <Filter>Resource\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugScene.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="EnginePch.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Rect.h">
+      <Filter>Resource\Object</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -74,11 +101,40 @@
     <ClCompile Include="SceneMgr.cpp">
       <Filter>Manager</Filter>
     </ClCompile>
-    <ClCompile Include="Scene.cpp">
-      <Filter>Resource\Scene</Filter>
-    </ClCompile>
     <ClCompile Include="Shader.cpp">
       <Filter>Resource\Shader</Filter>
     </ClCompile>
+    <ClCompile Include="Object.cpp">
+      <Filter>Resource\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Resource\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="Material.cpp">
+      <Filter>Resource\Material</Filter>
+    </ClCompile>
+    <ClCompile Include="Triangle.cpp">
+      <Filter>Resource\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugScene.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Rect.cpp">
+      <Filter>Resource\Object</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Dependencies\shader\Vertex.glsl">
+      <Filter>Resource\Shader</Filter>
+    </None>
+    <None Include="..\Dependencies\shader\Fragment.glsl">
+      <Filter>Resource\Shader</Filter>
+    </None>
+    <None Include="main.cpp">
+      <Filter>Engine</Filter>
+    </None>
   </ItemGroup>
 </Project>

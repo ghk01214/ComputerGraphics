@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "SceneMgr.h"
 #include "Engine.h"
+#include "DebugScene.h"
 
 Engine::Engine() :
 	_window{ nullptr },
@@ -36,6 +37,14 @@ void Engine::Init(const Window* window)
 
 	glutDisplayFunc(Render);
 	glutReshapeFunc(Reshape);
+	glutIdleFunc(OnIdleMessage);
+	glutKeyboardFunc(OnKeyboardMessage);
+	glutSpecialFunc(OnSpecialKeyMessage);
+	glutKeyboardUpFunc(OnKeyboardUpMessage);
+	glutSpecialUpFunc(OnSpecialKeyUpMessage);
+	glutMouseFunc(OnMouseMessage);
+	glutMotionFunc(OnMouseMotionMessage);
+	glutPassiveMotionFunc(OnMousePassiveMotionMessage);
 }
 
 void Engine::Init(const Window* window, const std::string& name)
@@ -62,14 +71,14 @@ void Engine::Init(const Window* window, const std::string& name)
 
 	glutDisplayFunc(Render);
 	glutReshapeFunc(Reshape);
-	//glutIdleFunc(OnIdleMessage);
+	glutIdleFunc(OnIdleMessage);
 	glutKeyboardFunc(OnKeyboardMessage);
-	glutKeyboardUpFunc(OnKeyboardUpMessage);
 	glutSpecialFunc(OnSpecialKeyMessage);
+	glutKeyboardUpFunc(OnKeyboardUpMessage);
 	glutSpecialUpFunc(OnSpecialKeyUpMessage);
 	glutMouseFunc(OnMouseMessage);
-	//glutMotionFunc(OnMouseMotionMessage);
-	//glutPassiveMotionFunc(OnMousePassiveMotionMessage);
+	glutMotionFunc(OnMouseMotionMessage);
+	glutPassiveMotionFunc(OnMousePassiveMotionMessage);
 }
 
 void Engine::OnIdleMessage()
@@ -122,9 +131,6 @@ void Engine::Update()
 
 void Engine::Render()
 {
-	glClearColor(0.5f, 0.5f, 0.5f, 1.f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
 	// TODO : 그리기
 	inst->_scene_mgr->OnRender();
 

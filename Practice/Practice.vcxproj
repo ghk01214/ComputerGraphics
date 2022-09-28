@@ -72,14 +72,14 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)Output\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)Build\$(Configuration)\</IntDir>
-    <ExternalIncludePath>$(SolutionDir)Dependencies\include;$(ExternalIncludePath)</ExternalIncludePath>
+    <IntDir>$(SolutionDir)Output\$(Configuration)\Build\</IntDir>
+    <ExternalIncludePath>$(SolutionDir)Dependencies\include\;$(SolutionDir)Dependencies\include\Engine\;$(ExternalIncludePath)</ExternalIncludePath>
     <LibraryPath>$(SolutionDir)Dependencies\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(SolutionDir)Output\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)Build\$(Configuration)\</IntDir>
-    <ExternalIncludePath>$(SolutionDir)Dependencies\include;$(ExternalIncludePath)</ExternalIncludePath>
+    <OutDir>$(SolutionDir)Output\</OutDir>
+    <IntDir>$(SolutionDir)Output\Build\</IntDir>
+    <ExternalIncludePath>$(SolutionDir)Dependencies\include\;$(SolutionDir)Dependencies\include\Engine\;$(ExternalIncludePath)</ExternalIncludePath>
     <LibraryPath>$(SolutionDir)Dependencies\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -125,6 +125,10 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -138,6 +142,7 @@
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -150,17 +155,11 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\Dependencies\include\Def.h" />
-    <ClInclude Include="..\Dependencies\include\Singleton.hpp" />
-    <ClInclude Include="..\Dependencies\include\Util.h" />
-    <ClInclude Include="Engine.h" />
-    <ClInclude Include="EnginePch.h" />
+    <ClInclude Include="GameScene.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\Dependencies\include\Util.cpp" />
-    <ClCompile Include="Engine.cpp" />
-    <ClCompile Include="EnginePch.cpp" />
+    <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

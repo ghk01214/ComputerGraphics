@@ -3,21 +3,19 @@
 class Scene
 {
 public:
-	Scene();
-	~Scene();
+	Scene() = default;
+	virtual ~Scene() = default;
 
-	void OnIdleMessage();
-	void OnKeyboardMessage(uchar key, int32_t x, int32_t y);
-	void OnSpecialKeyMessage(int32_t key, int32_t x, int32_t y);
-	void OnKeyboardUpMessage(uchar key, int32_t x, int32_t y);
-	void OnSpecialKeyUpMessage(int32_t key, int32_t x, int32_t y);
-	void OnMouseMessage(int32_t button, int32_t x, int32_t y);
-	void OnMouseUpMessage(int32_t button, int32_t x, int32_t y);
-	void OnMouseMotionMessage(int32_t x, int32_t y);
-	void OnMousePassiveMotionMessage(int32_t x, int32_t y);
-	void OnRender();
+	virtual void OnLoad() {}
 
-private:
-	
+	virtual void OnIdleMessage() {}
+	virtual void OnKeyboardMessage(uchar key, int32_t x, int32_t y) {}
+	virtual void OnSpecialKeyMessage(int32_t key, int32_t x, int32_t y) {}
+	virtual void OnKeyboardUpMessage(uchar key, int32_t x, int32_t y) {}
+	virtual void OnSpecialKeyUpMessage(int32_t key, int32_t x, int32_t y) {}
+	virtual void OnMouseMessage(int32_t button, int32_t x, int32_t y) {}
+	virtual void OnMouseUpMessage(int32_t button, int32_t x, int32_t y) {}
+	virtual void OnMouseMotionMessage(int32_t x, int32_t y) {}
+	virtual void OnMousePassiveMotionMessage(int32_t x, int32_t y) {}
+	virtual void OnRender();
 };
-

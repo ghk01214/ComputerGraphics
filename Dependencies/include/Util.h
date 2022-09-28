@@ -46,11 +46,11 @@ namespace Util
 
 namespace Convert
 {
-	template<typename T> requires IsPrimary<T>
-	inline T ChangeTo(auto value) { return static_cast<T>(value); }
+	template<typename T, typename U> requires IsPrimary<T>
+	inline T ChangeTo(U value) { return static_cast<T>(value); }
 
-	template<typename T> requires IsPointer<T>
-	inline T* ToPointer(void* pointer) { return reinterpret_cast<T*>(pointer); }
+	template<typename T, typename U>
+	inline T* ToPointer(U pointer) { return reinterpret_cast<T*>(pointer); }
 
 #pragma region [CHAR]
 	template<typename T> requires IsPrimary<T>

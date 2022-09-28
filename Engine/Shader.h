@@ -1,4 +1,5 @@
 ﻿#pragma once
+
 class Shader
 {
 public:
@@ -11,7 +12,6 @@ public:
 
 	void Use();
 
-	void SetBool(const std::string& name, bool value);
 	void SetInt(const std::string& name, int32_t value);
 	void SetFloat(const std::string& name, float value);
 	void SetVec2(const std::string& name, glm::vec2 value);
@@ -23,4 +23,3 @@ public:
 private:
 	uint32_t _id;
 };
-

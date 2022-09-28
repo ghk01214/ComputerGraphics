@@ -8,6 +8,7 @@
 bool Util::ReadFile(const std::string& path, std::string* blob)
 {
 	std::ifstream file{ path };
+	std::stringstream data{};
 
 	if (file.fail())
 	{
@@ -15,15 +16,8 @@ bool Util::ReadFile(const std::string& path, std::string* blob)
 		return false;
 	}
 
-	std::string line;
-
-	while (std::getline(file, line))
-	{
-		*blob += line;
-		*blob += "\n";
-		//blob->append(line.c_str());
-		//blob->append("\n");
-	}
+	data << file.rdbuf();
+	*blob = data.str();
 
 	return true;
 }

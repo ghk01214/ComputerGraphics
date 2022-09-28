@@ -12,4 +12,10 @@
 // 여기에 미리 컴파일하려는 헤더 추가
 #include "EnginePch.h"
 
+#if _DEBUG
+#pragma comment(lib, "Debug/Engine")
+#else
+#pragma comment(lib, "Engine");
+#endif
+
 #endif //PCH_H

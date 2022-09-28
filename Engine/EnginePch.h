@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include <iostream>
-#include <fstream>
 #include <format>
 #include <string>
 #include <random>
@@ -18,6 +17,8 @@
 #include <gl/glm/gtc/matrix_transform.hpp>
 
 #include <Singleton.hpp>
+#include <Util.h>
+#include <Define.h>
 
 #pragma comment(lib, "glew32")
 #pragma comment(lib, "glew32s")
@@ -53,8 +54,3 @@ struct Window
 
 extern std::unique_ptr<class Engine> game_engine;
 extern std::default_random_engine dre;
-
-#include <Define.h>
-#include <Util.h>
-
-#define SCENE_MGR game_engine->GetSceneMgr()
