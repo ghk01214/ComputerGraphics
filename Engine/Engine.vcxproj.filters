@@ -69,9 +69,6 @@
     <ClInclude Include="Material.h">
       <Filter>Resource\Material</Filter>
     </ClInclude>
-    <ClInclude Include="Triangle.h">
-      <Filter>Resource\Object</Filter>
-    </ClInclude>
     <ClInclude Include="DebugScene.h">
       <Filter>Scene</Filter>
     </ClInclude>
@@ -82,6 +79,9 @@
       <Filter>Engine</Filter>
     </ClInclude>
     <ClInclude Include="Rect.h">
+      <Filter>Resource\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Triangle.h">
       <Filter>Resource\Object</Filter>
     </ClInclude>
   </ItemGroup>

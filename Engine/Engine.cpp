@@ -98,6 +98,18 @@ void Engine::OnSpecialKeyMessage(int32_t key, int32_t x, int32_t y)
 
 void Engine::OnKeyboardUpMessage(uchar key, int32_t x, int32_t y)
 {
+	switch (key)
+	{
+		case 'Q': FALLTHROUGH
+		case 'q':
+		{
+			std::cout << std::format("Terminate Program\n");
+
+			glutLeaveMainLoop();
+		}
+		break;
+	}
+
 	inst->_scene_mgr->OnKeyboardUpMessage(key, x, y);
 }
 

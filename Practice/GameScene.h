@@ -2,7 +2,6 @@
 
 #include "Scene.h"
 #include "Triangle.h"
-#include "Rect.h"
 
 class GameScene : public Scene
 {
@@ -12,10 +11,10 @@ public:
 
 	void OnLoad() override;
 
-	void OnKeyboardMessage(uchar key, int32_t x, int32_t y) override;
+	void OnMouseMessage(int32_t button, int32_t x, int32_t y) override;
 	void OnRender() override;
 
 private:
-	Triangle _tri;
-	Rect _rect;
+	std::vector<Triangle> _tri;
+	int32_t _index;
 };

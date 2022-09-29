@@ -16,7 +16,7 @@ public:
 	void OnRender() override;
 
 private:
-	Triangle _tri;
+	std::vector<Triangle> _tri;
 	Rect _rect;
 };
 

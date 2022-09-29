@@ -54,3 +54,5 @@ struct Window
 
 extern std::unique_ptr<class Engine> game_engine;
 extern std::default_random_engine dre;
+
+#define ENGINE game_engine

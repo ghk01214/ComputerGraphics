@@ -8,41 +8,18 @@ std::uniform_real_distribution<float> uid_color{ 0.f, 1.f };
 
 Triangle::Triangle()
 {
-	std::vector<float> vertex
-	{
-		0.1f, -0.1f, 0.f,
-		0.f, 0.2f, 0.f,
-		-0.1f, -0.1f, 0.f
-	};
-
-	float rand_color{ uid_color(dre) };
-	float rand_color2{ uid_color(dre) };
-	float rand_color3{ uid_color(dre) };
-
-	std::vector<float> color
-	{
-		rand_color, rand_color2, rand_color3, 1.f,
-		rand_color, rand_color2, rand_color3, 1.f,
-		rand_color, rand_color2, rand_color3, 1.f,
-	};
-
-	std::vector<uint32_t> index
-	{
-		0, 1, 2
-	};
-
-	_mesh->SetVertex(&vertex);
-	_mesh->SetColor(&color);
-	_mesh->SetIndex(&index);
+	
 }
 
-Triangle::Triangle(float x, float y)
+Triangle::Triangle(glm::vec3 pos)
 {
+	_pos = pos;
+
 	std::vector<float> vertex
 	{
-		x + 0.1f, y + (-0.1f), 0.f,
-		x + 0.f, y + 0.2f, 0.f,
-		x + (-0.1f), y + (-0.1f), 0.f
+		_pos.x + 0.1f, _pos.y + (-0.1f), 0.f,
+		_pos.x + 0.f, _pos.y + 0.2f, 0.f,
+		_pos.x + (-0.1f), _pos.y + (-0.1f), 0.f
 	};
 
 	float rand_color{ uid_color(dre) };
@@ -68,6 +45,13 @@ Triangle::Triangle(float x, float y)
 
 Triangle::~Triangle()
 {
+}
+
+glm::mat4 Triangle::Teleport(glm::vec3 pos)
+{
+	_pos = pos;
+
+	return glm::translate(mat4::unit(), _pos);
 }
 
 void Triangle::Load()

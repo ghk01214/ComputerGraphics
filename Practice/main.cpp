@@ -3,12 +3,13 @@
 #include "SceneMgr.h"
 #include "Engine.h"
 
+Window window{ 800, 800, true };
+
 int main(int32_t argc, char** argv)
 {
 	glutInit(&argc, argv);
 
 	Engine engine;
-	Window window{ 800, 800, true };
 
 	engine.Init(&window);
 

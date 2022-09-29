@@ -21,8 +21,11 @@
     <ClInclude Include="pch.h">
       <Filter>Util</Filter>
     </ClInclude>
+    <ClInclude Include="..\Dependencies\include\Define.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
     <ClInclude Include="GameScene.h">
-      <Filter>소스 파일</Filter>
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -13,11 +13,11 @@ public:
 
 	virtual void Load() {}
 	
-	virtual glm::mat4 Move(glm::vec3 delta) { return mat4::zero(); }
-	virtual glm::mat4 RotateX(float delta) { return mat4::zero(); }
-	virtual glm::mat4 RotateY(float delta) { return mat4::zero(); }
-	virtual glm::mat4 RotateZ(float delta) { return mat4::zero(); }
-	virtual glm::mat4 Scale(glm::vec3 delta) { return mat4::zero(); }
+	virtual glm::mat4 Move(glm::vec3 delta);
+	virtual glm::mat4 RotateX(float delta);
+	virtual glm::mat4 RotateY(float delta);
+	virtual glm::mat4 RotateZ(float delta);
+	virtual glm::mat4 Scale(glm::vec3 delta);
 
 	void BindVAO() { _mesh->BindVAO(); }
 
@@ -25,8 +25,8 @@ public:
 	size_t GetIndexNum() { return _mesh->GetIndexNum(); }
 
 protected:
-	std::unique_ptr<Mesh> _mesh;
-	std::unique_ptr<Material> _material;
+	std::shared_ptr<Mesh> _mesh;
+	std::shared_ptr<Material> _material;
 
 	glm::vec3 _pos;
 	glm::vec3 _angle;
