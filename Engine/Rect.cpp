@@ -1,8 +1,5 @@
 ﻿#include "pch.h"
 #include "Rect.h"
-#include "Mesh.h"
-#include "Shader.h"
-#include "Material.h"
 
 Rect::Rect()
 {
@@ -35,18 +32,4 @@ Rect::Rect()
 
 Rect::~Rect()
 {
-}
-
-void Rect::Load()
-{
-	_mesh->CreateBuffer();
-
-	std::string str{ "2 " };
-	str += "../Dependencies/shader/Vertex.glsl ";
-	str += std::to_string(GL_VERTEX_SHADER);
-	str += "../Dependencies/shader/Fragment.glsl ";
-	str += std::to_string(GL_FRAGMENT_SHADER);
-
-	_material->GetShader()->Compile(str);
-	_mesh->CreateVertex(_material->GetShader());
 }

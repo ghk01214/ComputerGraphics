@@ -27,6 +27,7 @@ public:
 
 private:
 	std::unordered_map<SCENE_TYPE, Scene*> _scene;
+	std::unique_ptr<class CameraMgr> _camera_mgr;
 	SCENE_TYPE _current;
 };
 

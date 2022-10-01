@@ -1,8 +1,5 @@
 ﻿#include "pch.h"
 #include "Triangle.h"
-#include "Mesh.h"
-#include "Shader.h"
-#include "Material.h"
 
 std::uniform_real_distribution<float> uid_color{ 0.f, 1.f };
 
@@ -45,25 +42,4 @@ Triangle::Triangle(glm::vec3 pos)
 
 Triangle::~Triangle()
 {
-}
-
-glm::mat4 Triangle::Teleport(glm::vec3 pos)
-{
-	_pos = pos;
-
-	return glm::translate(mat4::unit(), _pos);
-}
-
-void Triangle::Load()
-{
-	_mesh->CreateBuffer();
-
-	std::string str{ "2 " };
-	str += "../Dependencies/shader/Vertex.glsl ";
-	str += std::to_string(GL_VERTEX_SHADER);
-	str += "../Dependencies/shader/Fragment.glsl ";
-	str += std::to_string(GL_FRAGMENT_SHADER);
-
-	_material->GetShader()->Compile(str);
-	_mesh->CreateVertex(_material->GetShader());
 }

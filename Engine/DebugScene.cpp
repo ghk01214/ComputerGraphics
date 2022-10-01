@@ -13,8 +13,8 @@ DebugScene::~DebugScene()
 
 void DebugScene::OnLoad()
 {
-	//_tri.Load();
-	_rect.Load();
+	//_tri.OnLoad();
+	_rect.OnLoad();
 }
 
 void DebugScene::OnKeyboardMessage(uchar key, int32_t x, int32_t y)

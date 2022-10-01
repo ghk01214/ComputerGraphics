@@ -7,6 +7,4 @@ class Rect : public Object
 public:
 	Rect();
 	~Rect();
-
-	void Load() override;
 };

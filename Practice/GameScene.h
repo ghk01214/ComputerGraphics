@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include "Scene.h"
-#include "Triangle.h"
 
 class GameScene : public Scene
 {
@@ -15,6 +14,7 @@ public:
 	void OnRender() override;
 
 private:
-	std::vector<Triangle> _tri;
+	std::unique_ptr<class CameraMgr> _camera;
+	std::vector<class Triangle> _tri;
 	int32_t _index;
 };

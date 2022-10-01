@@ -12,10 +12,6 @@
     <Filter Include="Util">
       <UniqueIdentifier>{88923ffe-75db-4967-9505-a0a35340a71f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
     <Filter Include="Manager">
       <UniqueIdentifier>{1965de82-9b6b-43ff-b527-a14f48866867}</UniqueIdentifier>
     </Filter>
@@ -36,6 +32,13 @@
     </Filter>
     <Filter Include="Scene">
       <UniqueIdentifier>{d0c81774-9de0-4d6d-9c3e-1aee4d8f5cdf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Camera">
+      <UniqueIdentifier>{923f3a13-4c7a-4745-9151-a9e9d3870b9a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -84,6 +87,12 @@
     <ClInclude Include="Triangle.h">
       <Filter>Resource\Object</Filter>
     </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraMgr.h">
+      <Filter>Manager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine.cpp">
@@ -124,6 +133,12 @@
     </ClCompile>
     <ClCompile Include="Rect.cpp">
       <Filter>Resource\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraMgr.cpp">
+      <Filter>Manager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

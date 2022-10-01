@@ -1,10 +1,12 @@
 ﻿#include "pch.h"
 #include "Scene.h"
+#include "CameraMgr.h"
 #include "SceneMgr.h"
 #include "DebugScene.h"
 
 SceneMgr::SceneMgr() :
-	_current{ SCENE_TYPE::NONE }
+	_current{ SCENE_TYPE::NONE },
+	_camera_mgr{ std::make_unique<CameraMgr>() }
 {
 }
 
@@ -29,6 +31,7 @@ void SceneMgr::ChangeScene(SCENE_TYPE type)
 
 void SceneMgr::LoadScene()
 {
+	inst->_camera_mgr->OnLoad();
 	inst->_scene[inst->_current]->OnLoad();
 }
 
@@ -39,11 +42,13 @@ void SceneMgr::OnIdleMessage()
 
 void SceneMgr::OnKeyboardMessage(uchar key, int32_t x, int32_t y)
 {
+	inst->_camera_mgr->OnKeyboardMessage(key, x, y);
 	inst->_scene[inst->_current]->OnKeyboardMessage(key, x, y);
 }
 
 void SceneMgr::OnSpecialKeyMessage(int32_t key, int32_t x, int32_t y)
 {
+	inst->_camera_mgr->OnSpecialKeyMessage(key, x, y);
 	inst->_scene[inst->_current]->OnSpecialKeyMessage(key, x, y);
 }
 
@@ -59,16 +64,19 @@ void SceneMgr::OnSpecialKeyUpMessage(int32_t key, int32_t x, int32_t y)
 
 void SceneMgr::OnMouseMessage(int32_t button, int32_t x, int32_t y)
 {
+	//inst->_camera_mgr->OnMouseMessage(button, x, y);
 	inst->_scene[inst->_current]->OnMouseMessage(button, x, y);
 }
 
 void SceneMgr::OnMouseUpMessage(int32_t button, int32_t x, int32_t y)
 {
+	//inst->_camera_mgr->OnMouseUpMessage(button, x, y);
 	inst->_scene[inst->_current]->OnMouseUpMessage(button, x, y);
 }
 
 void SceneMgr::OnMouseMotionMessage(int32_t x, int32_t y)
 {
+	//inst->_camera_mgr->OnMouseMotionMessage(x, y);
 	inst->_scene[inst->_current]->OnMouseMotionMessage(x, y);
 }
 
