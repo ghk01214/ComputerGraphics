@@ -84,16 +84,19 @@ void Engine::Init(const Window* window, const std::string& name)
 void Engine::OnIdleMessage()
 {
 	inst->_scene_mgr->OnIdleMessage();
+	glutPostRedisplay();
 }
 
 void Engine::OnKeyboardMessage(uchar key, int32_t x, int32_t y)
 {
 	inst->_scene_mgr->OnKeyboardMessage(key, x, y);
+	glutPostRedisplay();
 }
 
 void Engine::OnSpecialKeyMessage(int32_t key, int32_t x, int32_t y)
 {
 	inst->_scene_mgr->OnSpecialKeyMessage(key, x, y);
+	glutPostRedisplay();
 }
 
 void Engine::OnKeyboardUpMessage(uchar key, int32_t x, int32_t y)
@@ -111,11 +114,13 @@ void Engine::OnKeyboardUpMessage(uchar key, int32_t x, int32_t y)
 	}
 
 	inst->_scene_mgr->OnKeyboardUpMessage(key, x, y);
+	glutPostRedisplay();
 }
 
 void Engine::OnSpecialKeyUpMessage(int32_t key, int32_t x, int32_t y)
 {
 	inst->_scene_mgr->OnSpecialKeyMessage(key, x, y);
+	glutPostRedisplay();
 }
 
 void Engine::OnMouseMessage(int32_t button, int32_t state, int32_t x, int32_t y)
@@ -124,16 +129,20 @@ void Engine::OnMouseMessage(int32_t button, int32_t state, int32_t x, int32_t y)
 		inst->_scene_mgr->OnMouseMessage(button, x, y);
 	else if (state == GLUT_UP)
 		inst->_scene_mgr->OnMouseUpMessage(button, x, y);
+
+	glutPostRedisplay();
 }
 
 void Engine::OnMouseMotionMessage(int32_t x, int32_t y)
 {
 	inst->_scene_mgr->OnMouseMotionMessage(x, y);
+	glutPostRedisplay();
 }
 
 void Engine::OnMousePassiveMotionMessage(int32_t x, int32_t y)
 {
 	inst->_scene_mgr->OnMousePassiveMotionMessage(x, y);
+	glutPostRedisplay();
 }
 
 void Engine::Update()

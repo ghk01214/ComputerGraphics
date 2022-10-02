@@ -32,6 +32,10 @@ public:
 	glm::vec3 GetPos() { return _pos; }
 	glm::vec3 GetAngle() { return _angle; }
 
+public:
+	friend std::hash<Object>;
+	friend std::equal_to<Object>;
+
 protected:
 	std::shared_ptr<Mesh> _mesh;
 	std::shared_ptr<Material> _material;
@@ -41,5 +45,30 @@ protected:
 	glm::vec3 _angle;
 
 	glm::mat4 _model;
-	std::vector<glm::mat4> _transform;
 };
+
+namespace std
+{
+	template<>
+	class hash<Object>
+	{
+	public:
+		size_t operator()(const Object& p) const
+		{
+			return std::hash<int32_t>()(reinterpret_cast<int32_t>(&*p._shader)) ^ p._shader->ID();
+		}
+	};
+
+	template<>
+	class equal_to<Object>
+	{
+	public:
+		bool operator()(const Object& left, const Object& right) const
+		{
+			if (left._shader != right._shader)
+				return false;
+
+			return true;
+		}
+	};
+}

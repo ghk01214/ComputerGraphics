@@ -9,4 +9,3 @@ public:
 	Triangle(glm::vec3 pos);
 	~Triangle();
 };
-

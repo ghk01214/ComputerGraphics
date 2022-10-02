@@ -1,19 +1,40 @@
 ﻿#include "pch.h"
-#include "CameraMgr.h"
 #include "Triangle.h"
+#include "CameraMgr.h"
 #include "GameScene.h"
 
+enum
+{
+	NONE = 0,
+	C_LT,
+	C_RT,
+	C_LB,
+	C_RB,
+	CC_LT,
+	CC_RT,
+	CC_LB,
+	CC_RB,
+	MAX
+};
+
 extern Window window;
+std::uniform_int_distribution<int32_t> uid_direction{ C_LT, CC_RB };
+std::uniform_int_distribution<int32_t> uid_time{ 1, 4 };
+
+std::shared_ptr<GameScene> GameScene::_inst{ nullptr };
 
 GameScene::GameScene() :
+	_camera{},
 	_tri{},
 	_index{},
-	_camera{}
+	_type{ GL_TRIANGLES }
 {
-	_tri.emplace_back(glm::vec3{ -0.5f, 0.5f, 0.f });
-	_tri.emplace_back(glm::vec3{ 0.5f, 0.5f, 0.f });
-	_tri.emplace_back(glm::vec3{ 0.5f, -0.5f, 0.f });
-	_tri.emplace_back(glm::vec3{ -0.5f, -0.5f, 0.f });
+	_tri.push_back(Triangle{ glm::vec3{ -0.5f, 0.5f, 0.f } });
+	_tri.push_back(Triangle{ glm::vec3{ 0.5f, 0.5f, 0.f } });
+	_tri.push_back(Triangle{ glm::vec3{ 0.5f, -0.5f, 0.f } });
+	_tri.push_back(Triangle{ glm::vec3{ -0.5f, -0.5f, 0.f } });
+
+	_inst.reset(this);
 }
 
 GameScene::~GameScene()
@@ -22,9 +43,24 @@ GameScene::~GameScene()
 
 void GameScene::OnLoad()
 {
-	for (auto& tri : _tri)
+	for (int32_t i = 0; i < _tri.size(); ++i)
 	{
-		tri.OnLoad();
+		_tri[i].OnLoad();
+	}
+}
+
+void GameScene::OnKeyboardMessage(uchar key, int32_t x, int32_t y)
+{
+	switch (key)
+	{
+		case 'A': FALLTHROUGH
+		case 'a':
+			_type = GL_LINE_LOOP;
+			break;
+		case 'B': FALLTHROUGH
+		case 'b':
+			_type = GL_TRIANGLES;
+			break;
 	}
 }
 
@@ -51,9 +87,9 @@ void GameScene::OnRender()
 		tri.BindVAO();
 
 		tri.Transform();
-		CameraMgr::ViewTransform(tri.GetShader());
-		CameraMgr::ProjectionTransform(tri.GetShader());
+		//CameraMgr::ViewTransform(tri.GetShader());
+		//CameraMgr::ProjectionTransform(tri.GetShader());
 
-		glDrawElements(GL_TRIANGLES, tri.GetIndexNum(), GL_UNSIGNED_INT, 0);
+		glDrawElements(_type, tri.GetIndexNum(), GL_UNSIGNED_INT, 0);
 	}
 }

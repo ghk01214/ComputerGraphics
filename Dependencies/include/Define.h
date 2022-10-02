@@ -41,6 +41,9 @@ namespace vec3
 	inline const glm::vec3 up(float delta) { return up() * delta; }
 	inline const glm::vec3 down() { return glm::vec3{ 0.f, -1.f, 0.f }; }
 	inline const glm::vec3 down(float delta) { return down() * delta; }
+	inline const glm::vec3 x() { return right(); }
+	inline const glm::vec3 y() { return up(); }
+	inline const glm::vec3 z() { return back(); }
 }
 
 namespace mat4
