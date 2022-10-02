@@ -16,11 +16,16 @@ public:
 	void OnMouseMessage(int32_t button, int32_t x, int32_t y) override;
 	void OnRender() override;
 
+	static void Animate(int32_t value);
+	void Moving(int32_t index);
+	void Rotate(int32_t index, int32_t sign = 1);
+
 private:
 	static std::shared_ptr<GameScene> _inst;
 
 	std::unique_ptr<class CameraMgr> _camera;
 	std::vector<Object> _tri;
+	std::unordered_map<Object, std::pair<int32_t, int32_t>> _info;
 
 	uint32_t _index;
 	uint32_t _type;
