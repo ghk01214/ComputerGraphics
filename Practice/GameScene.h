@@ -18,7 +18,8 @@ public:
 
 	static void Animate(int32_t value);
 	void Moving(int32_t index);
-	void Rotate(int32_t index, int32_t sign = 1);
+	void RotateX(int32_t index, int32_t sign, int32_t sign2);
+	void RotateY(int32_t index, int32_t sign, int32_t sign2);
 
 private:
 	static std::shared_ptr<GameScene> _inst;

@@ -31,6 +31,8 @@ public:
 	size_t GetIndexNum() { return _mesh->GetIndexNum(); }
 	glm::vec3 GetPos() { return _pos; }
 	glm::vec3 GetAngle() { return _angle; }
+	
+	void SetModelMat(glm::mat4 model) { _model = model; }
 
 public:
 	friend std::hash<Object>;
@@ -45,6 +47,7 @@ protected:
 	glm::vec3 _angle;
 
 	glm::mat4 _model;
+	std::list<glm::mat4> _transform;
 };
 
 namespace std

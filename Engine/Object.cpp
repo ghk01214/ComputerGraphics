@@ -7,7 +7,8 @@ Object::Object() :
 	_shader{ _material->GetShader() },
 	_pos{ vec3::zero() },
 	_angle{ vec3::zero() },
-	_model{ mat4::unit() }
+	_model{ mat4::unit() },
+	_transform{}
 {
 }
 
@@ -39,6 +40,13 @@ void Object::OnLoad()
 
 void Object::Transform()
 {
+	for (auto iter = _transform.rbegin(); iter != _transform.rend(); ++iter)
+	{
+		_model *= *iter;
+	}
+
+	_transform.clear();
+
 	_shader->SetMat4("model", _model);
 }
 
@@ -51,28 +59,28 @@ void Object::Move(glm::vec3 delta)
 {
 	_pos += delta;
 
-	_model = glm::translate(_model, delta);
+	_transform.push_back(glm::translate(mat4::unit(), delta));
 }
 
 void Object::RotateX(float delta)
 {
 	_angle.x += delta;
 
-	_model = glm::rotate(_model, glm::radians(delta), vec3::x());
+	_transform.push_back(glm::rotate(mat4::unit(), glm::radians(delta), vec3::x()));
 }
 
 void Object::RotateY(float delta)
 {
 	_angle.y += delta;
 
-	_model = glm::rotate(_model, glm::radians(delta), vec3::y());
+	_transform.push_back(glm::rotate(mat4::unit(), glm::radians(delta), vec3::y()));
 }
 
 void Object::RotateZ(float delta)
 {
 	_angle.z += delta;
 
-	_model = glm::rotate(_model, glm::radians(delta), vec3::z());
+	_transform.push_back(glm::rotate(mat4::unit(), glm::radians(delta), vec3::z()));
 }
 
 void Object::Scale(float x, float y, float z)
@@ -82,7 +90,7 @@ void Object::Scale(float x, float y, float z)
 
 void Object::Scale(glm::vec3 delta)
 {
-	_model = glm::scale(_model, delta);
+	_transform.push_back(glm::scale(mat4::unit(), delta));
 }
 
 void Object::Teleport(float x, float y, float z)
@@ -92,7 +100,8 @@ void Object::Teleport(float x, float y, float z)
 	temp.y = y - _pos.y;
 	temp.z = z - _pos.z;
 
-	_model = glm::translate(_model, temp);
+	glm::mat4 temp_mat{ glm::translate(_model, temp) };
+	_transform.push_back(temp_mat);
 
 	_pos.x = x;
 	_pos.y = y;

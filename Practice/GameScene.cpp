@@ -118,8 +118,6 @@ void GameScene::Animate(int32_t value)
 
 void GameScene::Moving(int32_t index)
 {
-	glm::vec3 old_pos{ vec3::zero() };
-
 	switch (_info[_tri[index]].second)
 	{
 		case LT:
@@ -127,10 +125,7 @@ void GameScene::Moving(int32_t index)
 			if (_tri[index].GetPos().x > 0.9f)
 			{
 				_info[_tri[index]].second = uid_right(dre);
-				old_pos = _tri[index].GetPos();
-				Rotate(index);
-				old_pos.x = 0.9f;
-				_tri[index].Teleport(old_pos);
+				RotateX(index, 1, 1);
 
 				break;
 			}
@@ -138,10 +133,7 @@ void GameScene::Moving(int32_t index)
 			if (_tri[index].GetPos().y > 0.9f)
 			{
 				_info[_tri[index]].second = uid_top(dre);
-				old_pos = _tri[index].GetPos();
-				Rotate(index);
-				old_pos.y = 0.9f;
-				_tri[index].Teleport(old_pos);
+				RotateY(index, 1, 1);
 
 				break;
 			}
@@ -154,10 +146,7 @@ void GameScene::Moving(int32_t index)
 			if (_tri[index].GetPos().x > 0.9f)
 			{
 				_info[_tri[index]].second = uid_right(dre);
-				old_pos = _tri[index].GetPos();
-				Rotate(index, -1);
-				old_pos.x = 0.9f;
-				_tri[index].Teleport(old_pos);
+				RotateX(index, -1, 1);
 
 				break;
 			}
@@ -165,10 +154,7 @@ void GameScene::Moving(int32_t index)
 			if (_tri[index].GetPos().y < -0.9f)
 			{
 				_info[_tri[index]].second = uid_bottom(dre);
-				old_pos = _tri[index].GetPos();
-				Rotate(index, -1);
-				old_pos.y = -0.9f;
-				_tri[index].Teleport(old_pos);
+				RotateY(index, -1, -1);
 
 				break;
 			}
@@ -181,10 +167,7 @@ void GameScene::Moving(int32_t index)
 			if (_tri[index].GetPos().x > 0.9f)
 			{
 				_info[_tri[index]].second = uid_right(dre);
-				old_pos = _tri[index].GetPos();
-				Rotate(index);
-				old_pos.x = 0.9f;
-				_tri[index].Teleport(old_pos);
+				RotateX(index, 1, 1);
 
 				break;
 			}
@@ -192,10 +175,7 @@ void GameScene::Moving(int32_t index)
 			if (_tri[index].GetPos().y < -0.9f)
 			{
 				_info[_tri[index]].second = uid_bottom(dre);
-				old_pos = _tri[index].GetPos();
-				Rotate(index);
-				old_pos.y = -0.9f;
-				_tri[index].Teleport(old_pos);
+				RotateY(index, -1, -1);
 
 				break;
 			}
@@ -208,10 +188,7 @@ void GameScene::Moving(int32_t index)
 			if (_tri[index].GetPos().x < -0.9f)
 			{
 				_info[_tri[index]].second = uid_left(dre);
-				old_pos = _tri[index].GetPos();
-				Rotate(index, -1);
-				old_pos.y = -0.9f;
-				_tri[index].Teleport(old_pos);
+				RotateX(index, -1, -1);
 
 				break;
 			}
@@ -219,10 +196,7 @@ void GameScene::Moving(int32_t index)
 			if (_tri[index].GetPos().y < -0.9f)
 			{
 				_info[_tri[index]].second = uid_bottom(dre);
-				old_pos = _tri[index].GetPos();
-				Rotate(index, -1);
-				old_pos.y = -0.9f;
-				_tri[index].Teleport(old_pos);
+				RotateY(index, -1, -1);
 
 				break;
 			}
@@ -235,10 +209,7 @@ void GameScene::Moving(int32_t index)
 			if (_tri[index].GetPos().x < -0.9f)
 			{
 				_info[_tri[index]].second = uid_left(dre);
-				old_pos = _tri[index].GetPos();
-				Rotate(index);
-				old_pos.x = -0.9f;
-				_tri[index].Teleport(old_pos);
+				RotateX(index, 1, -1);
 
 				break;
 			}
@@ -246,10 +217,7 @@ void GameScene::Moving(int32_t index)
 			if (_tri[index].GetPos().y < -0.9f)
 			{
 				_info[_tri[index]].second = uid_bottom(dre);
-				old_pos = _tri[index].GetPos();
-				Rotate(index);
-				old_pos.y = -0.9f;
-				_tri[index].Teleport(old_pos);
+				RotateY(index, 1, -1);
 
 				break;
 			}
@@ -262,10 +230,7 @@ void GameScene::Moving(int32_t index)
 			if (_tri[index].GetPos().x < -0.9f)
 			{
 				_info[_tri[index]].second = uid_left(dre);
-				old_pos = _tri[index].GetPos();
-				Rotate(index, -1);
-				old_pos.x = -0.9f;
-				_tri[index].Teleport(old_pos);
+				RotateX(index, -1, -1);
 
 				break;
 			}
@@ -273,10 +238,7 @@ void GameScene::Moving(int32_t index)
 			if (_tri[index].GetPos().y > 0.9f)
 			{
 				_info[_tri[index]].second = uid_top(dre);
-				old_pos = _tri[index].GetPos();
-				Rotate(index, -1);
-				old_pos.y = 0.9f;
-				_tri[index].Teleport(old_pos);
+				RotateY(index, -1, 1);
 
 				break;
 			}
@@ -289,10 +251,7 @@ void GameScene::Moving(int32_t index)
 			if (_tri[index].GetPos().x < -0.9f)
 			{
 				_info[_tri[index]].second = uid_left(dre);
-				old_pos = _tri[index].GetPos();
-				Rotate(index);
-				old_pos.x = -0.9f;
-				_tri[index].Teleport(old_pos);
+				RotateX(index, -1, -1);
 
 				break;
 			}
@@ -300,10 +259,7 @@ void GameScene::Moving(int32_t index)
 			if (_tri[index].GetPos().y > 0.9f)
 			{
 				_info[_tri[index]].second = uid_top(dre);
-				old_pos = _tri[index].GetPos();
-				Rotate(index);
-				old_pos.y = 0.9f;
-				_tri[index].Teleport(old_pos);
+				RotateY(index, 1, 1);
 
 				break;
 			}
@@ -316,10 +272,7 @@ void GameScene::Moving(int32_t index)
 			if (_tri[index].GetPos().x > 0.9f)
 			{
 				_info[_tri[index]].second = uid_right(dre);
-				old_pos = _tri[index].GetPos();
-				Rotate(index, -1);
-				old_pos.x = 0.9f;
-				_tri[index].Teleport(old_pos);
+				RotateX(index, -1, 1);
 
 				break;
 			}
@@ -327,10 +280,7 @@ void GameScene::Moving(int32_t index)
 			if (_tri[index].GetPos().y > 0.9f)
 			{
 				_info[_tri[index]].second = uid_top(dre);
-				old_pos = _tri[index].GetPos();
-				Rotate(index, -1);
-				old_pos.y = 0.9f;
-				_tri[index].Teleport(old_pos);
+				RotateY(index, -1, 1);
 
 				break;
 			}
@@ -344,8 +294,24 @@ void GameScene::Moving(int32_t index)
 	glutPostRedisplay();
 }
 
-void GameScene::Rotate(int32_t index, int32_t sign)
+void GameScene::RotateX(int32_t index, int32_t sign, int32_t sign2)
 {
+	glm::vec3 old_pos{ _tri[index].GetPos() };
+
 	_tri[index].Teleport(vec3::zero());
 	_tri[index].RotateZ(sign * 90.f);
+	old_pos.x = sign2 * 0.9f;
+
+	_tri[index].Teleport(old_pos);
+}
+
+void GameScene::RotateY(int32_t index, int32_t sign, int32_t sign2)
+{
+	glm::vec3 old_pos{ _tri[index].GetPos() };
+
+	_tri[index].Teleport(vec3::zero());
+	_tri[index].RotateZ(sign * 90.f);
+	old_pos.y = sign2 * 0.9f;
+
+	_tri[index].Teleport(old_pos);
 }
