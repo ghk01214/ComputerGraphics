@@ -6,25 +6,21 @@
 enum
 {
 	NONE = 0,
-	LT,
-	LB,
-	TR,
-	TL,
-	RB,
-	RT,
-	BL,
-	BR,
+	C_LEFT,
+	C_TOP,
+	C_RIGHT,
+	C_BOTTOM,
+	CC_LEFT,
+	CC_TOP,
+	CC_RIGHT,
+	CC_BOTTOM,
 	MAX
 };
 
 extern Window window;
-std::uniform_int_distribution<int32_t> uid_left{ LT, LB };
-std::uniform_int_distribution<int32_t> uid_top{ TR, TL };
-std::uniform_int_distribution<int32_t> uid_right{ RB, RT };
-std::uniform_int_distribution<int32_t> uid_bottom{ BL, BR };
-std::uniform_int_distribution<int32_t> uid_direction{ LT, BR };
 std::uniform_int_distribution<int32_t> uid_time{ 1, 4 };
-std::uniform_real_distribution<float> uid_pos{ -1.f, 1.f };
+std::uniform_real_distribution<float> uid_posx{ -1.f, 1.f };
+std::uniform_real_distribution<float> uid_posy{ -1.f, -0.5f };
 
 std::shared_ptr<GameScene> GameScene::_inst{ nullptr };
 
@@ -36,7 +32,7 @@ GameScene::GameScene() :
 	_info{}
 {
 	_tri.push_back(Triangle{});
-	_tri.back().Teleport(glm::vec3{ uid_pos(dre), uid_pos(dre), 0.f});
+	_tri.back().Teleport(glm::vec3{ uid_posx(dre), uid_posy(dre), 0.f});
 
 	//_tri.push_back(Triangle{});
 	//_tri.back().Teleport(glm::vec3{ 0.5f, 0.5f, 0.f });
@@ -59,7 +55,12 @@ void GameScene::OnLoad()
 	for (int32_t i = 0; i < _tri.size(); ++i)
 	{
 		_tri[i].OnLoad();
-		_info.insert(std::make_pair(_tri[i], std::make_pair(uid_time(dre), uid_direction(dre))));
+
+		if (uid_time(dre) % 2 == 0)
+			_info.insert(std::make_pair(_tri[i], std::make_pair(uid_time(dre), C_LEFT)));
+		else
+			_info.insert(std::make_pair(_tri[i], std::make_pair(uid_time(dre), CC_RIGHT)));
+
 
 		glutTimerFunc(_info[_tri[i]].first * 10, Animate, i);
 	}
@@ -118,174 +119,113 @@ void GameScene::Animate(int32_t value)
 
 void GameScene::Moving(int32_t index)
 {
-	switch (_info[_tri[index]].second)
+	auto& triangle{ _tri[index] };
+	int32_t angle{ (Convert::ToInt32(triangle.GetAngle().z) / 90) % 4 };
+
+	switch (_info[triangle].second)
 	{
-		case LT:
+		case C_LEFT:
 		{
-			if (_tri[index].GetPos().x > 0.9f)
+			if (triangle.GetPos().x < -0.9f)
 			{
-				_info[_tri[index]].second = uid_right(dre);
-				RotateX(index, 1, 1);
-
-				break;
-			}
-
-			if (_tri[index].GetPos().y > 0.9f)
-			{
-				_info[_tri[index]].second = uid_top(dre);
-				RotateY(index, 1, 1);
-
-				break;
-			}
-
-			_tri[index].Move(0.01f, 0.02f, 0.f);
-		}
-		break;
-		case LB:
-		{
-			if (_tri[index].GetPos().x > 0.9f)
-			{
-				_info[_tri[index]].second = uid_right(dre);
-				RotateX(index, -1, 1);
-
-				break;
-			}
-
-			if (_tri[index].GetPos().y < -0.9f)
-			{
-				_info[_tri[index]].second = uid_bottom(dre);
-				RotateY(index, -1, -1);
-
-				break;
-			}
-
-			_tri[index].Move(0.01f, -0.02f, 0.f);
-		}
-		break;
-		case TR:
-		{
-			if (_tri[index].GetPos().x > 0.9f)
-			{
-				_info[_tri[index]].second = uid_right(dre);
-				RotateX(index, 1, 1);
-
-				break;
-			}
-
-			if (_tri[index].GetPos().y < -0.9f)
-			{
-				_info[_tri[index]].second = uid_bottom(dre);
-				RotateY(index, -1, -1);
-
-				break;
-			}
-
-			_tri[index].Move(0.01f, -0.02f, 0.f);
-		}
-		break;
-		case TL:
-		{
-			if (_tri[index].GetPos().x < -0.9f)
-			{
-				_info[_tri[index]].second = uid_left(dre);
+				_info[triangle].second = C_TOP;
 				RotateX(index, -1, -1);
 
 				break;
 			}
 
-			if (_tri[index].GetPos().y < -0.9f)
+			triangle.Move(-0.01f, 0.01f, 0.f);
+		}
+		break;
+		case C_TOP:
+		{
+			if (triangle.GetPos().y > 0.9f)
 			{
-				_info[_tri[index]].second = uid_bottom(dre);
+				_info[triangle].second = C_RIGHT;
+				RotateY(index, -1, 1);
+
+				break;
+			}
+
+			triangle.Move(-0.01f, 0.01f, 0.f);
+		}
+		break;
+		case C_RIGHT:
+		{
+			if (triangle.GetPos().x > 0.9f)
+			{
+				_info[triangle].second = C_BOTTOM;
+				RotateX(index, -1, 1);
+
+				break;
+			}
+
+			triangle.Move(-0.01f, 0.01f, 0.f);
+		}
+		break;
+		case C_BOTTOM:
+		{
+			if (triangle.GetPos().y < -0.9f)
+			{
+				_info[triangle].second = C_LEFT;
 				RotateY(index, -1, -1);
 
 				break;
 			}
 
-			_tri[index].Move(-0.01f, -0.02f, 0.f);
+			triangle.Move(-0.01f, 0.01f, 0.f);
 		}
 		break;
-		case RB:
+		case CC_LEFT:
 		{
-			if (_tri[index].GetPos().x < -0.9f)
+			if (triangle.GetPos().y > 0.9f)
 			{
-				_info[_tri[index]].second = uid_left(dre);
-				RotateX(index, 1, -1);
+				_info[triangle].second = CC_BOTTOM;
+				RotateY(index, 1, 1);
 
 				break;
 			}
 
-			if (_tri[index].GetPos().y < -0.9f)
+			triangle.Move(0.01f, -0.01f, 0.f);
+		}
+		break;
+		case CC_TOP:
+		{
+			if (triangle.GetPos().x > 0.9f)
 			{
-				_info[_tri[index]].second = uid_bottom(dre);
+				_info[triangle].second = CC_LEFT;
+				RotateX(index, 1, 1);
+
+				break;
+			}
+
+			triangle.Move(0.01f, -0.01f, 0.f);
+		}
+		break;
+		case CC_RIGHT:
+		{
+			if (triangle.GetPos().y < -0.9f)
+			{
+				_info[triangle].second = CC_TOP;
 				RotateY(index, 1, -1);
 
 				break;
 			}
 
-			_tri[index].Move(-0.01f, -0.02f, 0.f);
+			triangle.Move(0.01f, -0.01f, 0.f);
 		}
 		break;
-		case RT:
+		case CC_BOTTOM:
 		{
-			if (_tri[index].GetPos().x < -0.9f)
+			if (triangle.GetPos().x < -0.9f)
 			{
-				_info[_tri[index]].second = uid_left(dre);
-				RotateX(index, -1, -1);
+				_info[triangle].second = CC_RIGHT;
+				RotateX(index, 1, -1);
 
 				break;
 			}
 
-			if (_tri[index].GetPos().y > 0.9f)
-			{
-				_info[_tri[index]].second = uid_top(dre);
-				RotateY(index, -1, 1);
-
-				break;
-			}
-
-			_tri[index].Move(-0.01f, 0.02f, 0.f);
-		}
-		break;
-		case BL:
-		{
-			if (_tri[index].GetPos().x < -0.9f)
-			{
-				_info[_tri[index]].second = uid_left(dre);
-				RotateX(index, -1, -1);
-
-				break;
-			}
-
-			if (_tri[index].GetPos().y > 0.9f)
-			{
-				_info[_tri[index]].second = uid_top(dre);
-				RotateY(index, 1, 1);
-
-				break;
-			}
-
-			_tri[index].Move(-0.01f, 0.02f, 0.f);
-		}
-		break;
-		case BR:
-		{
-			if (_tri[index].GetPos().x > 0.9f)
-			{
-				_info[_tri[index]].second = uid_right(dre);
-				RotateX(index, -1, 1);
-
-				break;
-			}
-
-			if (_tri[index].GetPos().y > 0.9f)
-			{
-				_info[_tri[index]].second = uid_top(dre);
-				RotateY(index, -1, 1);
-
-				break;
-			}
-
-			_tri[index].Move(0.01f, 0.02f, 0.f);
+			triangle.Move(0.01f, -0.01f, 0.f);
 		}
 		break;
 	}
@@ -298,20 +238,20 @@ void GameScene::RotateX(int32_t index, int32_t sign, int32_t sign2)
 {
 	glm::vec3 old_pos{ _tri[index].GetPos() };
 
-	_tri[index].Teleport(vec3::zero());
+	//_tri[index].Teleport(vec3::zero());
 	_tri[index].RotateZ(sign * 90.f);
-	old_pos.x = sign2 * 0.9f;
+	//_tri[index].SetPos(glm::vec3{ 0.f, 0.f, old_pos.z });
 
-	_tri[index].Teleport(old_pos);
+	//_tri[index].Teleport(old_pos);
 }
 
 void GameScene::RotateY(int32_t index, int32_t sign, int32_t sign2)
 {
 	glm::vec3 old_pos{ _tri[index].GetPos() };
 
-	_tri[index].Teleport(vec3::zero());
+	//_tri[index].Teleport(vec3::zero());
 	_tri[index].RotateZ(sign * 90.f);
-	old_pos.y = sign2 * 0.9f;
+	//_tri[index].SetPos(glm::vec3{ 0.f, 0.f, old_pos.z });
 
-	_tri[index].Teleport(old_pos);
+	//_tri[index].Teleport(old_pos);
 }

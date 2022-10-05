@@ -33,6 +33,7 @@ public:
 	glm::vec3 GetAngle() { return _angle; }
 	
 	void SetModelMat(glm::mat4 model) { _model = model; }
+	void SetPos(glm::vec3 pos) { _pos = pos; }
 
 public:
 	friend std::hash<Object>;

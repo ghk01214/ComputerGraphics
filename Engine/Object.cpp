@@ -47,7 +47,7 @@ void Object::Transform()
 
 	_transform.clear();
 
-	_shader->SetMat4("model", _model);
+	_shader->SetMat4("model", glm::value_ptr(_model));
 }
 
 void Object::Move(float x, float y, float z)

@@ -89,12 +89,12 @@ void CameraMgr::ViewTransform(std::shared_ptr<Shader> shader)
 {
 	inst->_view = glm::lookAt(inst->_camera->GetPos(), inst->_camera->GetLook(), inst->_camera->GetUp());
 
-	shader->SetMat4("view", inst->_view);
+	shader->SetMat4("view", glm::value_ptr(inst->_view));
 }
 
 void CameraMgr::ProjectionTransform(std::shared_ptr<Shader> shader)
 {
 	inst->_projection = glm::perspective(glm::radians(inst->_camera->GetFOV()), inst->_aspect, 1.f, 1000.f);
 
-	shader->SetMat4("projection", inst->_projection);
+	shader->SetMat4("projection", glm::value_ptr(inst->_projection));
 }

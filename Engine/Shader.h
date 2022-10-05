@@ -14,9 +14,9 @@ public:
 
 	void SetInt(const std::string& name, int32_t value);
 	void SetFloat(const std::string& name, float value);
-	void SetVec2(const std::string& name, glm::vec2 value);
-	void SetVec3(const std::string& name, glm::vec3 value);
-	void SetMat4(const std::string& name, glm::mat4 value);
+	void SetVec2(const std::string& name, float* value_ptr);
+	void SetVec3(const std::string& name, float* value_ptr);
+	void SetMat4(const std::string& name, float* value_ptr);
 
 	constexpr uint32_t ID() const { return _id; }
 
