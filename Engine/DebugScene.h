@@ -1,8 +1,8 @@
 ﻿#pragma once
 
 #include "Scene.h"
-#include "Triangle.h"
-#include "Rect.h"
+
+class Object;
 
 class DebugScene : public Scene
 {
@@ -13,10 +13,19 @@ public:
 	void OnLoad() override;
 
 	void OnKeyboardMessage(uchar key, int32_t x, int32_t y) override;
+	void OnMouseMessage(int32_t button, int32_t x, int32_t y) override;
 	void OnRender() override;
 
-private:
-	std::vector<Triangle> _tri;
-	Rect _rect;
-};
+	static void Animate(int32_t value);
+	void Moving(int32_t index);
 
+private:
+	static std::shared_ptr<DebugScene> _inst;
+
+	std::unique_ptr<class CameraMgr> _camera;
+	std::vector<Object*> _tri;
+	std::unordered_map<Object*, std::pair<int32_t, int32_t>> _info;
+
+	uint32_t _index;
+	uint32_t _type;
+};

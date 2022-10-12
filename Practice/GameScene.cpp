@@ -31,17 +31,10 @@ GameScene::GameScene() :
 	_type{ GL_TRIANGLES },
 	_info{}
 {
-	_tri.push_back(Triangle{});
-	_tri.back().Teleport(glm::vec3{ uid_posx(dre), uid_posy(dre), 0.f});
-
-	//_tri.push_back(Triangle{});
-	//_tri.back().Teleport(glm::vec3{ 0.5f, 0.5f, 0.f });
-
-	//_tri.push_back(Triangle{});
-	//_tri.back().Teleport(glm::vec3{ 0.5f, -0.5f, 0.f });
-
-	//_tri.push_back(Triangle{});
-	//_tri.back().Teleport(glm::vec3{ -0.5f, -0.5f, 0.f });
+	_tri.push_back(new Triangle{ glm::vec3{ uid_posx(dre), uid_posy(dre), 0.f} });
+	_tri.push_back(new Triangle{ glm::vec3{ uid_posx(dre), uid_posy(dre), 0.f} });
+	_tri.push_back(new Triangle{ glm::vec3{ uid_posx(dre), uid_posy(dre), 0.f} });
+	_tri.push_back(new Triangle{ glm::vec3{ uid_posx(dre), uid_posy(dre), 0.f} });
 
 	_inst.reset(this);
 }
@@ -54,7 +47,7 @@ void GameScene::OnLoad()
 {
 	for (int32_t i = 0; i < _tri.size(); ++i)
 	{
-		_tri[i].OnLoad();
+		_tri[i]->OnLoad();
 
 		if (uid_time(dre) % 2 == 0)
 			_info.insert(std::make_pair(_tri[i], std::make_pair(uid_time(dre), C_LEFT)));
@@ -91,7 +84,7 @@ void GameScene::OnMouseMessage(int32_t button, int32_t x, int32_t y)
 		if (_index >= _tri.size())
 			_index = 0;
 
-		_tri[_index++].Teleport(x2, y2, 0.f);
+		_tri[_index++]->Teleport(x2, y2, 0.f);
 	}
 }
 
@@ -101,13 +94,14 @@ void GameScene::OnRender()
 
 	for (auto& tri : _tri)
 	{
-		tri.BindVAO();
+		tri->GetShader()->Use();
+		tri->BindVAO();
 
-		tri.Transform();
-		//CameraMgr::ViewTransform(tri.GetShader());
-		//CameraMgr::ProjectionTransform(tri.GetShader());
+		tri->Transform();
+		//CameraMgr::ViewTransform(tri->GetShader());
+		//CameraMgr::ProjectionTransform(tri->GetShader());
 
-		glDrawElements(_type, tri.GetIndexNum(), GL_UNSIGNED_INT, 0);
+		glDrawElements(_type, tri->GetIndexNum(), GL_UNSIGNED_INT, 0);
 	}
 }
 
@@ -119,139 +113,199 @@ void GameScene::Animate(int32_t value)
 
 void GameScene::Moving(int32_t index)
 {
-	auto& triangle{ _tri[index] };
-	int32_t angle{ (Convert::ToInt32(triangle.GetAngle().z) / 90) % 4 };
+	auto triangle{ dynamic_cast<Triangle*>(_tri[index]) };
+	int32_t angle{ (Convert::ToInt32(triangle->GetAngle().z) / 90) % 4 };
 
 	switch (_info[triangle].second)
 	{
 		case C_LEFT:
 		{
-			if (triangle.GetPos().x < -0.9f)
+			if (triangle->GetPos().x < -0.9f)
 			{
 				_info[triangle].second = C_TOP;
-				RotateX(index, -1, -1);
+				triangle->SetPos(glm::vec3{ -0.9f, triangle->GetPos().y, 0.f });
+				triangle->RotateZ(-90.f);
 
 				break;
 			}
 
-			triangle.Move(-0.01f, 0.01f, 0.f);
+			if (triangle->GetPos().y > 0.9f)
+			{
+				_info[triangle].second = C_RIGHT;
+				triangle->SetPos(glm::vec3{ triangle->GetPos().x, 0.9f, 0.f });
+				triangle->RotateZ(-180.f);
+
+				break;
+			}
+
+			triangle->Move(-0.01f, 0.01f, 0.f);
 		}
 		break;
 		case C_TOP:
 		{
-			if (triangle.GetPos().y > 0.9f)
+			if (triangle->GetPos().y > 0.9f)
 			{
 				_info[triangle].second = C_RIGHT;
-				RotateY(index, -1, 1);
+				triangle->SetPos(glm::vec3{ triangle->GetPos().x, 0.9f, 0.f });
+				triangle->RotateZ(-90.f);
 
 				break;
 			}
 
-			triangle.Move(-0.01f, 0.01f, 0.f);
+			if (triangle->GetPos().x > 0.9f)
+			{
+				_info[triangle].second = C_BOTTOM;
+				triangle->SetPos(glm::vec3{ 0.9f, triangle->GetPos().y, 0.f });
+				triangle->RotateZ(-180.f);
+
+				break;
+			}
+
+			triangle->Move(0.01f, 0.01f, 0.f);
 		}
 		break;
 		case C_RIGHT:
 		{
-			if (triangle.GetPos().x > 0.9f)
+			if (triangle->GetPos().x > 0.9f)
 			{
 				_info[triangle].second = C_BOTTOM;
-				RotateX(index, -1, 1);
+				triangle->SetPos(glm::vec3{ 0.9f, triangle->GetPos().y, 0.f });
+				triangle->RotateZ(-90.f);
 
 				break;
 			}
 
-			triangle.Move(-0.01f, 0.01f, 0.f);
+			if (triangle->GetPos().y < -0.9f)
+			{
+				_info[triangle].second = C_LEFT;
+				triangle->SetPos(glm::vec3{ triangle->GetPos().x, -0.9f, 0.f });
+				triangle->RotateZ(-180.f);
+
+				break;
+			}
+
+			triangle->Move(0.01f, -0.01f, 0.f);
 		}
 		break;
 		case C_BOTTOM:
 		{
-			if (triangle.GetPos().y < -0.9f)
+			if (triangle->GetPos().y < -0.9f)
 			{
 				_info[triangle].second = C_LEFT;
-				RotateY(index, -1, -1);
+				triangle->SetPos(glm::vec3{ triangle->GetPos().x, -0.9f, 0.f });
+				triangle->RotateZ(-90.f);
 
 				break;
 			}
 
-			triangle.Move(-0.01f, 0.01f, 0.f);
+			if (triangle->GetPos().x < -0.9f)
+			{
+				_info[triangle].second = C_TOP;
+				triangle->SetPos(glm::vec3{ -0.9f, triangle->GetPos().y, 0.f });
+				triangle->RotateZ(-180.f);
+
+				break;
+			}
+
+			triangle->Move(-0.01f, -0.01f, 0.f);
 		}
 		break;
 		case CC_LEFT:
 		{
-			if (triangle.GetPos().y > 0.9f)
+			if (triangle->GetPos().y > 0.9f)
 			{
 				_info[triangle].second = CC_BOTTOM;
-				RotateY(index, 1, 1);
+				triangle->SetPos(glm::vec3{ triangle->GetPos().x, 0.9f, 0.f });
+				triangle->RotateZ(90.f);
 
 				break;
 			}
 
-			triangle.Move(0.01f, -0.01f, 0.f);
+			if (triangle->GetPos().x < -0.9f)
+			{
+				_info[triangle].second = CC_RIGHT;
+				triangle->SetPos(glm::vec3{ -0.9f, triangle->GetPos().y, 0.f });
+				triangle->RotateZ(180.f);
+
+				break;
+			}
+
+			triangle->Move(-0.01f, 0.01f, 0.f);
 		}
 		break;
 		case CC_TOP:
 		{
-			if (triangle.GetPos().x > 0.9f)
+			if (triangle->GetPos().x > 0.9f)
 			{
 				_info[triangle].second = CC_LEFT;
-				RotateX(index, 1, 1);
+				triangle->SetPos(glm::vec3{ 0.9f, triangle->GetPos().y, 0.f });
+				triangle->RotateZ(90.f);
 
 				break;
 			}
 
-			triangle.Move(0.01f, -0.01f, 0.f);
+			if (triangle->GetPos().y > 0.9f)
+			{
+				_info[triangle].second = CC_BOTTOM;
+				triangle->SetPos(glm::vec3{ triangle->GetPos().x, 0.9f, 0.f });
+				triangle->RotateZ(180.f);
+
+				break;
+			}
+
+			triangle->Move(0.01f, 0.01f, 0.f);
 		}
 		break;
 		case CC_RIGHT:
 		{
-			if (triangle.GetPos().y < -0.9f)
+			if (triangle->GetPos().y < -0.9f)
 			{
 				_info[triangle].second = CC_TOP;
-				RotateY(index, 1, -1);
+				triangle->SetPos(glm::vec3{ triangle->GetPos().x, -0.9f, 0.f });
+				triangle->RotateZ(90.f);
 
 				break;
 			}
 
-			triangle.Move(0.01f, -0.01f, 0.f);
+			if (triangle->GetPos().x > 0.9f)
+			{
+				_info[triangle].second = CC_LEFT;
+				triangle->SetPos(glm::vec3{ 0.9f, triangle->GetPos().y, 0.f });
+				triangle->RotateZ(180.f);
+
+				break;
+			}
+
+			triangle->Move(0.01f, -0.01f, 0.f);
 		}
 		break;
 		case CC_BOTTOM:
 		{
-			if (triangle.GetPos().x < -0.9f)
+			if (triangle->GetPos().x < -0.9f)
 			{
 				_info[triangle].second = CC_RIGHT;
-				RotateX(index, 1, -1);
+				triangle->SetPos(glm::vec3{ -0.9f, triangle->GetPos().y, 0.f });
+				triangle->RotateZ(90.f);
 
 				break;
 			}
 
-			triangle.Move(0.01f, -0.01f, 0.f);
+			if (triangle->GetPos().y < -0.9f)
+			{
+				_info[triangle].second = CC_TOP;
+				triangle->SetPos(glm::vec3{ triangle->GetPos().x, -0.9f, 0.f });
+				triangle->RotateZ(180.f);
+
+				break;
+			}
+
+			triangle->Move(-0.01f, -0.01f, 0.f);
 		}
 		break;
 	}
 
-	std::cout << std::format("{}, x : {}, y : {}\n", _info[_tri[index]].second, _tri[index].GetPos().x, _tri[index].GetPos().y);
+	triangle->GetMesh()->SetUp(triangle->GetShader());
+	//std::cout << triangle->GetPos().x << ", " << triangle->GetPos().y << std::endl;
+
 	glutPostRedisplay();
-}
-
-void GameScene::RotateX(int32_t index, int32_t sign, int32_t sign2)
-{
-	glm::vec3 old_pos{ _tri[index].GetPos() };
-
-	//_tri[index].Teleport(vec3::zero());
-	_tri[index].RotateZ(sign * 90.f);
-	//_tri[index].SetPos(glm::vec3{ 0.f, 0.f, old_pos.z });
-
-	//_tri[index].Teleport(old_pos);
-}
-
-void GameScene::RotateY(int32_t index, int32_t sign, int32_t sign2)
-{
-	glm::vec3 old_pos{ _tri[index].GetPos() };
-
-	//_tri[index].Teleport(vec3::zero());
-	_tri[index].RotateZ(sign * 90.f);
-	//_tri[index].SetPos(glm::vec3{ 0.f, 0.f, old_pos.z });
-
-	//_tri[index].Teleport(old_pos);
 }

@@ -18,9 +18,9 @@ public:
 
 	void CreateBuffer();
 	void BindVAO();
-	void CreateVertex(std::shared_ptr<Shader> _shader);
+	void CreateVertex(std::shared_ptr<Shader>& _shader);
 
-	void SetUp(std::shared_ptr<Shader> _shader, std::vector<Vertex> verticies, std::vector<uint32_t> index);
+	void SetUp(std::shared_ptr<Shader> _shader);
 
 	size_t GetIndexNum() { return _index.size(); }
 
@@ -31,9 +31,9 @@ public:
 	void SetIndex(std::vector<uint32_t>* index) { _index = *index; }
 
 	template<typename T> requires requires {  std::is_arithmetic_v<T>; std::is_class_v<T>; }
-	void CreateVBO(uint32_t vbo, const std::vector<T>* cont, std::shared_ptr<Shader> _shader, const std::string& name, uint32_t count);
+	void CreateVBO(uint32_t vbo, const std::vector<T>* cont, std::shared_ptr<Shader>& _shader, const std::string& name, uint32_t count);
 
-	void InputAttrib(std::shared_ptr<Shader> _shader, const std::string& name, uint32_t count, int32_t offset);
+	void InputAttrib(std::shared_ptr<Shader>& _shader, const std::string& name, uint32_t count, int32_t offset);
 
 	template<typename T>
 	void glBufferData(uint32_t target, const std::vector<T>* cont);

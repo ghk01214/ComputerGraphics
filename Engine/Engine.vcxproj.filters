@@ -40,6 +40,9 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
+    <Filter Include="Debug">
+      <UniqueIdentifier>{eb4f61cd-1dc2-494a-9c8b-9262ce50d99b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -72,9 +75,6 @@
     <ClInclude Include="Material.h">
       <Filter>Resource\Material</Filter>
     </ClInclude>
-    <ClInclude Include="DebugScene.h">
-      <Filter>Scene</Filter>
-    </ClInclude>
     <ClInclude Include="Engine.h">
       <Filter>Engine</Filter>
     </ClInclude>
@@ -92,6 +92,9 @@
     </ClInclude>
     <ClInclude Include="CameraMgr.h">
       <Filter>Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugScene.h">
+      <Filter>Debug</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -128,9 +131,6 @@
     <ClCompile Include="Scene.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
-    <ClCompile Include="DebugScene.cpp">
-      <Filter>Scene</Filter>
-    </ClCompile>
     <ClCompile Include="Rect.cpp">
       <Filter>Resource\Object</Filter>
     </ClCompile>
@@ -140,6 +140,12 @@
     <ClCompile Include="CameraMgr.cpp">
       <Filter>Manager</Filter>
     </ClCompile>
+    <ClCompile Include="DebugScene.cpp">
+      <Filter>Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Debug</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Dependencies\shader\Vertex.glsl">
@@ -147,9 +153,6 @@
     </None>
     <None Include="..\Dependencies\shader\Fragment.glsl">
       <Filter>Resource\Shader</Filter>
-    </None>
-    <None Include="main.cpp">
-      <Filter>Engine</Filter>
     </None>
   </ItemGroup>
 </Project>

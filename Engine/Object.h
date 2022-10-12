@@ -27,7 +27,8 @@ public:
 
 	void BindVAO() { _mesh->BindVAO(); }
 
-	std::shared_ptr<Shader> GetShader() { return _material->GetShader(); }
+	std::shared_ptr<Mesh> GetMesh() { return _mesh; }
+	std::shared_ptr<Shader> GetShader() { return _shader; }
 	size_t GetIndexNum() { return _mesh->GetIndexNum(); }
 	glm::vec3 GetPos() { return _pos; }
 	glm::vec3 GetAngle() { return _angle; }

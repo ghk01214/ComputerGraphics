@@ -78,7 +78,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)Output\</OutDir>
-    <IntDir>$(SolutionDir)Output\Build\</IntDir>
+    <IntDir>$(SolutionDir)Output\$(Configuration)\Build\</IntDir>
     <ExternalIncludePath>$(SolutionDir)Dependencies\include\;$(SolutionDir)Engine\;$(ExternalIncludePath)</ExternalIncludePath>
     <LibraryPath>$(SolutionDir)Dependencies\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>

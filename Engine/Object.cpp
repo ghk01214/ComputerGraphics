@@ -24,13 +24,13 @@ void Object::OnLoad()
 	std::string str{ "2 " };
 	str += "../Dependencies/shader/Vertex.glsl ";
 	str += std::to_string(GL_VERTEX_SHADER);
-	str += "../Dependencies/shader/Fragment.glsl ";
+	str += " ../Dependencies/shader/Fragment.glsl ";
 	str += std::to_string(GL_FRAGMENT_SHADER);
 #else
 	std::string str{ "2 " };
 	str += "Dependencies/shader/Vertex.glsl ";
 	str += std::to_string(GL_VERTEX_SHADER);
-	str += "Dependencies/shader/Fragment.glsl ";
+	str += " Dependencies/shader/Fragment.glsl ";
 	str += std::to_string(GL_FRAGMENT_SHADER);
 #endif
 
@@ -78,9 +78,9 @@ void Object::RotateY(float delta)
 
 void Object::RotateZ(float delta)
 {
-	_angle.z += delta;
-
-	_transform.push_back(glm::rotate(mat4::unit(), glm::radians(delta), vec3::z()));
+	//_angle.z += delta;
+	//
+	//_transform.push_back(glm::rotate(mat4::unit(), glm::radians(delta), vec3::z()));
 }
 
 void Object::Scale(float x, float y, float z)
