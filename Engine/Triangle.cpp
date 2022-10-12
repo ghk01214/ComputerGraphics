@@ -1,7 +1,7 @@
 ﻿#include "pch.h"
 #include "Triangle.h"
 
-std::uniform_real_distribution<float> uid_color{ 0.f, 1.f };
+extern std::uniform_real_distribution<float> uid_color;
 
 Triangle::Triangle()
 {

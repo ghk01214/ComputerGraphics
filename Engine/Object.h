@@ -32,6 +32,7 @@ public:
 	size_t GetIndexNum() { return _mesh->GetIndexNum(); }
 	glm::vec3 GetPos() { return _pos; }
 	glm::vec3 GetAngle() { return _angle; }
+	uint32_t GetDrawType() { return _draw_type; }
 	
 	void SetModelMat(glm::mat4 model) { _model = model; }
 	void SetPos(glm::vec3 pos) { _pos = pos; }
@@ -50,6 +51,8 @@ protected:
 
 	glm::mat4 _model;
 	std::list<glm::mat4> _transform;
+
+	uint32_t _draw_type;
 };
 
 namespace std

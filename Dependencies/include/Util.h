@@ -21,7 +21,7 @@ namespace Util
 	std::string ReadFile(const std::string& path);
 
 	template<typename T> requires std::is_floating_point_v<T>
-	inline bool IsEqual(T a, T b) { return (a - b) < 0.000001f; }
+	inline bool IsEqual(T a, T b) { return std::abs(a - b) < 0.000001f or std::abs(b - a) < 0.000001f; }
 
 	template<typename T> requires IsPointer<T>
 	inline void ReleasePtr(T pointer)

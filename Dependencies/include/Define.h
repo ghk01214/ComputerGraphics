@@ -1,11 +1,14 @@
 ﻿#pragma once
 
+extern std::uniform_real_distribution<float> uid_color;
+
 #define RED 1.f, 0.f, 0.f
 #define GREEN 0.f, 1.f, 0.f
 #define BLUE 0.f, 0.f, 1.f
 #define BLACK 0.f, 0.f, 0.f
 #define WHITE 1.f, 1.f, 1.f
 #define GRAY 0.5f, 0.5f, 0.5f
+#define RAND_COLOR uid_color(dre), uid_color(dre), uid_color(dre)
 
 enum class SCENE_TYPE
 {

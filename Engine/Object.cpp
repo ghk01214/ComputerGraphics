@@ -1,6 +1,8 @@
 ﻿#include "pch.h"
 #include "Object.h"
 
+std::uniform_real_distribution<float> uid_color{ 0.f, 1.f };
+
 Object::Object() :
 	_mesh{ std::make_shared<Mesh>() },
 	_material{ std::make_shared<Material>() },
@@ -8,7 +10,8 @@ Object::Object() :
 	_pos{ vec3::zero() },
 	_angle{ vec3::zero() },
 	_model{ mat4::unit() },
-	_transform{}
+	_transform{},
+	_draw_type{ GL_TRIANGLES }
 {
 }
 

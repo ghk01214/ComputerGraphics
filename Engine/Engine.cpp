@@ -37,7 +37,7 @@ void Engine::Init(const Window* window)
 
 	glutDisplayFunc(Render);
 	glutReshapeFunc(Reshape);
-	glutIdleFunc(OnIdleMessage);
+	//glutIdleFunc(OnIdleMessage);
 	glutKeyboardFunc(OnKeyboardMessage);
 	glutSpecialFunc(OnSpecialKeyMessage);
 	glutKeyboardUpFunc(OnKeyboardUpMessage);
