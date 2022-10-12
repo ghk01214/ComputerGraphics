@@ -18,7 +18,7 @@ public:
 
 	void CreateBuffer();
 	void BindVAO();
-	void CreateVertex(std::shared_ptr<Shader>& _shader);
+	void CreateVertex(std::shared_ptr<Shader> _shader);
 
 	void SetUp(std::shared_ptr<Shader> _shader);
 

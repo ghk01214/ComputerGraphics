@@ -1,7 +1,9 @@
 ﻿#include "pch.h"
 #include "Triangle.h"
+#include "Rect.h"
 #include "CameraMgr.h"
 #include "GameScene.h"
+#include "Engine.h"
 
 enum
 {
@@ -10,31 +12,28 @@ enum
 	C_TOP,
 	C_RIGHT,
 	C_BOTTOM,
-	CC_LEFT,
-	CC_TOP,
-	CC_RIGHT,
-	CC_BOTTOM,
 	MAX
 };
 
 extern Window window;
-std::uniform_int_distribution<int32_t> uid_time{ 1, 4 };
-std::uniform_real_distribution<float> uid_posx{ -1.f, 1.f };
-std::uniform_real_distribution<float> uid_posy{ -1.f, -0.5f };
+std::uniform_int_distribution<int32_t> uid_time{ 1, 3 };
+std::uniform_real_distribution<float> uid_out_x{ -0.5f, 0.5f };
+std::uniform_real_distribution<float> uid_out_y{ -1.f, -0.5f };
 
 std::shared_ptr<GameScene> GameScene::_inst{ nullptr };
 
 GameScene::GameScene() :
 	_camera{},
-	_tri{},
+	_object{},
 	_index{},
 	_type{ GL_TRIANGLES },
-	_info{}
+	_info{},
+	_dir{ C_LEFT }
 {
-	_tri.push_back(new Triangle{ glm::vec3{ uid_posx(dre), uid_posy(dre), 0.f} });
-	_tri.push_back(new Triangle{ glm::vec3{ uid_posx(dre), uid_posy(dre), 0.f} });
-	_tri.push_back(new Triangle{ glm::vec3{ uid_posx(dre), uid_posy(dre), 0.f} });
-	_tri.push_back(new Triangle{ glm::vec3{ uid_posx(dre), uid_posy(dre), 0.f} });
+	_object.push_back(new Triangle{ glm::vec3{ uid_out_x(dre), uid_out_y(dre), 0.f }, false });
+	_object.push_back(new Triangle{ glm::vec3{ 0.f, -0.4f, 0.f }, false });
+	_object.push_back(new Triangle{ glm::vec3{ 0.f, 0.4f, 0.f }, true });
+	_object.push_back(new Rect{});
 
 	_inst.reset(this);
 }
@@ -45,18 +44,18 @@ GameScene::~GameScene()
 
 void GameScene::OnLoad()
 {
-	for (int32_t i = 0; i < _tri.size(); ++i)
+	_info.insert(std::make_pair(_object[0], std::make_pair(1, C_LEFT)));
+	_info.insert(std::make_pair(_object[1], std::make_pair(uid_time(dre), C_LEFT)));
+	_info.insert(std::make_pair(_object[2], std::make_pair(uid_time(dre), C_RIGHT)));
+
+	for (int32_t i = 0; i < _object.size() - 1; ++i)
 	{
-		_tri[i]->OnLoad();
+		_object[i]->OnLoad();
 
-		if (uid_time(dre) % 2 == 0)
-			_info.insert(std::make_pair(_tri[i], std::make_pair(uid_time(dre), C_LEFT)));
-		else
-			_info.insert(std::make_pair(_tri[i], std::make_pair(uid_time(dre), CC_RIGHT)));
-
-
-		glutTimerFunc(_info[_tri[i]].first * 10, Animate, i);
+		glutTimerFunc(_info[_object[i]].first * 10, Engine::OnAnimate, i);
 	}
+
+	_object[3]->OnLoad();
 }
 
 void GameScene::OnKeyboardMessage(uchar key, int32_t x, int32_t y)
@@ -81,10 +80,10 @@ void GameScene::OnMouseMessage(int32_t button, int32_t x, int32_t y)
 
 	if (button == GLUT_LEFT_BUTTON)
 	{
-		if (_index >= _tri.size())
+		if (_index >= _object.size())
 			_index = 0;
 
-		_tri[_index++]->Teleport(x2, y2, 0.f);
+		//_object[_index++]->Teleport(x2, y2, 0.f);
 	}
 }
 
@@ -92,220 +91,202 @@ void GameScene::OnRender()
 {
 	Scene::OnRender();
 
-	for (auto& tri : _tri)
+	for (auto& obj : _object)
 	{
-		tri->GetShader()->Use();
-		tri->BindVAO();
+		obj->GetShader()->Use();
+		obj->BindVAO();
 
-		tri->Transform();
-		//CameraMgr::ViewTransform(tri->GetShader());
-		//CameraMgr::ProjectionTransform(tri->GetShader());
+		obj->Transform();
+		//CameraMgr::ViewTransform(obj->GetShader());
+		//CameraMgr::ProjectionTransform(obj->GetShader());
 
-		glDrawElements(_type, tri->GetIndexNum(), GL_UNSIGNED_INT, 0);
+		glDrawElements(_type, obj->GetIndexNum(), GL_UNSIGNED_INT, 0);
 	}
 }
 
-void GameScene::Animate(int32_t value)
+void GameScene::OnAnimate(int32_t value)
 {
-	_inst->Moving(value);
-	glutTimerFunc(_inst->_info[_inst->_tri[value]].first * 10, Animate, value);
+	if (value == 0)
+		_inst->Outside(value);
+	else
+		_inst->Inside(value);
+
+	glutTimerFunc(_inst->_info[_inst->_object[value]].first * 10, Engine::OnAnimate, value);
 }
 
-void GameScene::Moving(int32_t index)
+void GameScene::Outside(int32_t index)
 {
-	auto triangle{ dynamic_cast<Triangle*>(_tri[index]) };
-	int32_t angle{ (Convert::ToInt32(triangle->GetAngle().z) / 90) % 4 };
+	auto triangle{ dynamic_cast<Triangle*>(_object[0]) };
+	glm::vec3 pos{ triangle->GetPos() };
 
 	switch (_info[triangle].second)
 	{
 		case C_LEFT:
 		{
-			if (triangle->GetPos().x < -0.9f)
+#pragma region [OUTER BOUNDARY]
+			if (pos.x < -0.9f)
 			{
-				_info[triangle].second = C_TOP;
-				triangle->SetPos(glm::vec3{ -0.9f, triangle->GetPos().y, 0.f });
-				triangle->RotateZ(-90.f);
+				if (_dir == C_LEFT)
+				{
+					Move(triangle, C_TOP, glm::vec3{ -0.9f, pos.y, 0.f }, -90.f);
+					_dir = C_TOP;
+				}
+				else
+					Move(triangle, C_TOP, glm::vec3{ -0.9f, pos.y, 0.f }, -180.f);
 
 				break;
 			}
-
-			if (triangle->GetPos().y > 0.9f)
+#pragma endregion
+#pragma region [INNER BOUNDARY]
+			if (pos.y > -0.7f)
 			{
-				_info[triangle].second = C_RIGHT;
-				triangle->SetPos(glm::vec3{ triangle->GetPos().x, 0.9f, 0.f });
-				triangle->RotateZ(-180.f);
+				if (-0.5f < pos.x and pos.x < 0.5f)
+					Move(triangle, C_BOTTOM, glm::vec3{ pos.x, -0.7f, 0.f }, -180.f);
+				else
+					triangle->Move(-0.01f, 0.01f, 0.f);
 
 				break;
 			}
+#pragma endregion
 
 			triangle->Move(-0.01f, 0.01f, 0.f);
 		}
 		break;
 		case C_TOP:
 		{
-			if (triangle->GetPos().y > 0.9f)
+#pragma region [OUTER BOUNDARY]
+			if (pos.y > 0.8f)
 			{
-				_info[triangle].second = C_RIGHT;
-				triangle->SetPos(glm::vec3{ triangle->GetPos().x, 0.9f, 0.f });
-				triangle->RotateZ(-90.f);
+				if (_dir == C_TOP)
+				{
+					Move(triangle, C_RIGHT, glm::vec3{ pos.x, 0.8f, 0.f }, -90.f);
+					_dir = C_RIGHT;
+				}
+				else
+					Move(triangle, C_RIGHT, glm::vec3{ pos.x, 0.8f, 0.f }, -180.f);
 
 				break;
 			}
-
-			if (triangle->GetPos().x > 0.9f)
+#pragma endregion
+#pragma region [INNER BOUNDARY]
+			if (pos.x > -0.7f)
 			{
-				_info[triangle].second = C_BOTTOM;
-				triangle->SetPos(glm::vec3{ 0.9f, triangle->GetPos().y, 0.f });
-				triangle->RotateZ(-180.f);
+				if (-0.5f < pos.y and pos.y < 0.5f)
+					Move(triangle, C_LEFT, glm::vec3{ -0.7, pos.y, 0.f }, -180.f);
+				else
+					triangle->Move(0.01f, 0.01f, 0.f);
 
 				break;
 			}
+#pragma endregion
 
 			triangle->Move(0.01f, 0.01f, 0.f);
 		}
 		break;
 		case C_RIGHT:
 		{
-			if (triangle->GetPos().x > 0.9f)
+#pragma region [OUTER BOUNDARY]
+			if (pos.x > 0.9f)
 			{
-				_info[triangle].second = C_BOTTOM;
-				triangle->SetPos(glm::vec3{ 0.9f, triangle->GetPos().y, 0.f });
-				triangle->RotateZ(-90.f);
+				if (_dir == C_RIGHT)
+				{
+					Move(triangle, C_BOTTOM, glm::vec3{ 0.9f, pos.y, 0.f }, -90.f);
+					_dir = C_BOTTOM;
+				}
+				else
+					Move(triangle, C_BOTTOM, glm::vec3{ 0.9f, pos.y, 0.f }, -180.f);
 
 				break;
 			}
-
-			if (triangle->GetPos().y < -0.9f)
+#pragma endregion
+#pragma region [INNER BOUNDARY]
+			if (pos.y < 0.7f)
 			{
-				_info[triangle].second = C_LEFT;
-				triangle->SetPos(glm::vec3{ triangle->GetPos().x, -0.9f, 0.f });
-				triangle->RotateZ(-180.f);
+				if (-0.5f < pos.x and pos.x < 0.5f)
+					Move(triangle, C_TOP, glm::vec3{ pos.x, 0.7f, 0.f }, -180.f);
+				else
+					triangle->Move(0.01f, -0.01f, 0.f);
 
 				break;
 			}
+#pragma endregion
 
 			triangle->Move(0.01f, -0.01f, 0.f);
 		}
 		break;
 		case C_BOTTOM:
 		{
-			if (triangle->GetPos().y < -0.9f)
+#pragma region [OUTER BOUNDARY]
+			if (pos.y < -0.8f)
 			{
-				_info[triangle].second = C_LEFT;
-				triangle->SetPos(glm::vec3{ triangle->GetPos().x, -0.9f, 0.f });
-				triangle->RotateZ(-90.f);
+				if (_dir == C_BOTTOM)
+				{
+					Move(triangle, C_LEFT, glm::vec3{ pos.x, -0.8f, 0.f }, -90.f);
+					_dir = C_LEFT;
+				}
+				else
+					Move(triangle, C_LEFT, glm::vec3{ pos.x, -0.8f, 0.f }, -180.f);
 
 				break;
 			}
-
-			if (triangle->GetPos().x < -0.9f)
+#pragma endregion
+#pragma region [INNER BOUNDARY]
+			if (pos.x < 0.7f)
 			{
-				_info[triangle].second = C_TOP;
-				triangle->SetPos(glm::vec3{ -0.9f, triangle->GetPos().y, 0.f });
-				triangle->RotateZ(-180.f);
+				if (-0.5f < pos.y and pos.y < 0.5f)
+					Move(triangle, C_RIGHT, glm::vec3{ 0.7f, pos.y, 0.f }, -180.f);
+				else
+					triangle->Move(-0.01f, -0.01f, 0.f);
 
 				break;
 			}
-
-			triangle->Move(-0.01f, -0.01f, 0.f);
-		}
-		break;
-		case CC_LEFT:
-		{
-			if (triangle->GetPos().y > 0.9f)
-			{
-				_info[triangle].second = CC_BOTTOM;
-				triangle->SetPos(glm::vec3{ triangle->GetPos().x, 0.9f, 0.f });
-				triangle->RotateZ(90.f);
-
-				break;
-			}
-
-			if (triangle->GetPos().x < -0.9f)
-			{
-				_info[triangle].second = CC_RIGHT;
-				triangle->SetPos(glm::vec3{ -0.9f, triangle->GetPos().y, 0.f });
-				triangle->RotateZ(180.f);
-
-				break;
-			}
-
-			triangle->Move(-0.01f, 0.01f, 0.f);
-		}
-		break;
-		case CC_TOP:
-		{
-			if (triangle->GetPos().x > 0.9f)
-			{
-				_info[triangle].second = CC_LEFT;
-				triangle->SetPos(glm::vec3{ 0.9f, triangle->GetPos().y, 0.f });
-				triangle->RotateZ(90.f);
-
-				break;
-			}
-
-			if (triangle->GetPos().y > 0.9f)
-			{
-				_info[triangle].second = CC_BOTTOM;
-				triangle->SetPos(glm::vec3{ triangle->GetPos().x, 0.9f, 0.f });
-				triangle->RotateZ(180.f);
-
-				break;
-			}
-
-			triangle->Move(0.01f, 0.01f, 0.f);
-		}
-		break;
-		case CC_RIGHT:
-		{
-			if (triangle->GetPos().y < -0.9f)
-			{
-				_info[triangle].second = CC_TOP;
-				triangle->SetPos(glm::vec3{ triangle->GetPos().x, -0.9f, 0.f });
-				triangle->RotateZ(90.f);
-
-				break;
-			}
-
-			if (triangle->GetPos().x > 0.9f)
-			{
-				_info[triangle].second = CC_LEFT;
-				triangle->SetPos(glm::vec3{ 0.9f, triangle->GetPos().y, 0.f });
-				triangle->RotateZ(180.f);
-
-				break;
-			}
-
-			triangle->Move(0.01f, -0.01f, 0.f);
-		}
-		break;
-		case CC_BOTTOM:
-		{
-			if (triangle->GetPos().x < -0.9f)
-			{
-				_info[triangle].second = CC_RIGHT;
-				triangle->SetPos(glm::vec3{ -0.9f, triangle->GetPos().y, 0.f });
-				triangle->RotateZ(90.f);
-
-				break;
-			}
-
-			if (triangle->GetPos().y < -0.9f)
-			{
-				_info[triangle].second = CC_TOP;
-				triangle->SetPos(glm::vec3{ triangle->GetPos().x, -0.9f, 0.f });
-				triangle->RotateZ(180.f);
-
-				break;
-			}
+#pragma endregion
 
 			triangle->Move(-0.01f, -0.01f, 0.f);
 		}
 		break;
 	}
 
-	triangle->GetMesh()->SetUp(triangle->GetShader());
-	//std::cout << triangle->GetPos().x << ", " << triangle->GetPos().y << std::endl;
-
+	std::cout << _info[triangle].second << ", " << triangle->GetPos().x << ", " << triangle->GetPos().y << std::endl;
+	triangle->GetMesh()->CreateVertex(triangle->GetShader());
 	glutPostRedisplay();
+}
+
+void GameScene::Inside(int32_t index)
+{
+	auto triangle{ dynamic_cast<Triangle*>(_object[index]) };
+	glm::vec3 pos{ triangle->GetPos() };
+
+	if (_info[triangle].second == C_LEFT)
+	{
+		triangle->Move(-0.01f, 0.f, 0.f);
+
+		if (pos.x <= -0.4f)
+		{
+			triangle->SetPos(glm::vec3{ -0.4f, pos.y, pos.z });
+			triangle->ChangeColor();
+			_info[triangle].second = C_RIGHT;
+		}
+	}
+	else
+	{
+		triangle->Move(0.01f, 0.f, 0.f);
+
+		if (pos.x >= 0.4f)
+		{
+			triangle->SetPos(glm::vec3{ 0.4f, pos.y, pos.z });
+			triangle->ChangeColor();
+			_info[triangle].second = C_LEFT;
+		}
+	}
+
+	triangle->GetMesh()->CreateVertex(triangle->GetShader());
+	glutPostRedisplay();
+}
+
+void GameScene::Move(Triangle* obj, int32_t direction, glm::vec3 pos, float angle)
+{
+	_info[obj].second = direction;
+	obj->SetPos(pos);
+	obj->RotateZ(angle);
 }

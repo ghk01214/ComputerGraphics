@@ -24,6 +24,7 @@ public:
 	static void OnMouseMessage(int32_t button, int32_t state, int32_t x, int32_t y);
 	static void OnMouseMotionMessage(int32_t x, int32_t y);
 	static void OnMousePassiveMotionMessage(int32_t x, int32_t y);
+	static void OnAnimate(int32_t index);
 
 	constexpr std::unique_ptr<SceneMgr>& GetSceneMgr() { return _scene_mgr; }
 

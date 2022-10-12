@@ -22,6 +22,7 @@ public:
 	void OnMouseUpMessage(int32_t button, int32_t x, int32_t y);
 	void OnMouseMotionMessage(int32_t x, int32_t y);
 	void OnMousePassiveMotionMessage(int32_t x, int32_t y);
+	void OnAnimate(int32_t index);
 	void OnRender();
 #pragma endregion
 

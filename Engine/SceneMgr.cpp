@@ -85,6 +85,11 @@ void SceneMgr::OnMousePassiveMotionMessage(int32_t x, int32_t y)
 	inst->_scene[inst->_current]->OnMousePassiveMotionMessage(x, y);
 }
 
+void SceneMgr::OnAnimate(int32_t index)
+{
+	inst->_scene[inst->_current]->OnAnimate(index);
+}
+
 void SceneMgr::OnRender()
 {
 	inst->_scene[inst->_current]->OnRender();

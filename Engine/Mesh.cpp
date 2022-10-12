@@ -31,7 +31,7 @@ void Mesh::BindVAO()
 	glBindVertexArray(_vao);
 }
 
-void Mesh::CreateVertex(std::shared_ptr<Shader>& _shader)
+void Mesh::CreateVertex(std::shared_ptr<Shader> _shader)
 {
 	BindVAO();
 

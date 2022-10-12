@@ -145,6 +145,11 @@ void Engine::OnMousePassiveMotionMessage(int32_t x, int32_t y)
 	glutPostRedisplay();
 }
 
+void Engine::OnAnimate(int32_t index)
+{
+	inst->_scene_mgr->OnAnimate(index);
+}
+
 void Engine::Update()
 {
 	glutMainLoop();

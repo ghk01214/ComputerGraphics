@@ -17,5 +17,6 @@ public:
 	virtual void OnMouseUpMessage(int32_t button, int32_t x, int32_t y) {}
 	virtual void OnMouseMotionMessage(int32_t x, int32_t y) {}
 	virtual void OnMousePassiveMotionMessage(int32_t x, int32_t y) {}
+	virtual void OnAnimate(int32_t index) {}
 	virtual void OnRender();
 };
