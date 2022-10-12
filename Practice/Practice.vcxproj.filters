@@ -16,6 +16,9 @@
     <Filter Include="Util">
       <UniqueIdentifier>{631ef74d-324e-4b69-9033-e180cf238116}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Scene">
+      <UniqueIdentifier>{03194ca3-8dae-4d41-948b-d058e8368750}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -25,18 +28,18 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="GameScene.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Scene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
       <Filter>Util</Filter>
     </ClCompile>
-    <ClCompile Include="GameScene.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="GameScene.cpp">
+      <Filter>Scene</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

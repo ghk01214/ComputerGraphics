@@ -96,6 +96,9 @@
     <ClInclude Include="DebugScene.h">
       <Filter>Debug</Filter>
     </ClInclude>
+    <ClInclude Include="Line.h">
+      <Filter>Resource\Object</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine.cpp">
@@ -145,6 +148,9 @@
     </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Line.cpp">
+      <Filter>Resource\Object</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

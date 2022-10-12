@@ -28,7 +28,9 @@ GameScene::GameScene() :
 	_index{},
 	_type{ GL_TRIANGLES },
 	_info{},
-	_dir{ C_LEFT }
+	_dir{ C_LEFT },
+	_out_ani{ true },
+	_in_ani{ true }
 {
 	_object.push_back(new Triangle{ glm::vec3{ uid_out_x(dre), uid_out_y(dre), 0.f }, false });
 	_object.push_back(new Triangle{ glm::vec3{ 0.f, -0.4f, 0.f }, false });
@@ -62,13 +64,13 @@ void GameScene::OnKeyboardMessage(uchar key, int32_t x, int32_t y)
 {
 	switch (key)
 	{
-		case 'A': FALLTHROUGH
-		case 'a':
-			_type = GL_LINE_LOOP;
+		case 'O': FALLTHROUGH
+		case 'o':
+			_out_ani = !_out_ani;
 			break;
-		case 'B': FALLTHROUGH
-		case 'b':
-			_type = GL_TRIANGLES;
+		case 'I': FALLTHROUGH
+		case 'i':
+			_in_ani = !_in_ani;
 			break;
 	}
 }
@@ -82,8 +84,6 @@ void GameScene::OnMouseMessage(int32_t button, int32_t x, int32_t y)
 	{
 		if (_index >= _object.size())
 			_index = 0;
-
-		//_object[_index++]->Teleport(x2, y2, 0.f);
 	}
 }
 
@@ -106,9 +106,9 @@ void GameScene::OnRender()
 
 void GameScene::OnAnimate(int32_t value)
 {
-	if (value == 0)
+	if (value == 0 and _out_ani == true)
 		_inst->Outside(value);
-	else
+	else if (value > 0 and _in_ani == true)
 		_inst->Inside(value);
 
 	glutTimerFunc(_inst->_info[_inst->_object[value]].first * 10, Engine::OnAnimate, value);

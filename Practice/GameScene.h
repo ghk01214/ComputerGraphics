@@ -31,4 +31,7 @@ private:
 	uint32_t _index;
 	uint32_t _type;
 	int32_t _dir;
+
+	bool _out_ani;
+	bool _in_ani;
 };
