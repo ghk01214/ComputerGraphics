@@ -14,12 +14,12 @@ Line::Line()
 	};
 }
 
-Line::Line(glm::vec3 pos, float length)
+Line::Line(glm::vec3 pos, float length, bool horizontal)
 {
 	_draw_type = GL_LINES;
 	std::vector<float> vertex;
 
-	if (Util::IsEqual(pos.y, 0.f) == true)
+	if (horizontal == true)
 	{
 		vertex =
 		{
@@ -27,7 +27,7 @@ Line::Line(glm::vec3 pos, float length)
 			pos.x - length, pos.y, pos.z
 		};
 	}
-	else if (Util::IsEqual(pos.x, 0.f) == true)
+	else
 	{
 		vertex =
 		{

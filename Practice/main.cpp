@@ -3,7 +3,7 @@
 #include "SceneMgr.h"
 #include "Engine.h"
 
-Window window{ 800, 800, true };
+Window window{ 800, 600, true };
 
 int main(int32_t argc, char** argv)
 {

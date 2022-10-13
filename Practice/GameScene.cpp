@@ -1,4 +1,5 @@
 ﻿#include "pch.h"
+#include "Line.h"
 #include "Triangle.h"
 #include "Rect.h"
 #include "CameraMgr.h"
@@ -12,8 +13,11 @@ GameScene::GameScene() :
 	_object{},
 	_index{ -1 },
 	_move_vertex{ false },
-	_move_rect{ false }
+	_move_rect{ false },
+	_old_pos{ vec3::zero() }
 {
+	_object.push_back(new Line{ vec3::zero(), 1.f });
+	_object.push_back(new Line{ vec3::zero(), 1.f, false });
 	_object.push_back(new Rect{});
 }
 
@@ -23,7 +27,10 @@ GameScene::~GameScene()
 
 void GameScene::OnLoad()
 {
-	_object[0]->OnLoad();
+	for (auto& obj : _object)
+	{
+		obj->OnLoad();
+	}
 }
 
 void GameScene::OnKeyboardMessage(uchar key, int32_t x, int32_t y)
@@ -43,7 +50,7 @@ void GameScene::OnMouseMessage(int32_t button, int32_t x, int32_t y)
 {
 	float x2{ Convert::ToFloat(x) / (window.width / 2) - 1.f };
 	float y2{ 1.f - Convert::ToFloat(y) / (window.height / 2) };
-	auto rect{ dynamic_cast<Rect*>(_object[0]) };
+	auto rect{ dynamic_cast<Rect*>(_object[2]) };
 	auto ver{ rect->GetVertex() };
 	std::vector<bool> in_rect(4, false);
 
@@ -81,17 +88,23 @@ void GameScene::OnMouseMotionMessage(int32_t x, int32_t y)
 {
 	float x2{ Convert::ToFloat(x) / (window.width / 2) - 1.f };
 	float y2{ 1.f - Convert::ToFloat(y) / (window.height / 2) };
-	auto rect{ dynamic_cast<Rect*>(_object[0]) };
+	auto rect{ dynamic_cast<Rect*>(_object[2]) };
+	glm::vec3 pos{ x2, y2, 0.f };
 
 	if (_move_vertex == true)
 	{
-		rect->SetVertex(_index, glm::vec3{ x2, y2, 0.f });
+		rect->SetVertex(_index, pos);
 		rect->GetMesh()->CreateVertex(rect->GetShader());
 	}
 	else if (_move_rect == true)
 	{
-		rect->SetVertex(glm::vec3{ x2, y2, 0.f });
+		if (_old_pos == pos)
+			return;
+
+		rect->SetVertex(glm::vec3{ pos.x - _old_pos.x, pos.y - _old_pos.y, 0.f});
 		rect->GetMesh()->CreateVertex(rect->GetShader());
+
+		_old_pos = pos;
 	}
 }
 

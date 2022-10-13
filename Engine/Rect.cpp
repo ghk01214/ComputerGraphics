@@ -98,14 +98,11 @@ void Rect::SetVertex(int32_t index, glm::vec3 pos)
 
 void Rect::SetVertex(glm::vec3 pos)
 {
-	//TODO: 수식 수정
-	std::cout << pos.x << ", " << pos.y << std::endl;
 	for (auto& ver : _vertex)
 	{
-		std::cout << ver.x << ", " << ver.y << std::endl;
 		ver += pos;
 	}
-	std::cout << std::endl;
+
 	std::vector<float> vertex =
 	{
 		_vertex[0].x, _vertex[0].y, _vertex[0].z,
