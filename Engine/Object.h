@@ -28,7 +28,7 @@ public:
 	void BindVAO() { _mesh->BindVAO(); }
 
 	std::shared_ptr<Mesh> GetMesh() { return _mesh; }
-	std::shared_ptr<Shader> GetShader() { return _shader; }
+	std::shared_ptr<Shader>& GetShader() { return _shader; }
 	size_t GetIndexNum() { return _mesh->GetIndexNum(); }
 	glm::vec3 GetPos() { return _pos; }
 	glm::vec3 GetAngle() { return _angle; }
@@ -36,6 +36,7 @@ public:
 	
 	void SetModelMat(glm::mat4 model) { _model = model; }
 	void SetPos(glm::vec3 pos) { _pos = pos; }
+	void ChangeDrawType(uint32_t type) { _draw_type = type; }
 
 public:
 	friend std::hash<Object>;

@@ -25,8 +25,5 @@ private:
 
 	int32_t _index;
 
-	bool _move_vertex;
-	bool _move_rect;
-
-	glm::vec3 _old_pos;
+	bool _depth_test;
 };

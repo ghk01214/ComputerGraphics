@@ -43,6 +43,12 @@
     <Filter Include="Debug">
       <UniqueIdentifier>{eb4f61cd-1dc2-494a-9c8b-9262ce50d99b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource\Object\2D">
+      <UniqueIdentifier>{4984f067-c981-4be6-a5dc-c8a4cb55a5f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource\Object\3D">
+      <UniqueIdentifier>{dd12395f-fe28-4e70-be6f-bf84c06c175c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -78,12 +84,6 @@
     <ClInclude Include="EnginePch.h">
       <Filter>Engine</Filter>
     </ClInclude>
-    <ClInclude Include="Rect.h">
-      <Filter>Resource\Object</Filter>
-    </ClInclude>
-    <ClInclude Include="Triangle.h">
-      <Filter>Resource\Object</Filter>
-    </ClInclude>
     <ClInclude Include="Camera.h">
       <Filter>Camera</Filter>
     </ClInclude>
@@ -93,11 +93,20 @@
     <ClInclude Include="DebugScene.h">
       <Filter>Debug</Filter>
     </ClInclude>
-    <ClInclude Include="Line.h">
-      <Filter>Resource\Object</Filter>
-    </ClInclude>
     <ClInclude Include="..\Dependencies\include\Util.h">
       <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Line.h">
+      <Filter>Resource\Object\2D</Filter>
+    </ClInclude>
+    <ClInclude Include="Rect.h">
+      <Filter>Resource\Object\2D</Filter>
+    </ClInclude>
+    <ClInclude Include="Triangle.h">
+      <Filter>Resource\Object\2D</Filter>
+    </ClInclude>
+    <ClInclude Include="Cube.h">
+      <Filter>Resource\Object\3D</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -125,14 +134,8 @@
     <ClCompile Include="Material.cpp">
       <Filter>Resource\Material</Filter>
     </ClCompile>
-    <ClCompile Include="Triangle.cpp">
-      <Filter>Resource\Object</Filter>
-    </ClCompile>
     <ClCompile Include="Scene.cpp">
       <Filter>Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="Rect.cpp">
-      <Filter>Resource\Object</Filter>
     </ClCompile>
     <ClCompile Include="Camera.cpp">
       <Filter>Camera</Filter>
@@ -146,11 +149,20 @@
     <ClCompile Include="main.cpp">
       <Filter>Debug</Filter>
     </ClCompile>
-    <ClCompile Include="Line.cpp">
-      <Filter>Resource\Object</Filter>
-    </ClCompile>
     <ClCompile Include="..\Dependencies\include\Util.cpp">
       <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Line.cpp">
+      <Filter>Resource\Object\2D</Filter>
+    </ClCompile>
+    <ClCompile Include="Rect.cpp">
+      <Filter>Resource\Object\2D</Filter>
+    </ClCompile>
+    <ClCompile Include="Triangle.cpp">
+      <Filter>Resource\Object\2D</Filter>
+    </ClCompile>
+    <ClCompile Include="Cube.cpp">
+      <Filter>Resource\Object\3D</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

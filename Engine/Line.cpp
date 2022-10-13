@@ -42,9 +42,9 @@ Line::Line(glm::vec3 pos, float length, bool horizontal)
 
 	std::vector<float> color
 	{
-		random_color, random_color2, rand_color3, 1.f,
-		random_color, random_color2, rand_color3, 1.f,
-		random_color, random_color2, rand_color3, 1.f
+		BLACK, 1.f,
+		BLACK, 1.f,
+		BLACK, 1.f,
 	};
 
 	std::vector<uint32_t> index

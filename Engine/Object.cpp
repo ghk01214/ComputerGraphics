@@ -43,10 +43,14 @@ void Object::OnLoad()
 
 void Object::Transform()
 {
+	auto model{ mat4::unit() };
+
 	for (auto iter = _transform.rbegin(); iter != _transform.rend(); ++iter)
 	{
-		_model *= *iter;
+		model *= *iter;
 	}
+
+	_model = model * _model;
 
 	_transform.clear();
 
