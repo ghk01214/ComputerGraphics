@@ -19,14 +19,14 @@ Cube::Cube()
 
 	std::vector<float> color
 	{
-		0.f, 0.f, 0.f, 1.f,
-		1.f, 0.f, 0.f, 1.f,
-		0.f, 1.f, 0.f, 1.f,
-		0.f, 0.f, 1.f, 1.f,
+		BLACK, 1.f,
+		RED, 1.f,
+		GREEN, 1.f,
+		BLUE, 1.f,
 		1.f, 1.f, 0.f, 1.f,
 		1.f, 0.f, 1.f, 1.f,
 		0.f, 1.f, 1.f, 1.f,
-		1.f, 1.f, 1.f, 1.f,
+		WHITE, 1.f,
 	};
 
 	std::vector<uint32_t> index

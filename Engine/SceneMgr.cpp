@@ -64,19 +64,19 @@ void SceneMgr::OnSpecialKeyUpMessage(int32_t key, int32_t x, int32_t y)
 
 void SceneMgr::OnMouseMessage(int32_t button, int32_t x, int32_t y)
 {
-	//inst->_camera_mgr->OnMouseMessage(button, x, y);
+	inst->_camera_mgr->OnMouseMessage(button, x, y);
 	inst->_scene[inst->_current]->OnMouseMessage(button, x, y);
 }
 
 void SceneMgr::OnMouseUpMessage(int32_t button, int32_t x, int32_t y)
 {
-	//inst->_camera_mgr->OnMouseUpMessage(button, x, y);
+	inst->_camera_mgr->OnMouseUpMessage(button, x, y);
 	inst->_scene[inst->_current]->OnMouseUpMessage(button, x, y);
 }
 
 void SceneMgr::OnMouseMotionMessage(int32_t x, int32_t y)
 {
-	//inst->_camera_mgr->OnMouseMotionMessage(x, y);
+	inst->_camera_mgr->OnMouseMotionMessage(x, y);
 	inst->_scene[inst->_current]->OnMouseMotionMessage(x, y);
 }
 

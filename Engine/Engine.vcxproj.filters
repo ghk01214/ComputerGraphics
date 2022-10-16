@@ -108,6 +108,12 @@
     <ClInclude Include="Cube.h">
       <Filter>Resource\Object\3D</Filter>
     </ClInclude>
+    <ClInclude Include="Pyramid.h">
+      <Filter>Resource\Object\3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Figure.h">
+      <Filter>Resource\Object</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine.cpp">
@@ -162,6 +168,9 @@
       <Filter>Resource\Object\2D</Filter>
     </ClCompile>
     <ClCompile Include="Cube.cpp">
+      <Filter>Resource\Object\3D</Filter>
+    </ClCompile>
+    <ClCompile Include="Pyramid.cpp">
       <Filter>Resource\Object\3D</Filter>
     </ClCompile>
   </ItemGroup>

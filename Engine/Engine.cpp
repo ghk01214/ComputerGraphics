@@ -33,7 +33,7 @@ void Engine::Init(const Window* window)
 	else
 		std::cout << std::format("GLEW 4.6 not supported") << std::endl;
 
-	glClearDepth(1.f);
+	glClearDepth(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glutDisplayFunc(Render);
 	glutReshapeFunc(Reshape);
