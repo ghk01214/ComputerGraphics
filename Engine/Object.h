@@ -31,6 +31,7 @@ public:
 	virtual void Teleport(glm::vec3 pos);
 
 	void BindVAO() { _mesh->BindVAO(); }
+	void BindIndex() { _mesh->BindIndex(); }
 
 	std::shared_ptr<Mesh> GetMesh() { return _mesh; }
 	std::shared_ptr<Shader> GetShader() { return _shader; }
@@ -42,6 +43,7 @@ public:
 	void SetModelMat(glm::mat4 model) { _model = model; }
 	void SetPos(glm::vec3 pos) { _pos = pos; }
 	void ChangeDrawType(uint32_t type) { _draw_type = type; }
+	void SetIndex(std::vector<uint32_t>* index) { _mesh->SetIndex(index); }
 
 public:
 	friend std::hash<Object>;

@@ -2,6 +2,28 @@
 
 #include "Scene.h"
 
+enum class CUBE
+{
+	NONE = 0,
+	LEFT = 0,
+	RIGHT,
+	TOP,
+	BOTTOM,
+	FRONT,
+	BACK,
+	MAX
+};
+
+enum class TETRA
+{
+	NONE = 0,
+	BOTTOM = 0,
+	FRONT,
+	LEFT,
+	RIGHT,
+	MAX
+};
+
 class Object;
 
 class GameScene : public Scene
@@ -20,18 +42,13 @@ public:
 	void OnAnimate(int32_t index) override;
 	void OnRender() override;
 
-	void RotateX(int32_t direction);
-	void RotateY(int32_t direction);
-
 private:
 	std::unique_ptr<class CameraMgr> _camera;
-	std::list<Object*> _object;
-	Object* _hidden;
+	std::vector<Object*> _object;
 
-	int32_t _index;
+	std::vector<std::vector<uint32_t>> _cube_face;
+	std::vector<std::vector<uint32_t>> _tetra_face;
 
-	bool _depth_test;
-	bool _solid_object;
-	bool _cube;
-	bool _stop_animation;
+	uint32_t _index;
+	uint32_t _rendered;
 };

@@ -10,7 +10,7 @@ Tetraherdon::Tetraherdon(glm::vec3 pos)
 		pos.x + 0.f, pos.y + 0.5f, pos.z + 0.f,
 		pos.x + 0.5f, pos.y + (-0.5f), pos.z + 0.5f,
 		pos.x + 0.f, pos.y + (-0.5f), pos.z + (-0.5f),
-		pos.x + 0.5f, pos.y + (-0.5f), pos.z + 0.5f,
+		pos.x + (-0.5f), pos.y + (-0.5f), pos.z + 0.5f,
 	};
 
 	std::vector<float> color

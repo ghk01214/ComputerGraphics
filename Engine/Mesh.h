@@ -23,6 +23,7 @@ public:
 	void CreateBuffer();
 	void BindVAO();
 	void CreateVertex(std::shared_ptr<Shader> _shader);
+	void BindIndex();
 
 	size_t GetIndexNum() { return _index.size(); }
 

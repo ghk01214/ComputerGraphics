@@ -9,22 +9,87 @@ extern Window window;
 GameScene::GameScene() :
 	_camera{},
 	_object{},
-	_index{ -1 },
-	_hidden{ new Pyramid{} },
-	_depth_test{ true },
-	_solid_object{ true },
-	_cube{ true },
-	_stop_animation{ true }
+	_index{ Convert::ToUint32(CUBE::LEFT) },
+	_cube_face{},
+	_tetra_face{},
+	_rendered{ 2 }
 {
 	_object.push_back(new Line{ vec3::zero(), 5.f });
 	_object.push_back(new Line{ vec3::zero(), 5.f, false });
 	_object.push_back(new Cube{});
+	_object.push_back(new Tetraherdon{});
 
-	_object.back()->RotateY(45.f);
-	_object.back()->RotateX(30.f);
+	_object[2]->RotateY(45.f);
+	_object[2]->RotateX(30.f);
+	_object[3]->RotateY(45.f);
+	_object[3]->RotateX(30.f);
 
-	_hidden->RotateY(45.f);
-	_hidden->RotateX(30.f);
+	_cube_face.reserve(Convert::ToUint32(CUBE::MAX));
+	_tetra_face.reserve(Convert::ToUint32(TETRA::MAX));
+
+#pragma region [CUBE INDEX]
+	std::vector<uint32_t> index
+	{
+		2, 3, 6,
+		3, 7, 6
+	};
+	_cube_face.push_back(index);		// LEFT
+
+	index =
+	{
+		5, 4, 1,
+		4, 0, 1
+	};
+	_cube_face.push_back(index);		// RIGHT
+
+	index =
+	{
+		0, 4, 3,
+		4, 7, 3
+	};
+	_cube_face.push_back(index);		// TOP
+
+	index =
+	{
+		5, 1, 6,
+		1, 2, 6
+	};
+	_cube_face.push_back(index);		// BOTTOM
+
+	index =
+	{
+		1, 0, 2,
+		0, 3, 2
+	};
+	_cube_face.push_back(index);		// FRONT
+
+	index =
+	{
+		6, 7, 5,
+		7, 4, 5
+	};
+	_cube_face.push_back(index);		// BACK
+#pragma endregion
+#pragma region [TETRA INDEX]
+	index = { 1, 2, 3 };
+	_tetra_face.push_back(index);		// BOTTOM
+
+	index = { 1, 0, 3 };
+	_tetra_face.push_back(index);		// FRONT
+
+	index = { 3, 0, 2 };
+	_tetra_face.push_back(index);		// LEFT
+
+	index = { 2, 0, 1 };
+	_tetra_face.push_back(index);		// RIGHT
+#pragma endregion
+
+	_object[2]->SetIndex(&_cube_face[_index]);
+	_object[2]->BindIndex();
+
+	std::vector<uint32_t> zero{};
+	_object[3]->SetIndex(&zero);
+	_object[3]->BindIndex();
 }
 
 GameScene::~GameScene()
@@ -33,8 +98,6 @@ GameScene::~GameScene()
 	{
 		delete obj;
 	}
-
-	delete _hidden;
 
 	_object.clear();
 }
@@ -45,110 +108,138 @@ void GameScene::OnLoad()
 	{
 		obj->OnLoad();
 	}
-
-	_hidden->OnLoad();
 }
 
 void GameScene::OnKeyboardMessage(uchar key, int32_t x, int32_t y)
 {
+	auto face{ _cube_face[_index] };
+
 	switch (key)
 	{
+		case '1':
+		{
+			_index = Convert::ToUint32(CUBE::LEFT);
+			face = _cube_face[_index];
+		}
+		break;
+		case '2':
+		{
+			_index = Convert::ToUint32(CUBE::RIGHT);
+			face = _cube_face[_index];
+		}
+		break;
+		case '3':
+		{
+			_index = Convert::ToUint32(CUBE::TOP);
+			face = _cube_face[_index];
+		}
+		break;
+		case '4':
+		{
+			_index = Convert::ToUint32(CUBE::BOTTOM);
+			face = _cube_face[_index];
+		}
+		break;
+		case '5':
+		{
+			_index = Convert::ToUint32(CUBE::FRONT);
+			face = _cube_face[_index];
+		}
+		break;
+		case '6':
+		{
+			_index = Convert::ToUint32(CUBE::BACK);
+			face = _cube_face[_index];
+		}
+		break;
+		case '7':
+		{
+			_index = Convert::ToUint32(TETRA::BOTTOM);
+			face = _tetra_face[_index];
+		}
+		break;
+		case '8':
+		{
+			_index = Convert::ToUint32(TETRA::FRONT);
+			face = _tetra_face[_index];
+		}
+		break;
+		case '9':
+		{
+			_index = Convert::ToUint32(TETRA::LEFT);
+			face = _tetra_face[_index];
+		}
+		break;
+		case '0':
+		{
+			_index = Convert::ToUint32(TETRA::RIGHT);
+			face = _tetra_face[_index];
+		}
+		break;
+		case 'A': FALLTHROUGH
+		case 'a':
+		{
+			face = _cube_face[Convert::ToUint32(CUBE::LEFT)];
+			
+			for (auto& index : _cube_face[Convert::ToUint32(CUBE::RIGHT)])
+			{
+				face.push_back(index);
+			}
+		}
+		break;
+		case 'B': FALLTHROUGH
+		case 'b':
+		{
+			face = _cube_face[Convert::ToUint32(CUBE::TOP)];
+
+			for (auto& index : _cube_face[Convert::ToUint32(CUBE::BOTTOM)])
+			{
+				face.push_back(index);
+			}
+		}
+		break;
 		case 'C': FALLTHROUGH
 		case 'c':
 		{
-			if (_cube == false)
+			face = _cube_face[Convert::ToUint32(CUBE::FRONT)];
+
+			for (auto& index : _cube_face[Convert::ToUint32(CUBE::BACK)])
 			{
-				_cube = true;
-				_stop_animation = true;
-
-				auto change{ _hidden };
-				_hidden = _object.back();
-
-				*(--_object.end()) = change;
+				face.push_back(index);
 			}
 		}
 		break;
-		case 'P': FALLTHROUGH
-		case 'p':
+		case 'E': FALLTHROUGH
+		case 'e':
 		{
-			if (_cube == true)
+			face = _tetra_face[Convert::ToUint32(TETRA::BOTTOM)];
+
+			for (auto& index : _tetra_face[Convert::ToUint32(TETRA::FRONT)])
 			{
-				_cube = false;
-				_stop_animation = true;
-
-				auto change{ _hidden };
-				_hidden = _object.back();
-
-				*(--_object.end()) = change;
+				face.push_back(index);
 			}
 		}
 		break;
-		case 'H': FALLTHROUGH
-		case 'h':
+		case 'F': FALLTHROUGH
+		case 'f':
 		{
-			_depth_test = !_depth_test;
-		}
-		break;
-		case 'x':
-		{
-			_stop_animation = false;
-			glutTimerFunc(10, Engine::OnAnimate, 1);
-		}
-		break;
-		case 'X':
-		{
-			_stop_animation = false;
-			glutTimerFunc(10, Engine::OnAnimate, -1);
-		}
-		break;
-		case 'y':
-		{
-			_stop_animation = false;
-			glutTimerFunc(10, Engine::OnAnimate, 2);
-		}
-		break;
-		case 'Y':
-		{
-			_stop_animation = false;
-			glutTimerFunc(10, Engine::OnAnimate, -2);
-		}
-		break;
-		case 'W': FALLTHROUGH
-		case 'w':
-		{
-			_solid_object = !_solid_object;
+			face = _tetra_face[Convert::ToUint32(TETRA::BOTTOM)];
 
-			if (_solid_object == true)
-				_object.back()->ChangeDrawType(GL_TRIANGLES);
-			else
-				_object.back()->ChangeDrawType(GL_LINE_LOOP);
-		}
-		break;
-		case 'S': FALLTHROUGH
-		case 's':
-		{
-			delete _object.back();
-
-			_object.pop_back();
-
-			if (_cube == true)
+			for (auto& index : _tetra_face[Convert::ToUint32(TETRA::LEFT)])
 			{
-				_object.push_back(new Cube{});
-				_hidden = new Pyramid{};
+				face.push_back(index);
 			}
-			else
+		}
+		break;
+		case 'G': FALLTHROUGH
+		case 'g':
+		{
+			face = _tetra_face[Convert::ToUint32(TETRA::BOTTOM)];
+
+			for (auto& index : _tetra_face[Convert::ToUint32(TETRA::RIGHT)])
 			{
-				_object.push_back(new Pyramid{});
-				_hidden = new Cube{};
+				face.push_back(index);
 			}
-
-			_object.back()->RotateY(45.f);
-			_object.back()->RotateX(30.f);
-
-			_object.back()->OnLoad();
-			_hidden->OnLoad();
-
-			_stop_animation = true;
 		}
 		break;
 		case 'Q': FALLTHROUGH
@@ -158,6 +249,34 @@ void GameScene::OnKeyboardMessage(uchar key, int32_t x, int32_t y)
 			std::cout << std::format("Keyboard default") << std::endl;
 			break;
 	}
+
+	std::vector<uint32_t> zero{};
+
+	if (('1' <= key and key <= '6') or
+		('A' <= key and key <= 'C') or
+		('a' <= key and key <= 'c'))
+	{
+		_object[2]->SetIndex(&face);
+		_object[2]->BindIndex();
+
+		_object[3]->SetIndex(&zero);
+		_object[3]->BindIndex();
+
+		_rendered = 2;
+	}
+	else if (('7' <= key and key <= '9') or
+		('E' <= key and key <= 'G') or
+		('e' <= key and key <= 'g') or
+		key == '0')
+	{
+		_object[2]->SetIndex(&zero);
+		_object[2]->BindIndex();
+
+		_object[3]->SetIndex(&face);
+		_object[3]->BindIndex();
+
+		_rendered = 3;
+	}
 }
 
 void GameScene::OnSpecialKeyMessage(int32_t key, int32_t x, int32_t y)
@@ -166,27 +285,24 @@ void GameScene::OnSpecialKeyMessage(int32_t key, int32_t x, int32_t y)
 	{
 		case GLUT_KEY_LEFT:
 		{
-			_object.back()->Move(glm::vec3{ -0.1f, 0.f, 0.f });
-		}
-		break;
-		case GLUT_KEY_UP:
-		{
-			_object.back()->Move(glm::vec3{ 0.f, 0.1f, 0.f });
+			glutTimerFunc(10, Engine::OnAnimate, 2);
 		}
 		break;
 		case GLUT_KEY_RIGHT:
 		{
-			_object.back()->Move(glm::vec3{ 0.1f, 0.f, 0.f });
+			glutTimerFunc(10, Engine::OnAnimate, 4);
+		}
+		break;
+		case GLUT_KEY_UP:
+		{
+			glutTimerFunc(10, Engine::OnAnimate, 3);
 		}
 		break;
 		case GLUT_KEY_DOWN:
 		{
-			_object.back()->Move(glm::vec3{ 0.f, -0.1f, 0.f });
+			glutTimerFunc(10, Engine::OnAnimate, 9);
 		}
 		break;
-		default:
-			std::cout << std::format("Special Key Debug") << std::endl;
-			break;
 	}
 }
 
@@ -222,13 +338,8 @@ void GameScene::OnRender()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glEnable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glFrontFace(GL_CW);
-
-	if (_depth_test == true)
-	 	glEnable(GL_DEPTH_TEST);
-	else
-		glDisable(GL_DEPTH_TEST);
 	 
 	for (auto& obj : _object)
 	{
@@ -243,23 +354,22 @@ void GameScene::OnRender()
 	}
 }
 
-void GameScene::RotateX(int32_t direction)
-{
-	_object.back()->RotateX(direction * 1.0f);
-}
-
-void GameScene::RotateY(int32_t direction)
-{
-	_object.back()->RotateY(direction * 1.0f);
-}
-
 void GameScene::OnAnimate(int32_t value)
 {
-	if (value == 1 or value == -1)
-		RotateX(value);
-	else if (value == 2 or value == -2)
-		RotateY(value / 2);
+	if (value % 2 == 0)
+	{
+		if (value == 2)
+			_object[_rendered]->RotateY(1.f);
+		else if (value == 4)
+			_object[_rendered]->RotateY(-1.f);
+	}
+	else if (value % 3 == 0)
+	{
+		if (value == 3)
+			_object[_rendered]->RotateX(1.f);
+		else if (value == 9)
+			_object[_rendered]->RotateX(-1.f);
+	}
 
-	if (_stop_animation == false)
-		glutTimerFunc(10, Engine::OnAnimate, value);
+	glutTimerFunc(10, Engine::OnAnimate, value);
 }

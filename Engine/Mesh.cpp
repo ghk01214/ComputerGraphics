@@ -42,6 +42,12 @@ void Mesh::CreateVertex(std::shared_ptr<Shader> _shader)
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, &_index);
 }
 
+void Mesh::BindIndex()
+{
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, &_index);
+}
+
 template<typename T> requires requires {  std::is_arithmetic_v<T>; std::is_class_v<T>; }
 void Mesh::CreateVBO(uint32_t vbo, const std::vector<T>* cont, std::shared_ptr<Shader>& _shader, const std::string& name, uint32_t count)
 {
