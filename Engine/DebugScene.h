@@ -1,5 +1,10 @@
 ﻿#pragma once
 
+// NOTE :
+// Debugging을 위한 Scene class
+// 평소엔 빌드에 포함되진 않고 엔진 내부를 디버깅할 때만 빌드에 포함
+// 
+
 #include "Scene.h"
 
 class Object;

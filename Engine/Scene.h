@@ -1,5 +1,9 @@
 ﻿#pragma once
 
+// NOTE :
+// 모든 scene들의 interface를 결정하는 scene class
+// 
+
 class Scene
 {
 public:

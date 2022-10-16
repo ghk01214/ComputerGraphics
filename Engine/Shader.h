@@ -1,5 +1,9 @@
 ﻿#pragma once
 
+// NOTE :
+// GLSL shader를 추가, 컴파일, 사용하는 shader class
+// 
+
 class Shader
 {
 public:

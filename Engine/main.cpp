@@ -1,4 +1,9 @@
-﻿#include "pch.h"
+﻿// NOTE :
+// Engine debugging을 위한 진입점
+// 평소엔 빌드에 포함되지 않는다
+// 
+
+#include "pch.h"
 #include "DebugScene.h"
 #include "SceneMgr.h"
 #include "Engine.h"

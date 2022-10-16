@@ -1,5 +1,9 @@
 ﻿#pragma once
 
+// NOTE :
+// 월드 상에 그려지는 모든 object들의 기본이 되는 object class
+// 
+
 #include "Mesh.h"
 #include "Material.h"
 #include "Shader.h"
@@ -8,6 +12,7 @@ class Object
 {
 public:
 	Object();
+	Object(glm::vec3 pos);
 	virtual ~Object();
 
 	virtual void OnLoad();
@@ -28,7 +33,7 @@ public:
 	void BindVAO() { _mesh->BindVAO(); }
 
 	std::shared_ptr<Mesh> GetMesh() { return _mesh; }
-	std::shared_ptr<Shader>& GetShader() { return _shader; }
+	std::shared_ptr<Shader> GetShader() { return _shader; }
 	size_t GetIndexNum() { return _mesh->GetIndexNum(); }
 	glm::vec3 GetPos() { return _pos; }
 	glm::vec3 GetAngle() { return _angle; }

@@ -15,6 +15,18 @@ Object::Object() :
 {
 }
 
+Object::Object(glm::vec3 pos) :
+	_mesh{ std::make_shared<Mesh>() },
+	_material{ std::make_shared<Material>() },
+	_shader{ _material->GetShader() },
+	_pos{ pos },
+	_angle{ vec3::zero() },
+	_model{ mat4::unit() },
+	_transform{},
+	_draw_type{ GL_TRIANGLES }
+{
+}
+
 Object::~Object()
 {
 }
@@ -102,20 +114,14 @@ void Object::Scale(glm::vec3 delta)
 
 void Object::Teleport(float x, float y, float z)
 {
-	glm::vec3 temp{};
-	temp.x = x - _pos.x;
-	temp.y = y - _pos.y;
-	temp.z = z - _pos.z;
-
-	glm::mat4 temp_mat{ glm::translate(_model, temp) };
-	_transform.push_back(temp_mat);
-
-	_pos.x = x;
-	_pos.y = y;
-	_pos.z = z;
+	Teleport(glm::vec3{ x, y, z });
 }
 
 void Object::Teleport(glm::vec3 pos)
 {
-	Teleport(pos.x, pos.y, pos.z);
+	glm::vec3 temp{ pos - _pos };
+
+	_transform.push_back(glm::translate(_model, temp));
+
+	_pos = pos;
 }

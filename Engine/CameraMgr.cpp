@@ -85,14 +85,14 @@ void CameraMgr::OnMouseMotionMessage(int32_t x, int32_t y)
 	inst->_camera->Rotate(inst->_pitch, inst->_yaw);
 }
 
-void CameraMgr::ViewTransform(std::shared_ptr<Shader>& shader)
+void CameraMgr::ViewTransform(std::shared_ptr<Shader> shader)
 {
 	inst->_view = glm::lookAt(inst->_camera->GetPos(), inst->_camera->GetLook(), inst->_camera->GetUp());
 
 	shader->SetMat4("view", glm::value_ptr(inst->_view));
 }
 
-void CameraMgr::ProjectionTransform(std::shared_ptr<Shader>& shader)
+void CameraMgr::ProjectionTransform(std::shared_ptr<Shader> shader)
 {
 	inst->_projection = glm::perspective(glm::radians(inst->_camera->GetFOV()), inst->_aspect, 1.f, 1000.f);
 

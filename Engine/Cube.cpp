@@ -1,20 +1,20 @@
 ﻿#include "pch.h"
 #include "Cube.h"
 
-extern std::uniform_real_distribution<float> uid_color;
-
-Cube::Cube()
+Cube::Cube(glm::vec3 pos)
 {
+	_pos = pos;
+
 	std::vector<float> vertex
 	{
-		0.5f, 0.5f, 0.5f,
-		0.5f, -0.5f, 0.5f,
-		-0.5f, -0.5f, 0.5f,
-		-0.5f, 0.5f, 0.5f,
-		0.5f, 0.5f, -0.5f,
-		0.5f, -0.5f, -0.5f,
-		-0.5f, -0.5f, -0.5f,
-		-0.5f, 0.5f, -0.5f,
+		pos.x + 0.5f, pos.y + 0.5f, pos.z + 0.5f,
+		pos.x + 0.5f, pos.y + (-0.5f), pos.z + 0.5f,
+		pos.x + (-0.5f), pos.y + (-0.5f), pos.z + 0.5f,
+		pos.x + (-0.5f), pos.y + 0.5f, pos.z + 0.5f,
+		pos.x + 0.5f, pos.y + 0.5f, pos.z + (-0.5f),
+		pos.x + 0.5f, pos.y + (-0.5f), pos.z + (-0.5f),
+		pos.x + (-0.5f), pos.y + (-0.5f), pos.z + (-0.5f),
+		pos.x + (-0.5f), pos.y + 0.5f, pos.z + (-0.5f),
 	};
 
 	std::vector<float> color

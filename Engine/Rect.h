@@ -1,19 +1,14 @@
 ﻿#pragma once
 
+// NOTE :
+// 월드 상에 사각형을 그려주는 object class를 상속받은 rect class
+// 
+
 #include "Object.h"
 
 class Rect : public Object
 {
 public:
-	Rect();
-	Rect(glm::vec3 pos);
+	Rect(glm::vec3 pos = vec3::zero());
 	~Rect();
-
-	const std::vector<glm::vec3>& GetVertex() const { return _vertex; }
-
-	void SetVertex(int32_t index, glm::vec3 pos);
-	void SetVertex(glm::vec3 pos);
-
-private:
-	std::vector<glm::vec3> _vertex;
 };

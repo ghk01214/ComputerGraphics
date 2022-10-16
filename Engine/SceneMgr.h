@@ -1,5 +1,9 @@
 ﻿#pragma once
 
+// NOTE :
+// 생성된 scene을 관리하는 manager class
+// 
+
 class Scene;
 
 class SceneMgr : public Singleton<SceneMgr>

@@ -1,12 +1,15 @@
 ﻿#pragma once
 
+// NOTE :
+// 월드 상에 선을 그려주는 object class를 상속받은 line class
+// 
+
 #include "Object.h"
 
 class Line : public Object
 {
 public:
-	Line();
-	Line(glm::vec3 pos, float length, bool horizontal = true);
+	Line(glm::vec3 pos = vec3::zero(), float length = 0.5f, bool horizontal = true);
 	~Line();
 };
 

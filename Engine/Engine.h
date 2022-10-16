@@ -1,5 +1,10 @@
 ﻿#pragma once
 
+// NOTE:
+// OpenGl 4.5를 이용한 렌더링 엔진
+// Singleton model로 만들어서 메모리 상엔 1개 밖에 존재하지 않는다
+//
+
 class SceneMgr;
 
 class Engine : public Singleton<Engine>

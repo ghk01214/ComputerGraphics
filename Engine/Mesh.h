@@ -1,5 +1,9 @@
 ﻿#pragma once
 
+// NOTE :
+// 월드 상에 그려질 object들을 구성하는 mesh class
+// 
+
 class Shader;
 
 struct Vertex
@@ -20,8 +24,6 @@ public:
 	void BindVAO();
 	void CreateVertex(std::shared_ptr<Shader> _shader);
 
-	void SetUp(std::shared_ptr<Shader> _shader);
-
 	size_t GetIndexNum() { return _index.size(); }
 
 	void SetVertex(std::vector<float>* vertex) { _vertex = *vertex; }
@@ -30,6 +32,7 @@ public:
 	void SetTexture(std::vector<float>* texture) { _texture = *texture; }
 	void SetIndex(std::vector<uint32_t>* index) { _index = *index; }
 
+private:
 	template<typename T> requires requires {  std::is_arithmetic_v<T>; std::is_class_v<T>; }
 	void CreateVBO(uint32_t vbo, const std::vector<T>* cont, std::shared_ptr<Shader>& _shader, const std::string& name, uint32_t count);
 

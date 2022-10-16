@@ -1,5 +1,9 @@
 ﻿#pragma once
 
+// NOTE :
+// 생성된 카메라를 관리하는 manager class
+// 
+
 class Shader;
 
 class CameraMgr : public Singleton<CameraMgr>
@@ -16,8 +20,8 @@ public:
 	void OnMouseUpMessage(int32_t button, int32_t x, int32_t y);
 	void OnMouseMotionMessage(int32_t x, int32_t y);
 
-	static void ViewTransform(std::shared_ptr<Shader>& shader);
-	static void ProjectionTransform(std::shared_ptr<Shader>& shader);
+	static void ViewTransform(std::shared_ptr<Shader> shader);
+	static void ProjectionTransform(std::shared_ptr<Shader> shader);
 
 	void SetAspect(float aspect) { inst->_aspect = aspect; }
 

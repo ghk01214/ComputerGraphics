@@ -1,5 +1,9 @@
 ﻿#pragma once
 
+// NOTE :
+// 화면에 그려진 월드를 비추는 카메라 class
+// 
+
 class Camera
 {
 public:
