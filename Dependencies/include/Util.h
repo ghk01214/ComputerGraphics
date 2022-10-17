@@ -17,8 +17,11 @@ concept IsPointer = requires
 
 namespace Util
 {
+	template<class T>
+	bool CheckSame(T& container, int index_0, int index_1, int count);
 	bool ReadFile(const std::string& path, std::string* blob);
 	std::string ReadFile(const std::string& path);
+	bool ReadModel(const std::string& path, std::vector<float>* vertex, std::vector<float>* normal, std::vector<float>* texture, std::vector<uint32_t>* index, int32_t* vertex_num, int32_t* index_num);
 
 	template<typename T> requires std::is_floating_point_v<T>
 	inline bool IsEqual(T a, T b) { return std::abs(a - b) < 0.000001f or std::abs(b - a) < 0.000001f; }

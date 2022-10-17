@@ -158,9 +158,6 @@
     <ClCompile Include="main.cpp">
       <Filter>Debug</Filter>
     </ClCompile>
-    <ClCompile Include="..\Dependencies\include\Util.cpp">
-      <Filter>Util</Filter>
-    </ClCompile>
     <ClCompile Include="Line.cpp">
       <Filter>Resource\Object\2D</Filter>
     </ClCompile>
@@ -178,6 +175,9 @@
     </ClCompile>
     <ClCompile Include="Tetraherdon.cpp">
       <Filter>Resource\Object\3D</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Dependencies\include\Util.cpp">
+      <Filter>Util</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
