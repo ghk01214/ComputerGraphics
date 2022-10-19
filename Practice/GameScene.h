@@ -25,8 +25,10 @@ private:
 	std::vector<Object*> _object;
 	std::vector<Object*> _sub_object;
 	std::vector<Object*> _grid;
+	std::vector<glm::vec3> _origin_pos;
 
 	uint32_t _index;
 
 	bool _stop_animation;
+	int32_t _count;
 };

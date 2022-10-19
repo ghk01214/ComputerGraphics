@@ -36,7 +36,7 @@ public:
 	std::shared_ptr<Mesh> GetMesh() { return _mesh; }
 	std::shared_ptr<Shader> GetShader() { return _shader; }
 	size_t GetIndexNum() { return _mesh->GetIndexNum(); }
-	glm::vec3 GetPos() { return _pos; }
+	glm::vec3 GetPos() { return _pos = _model[3]; }
 	glm::vec3 GetAngle() { return _angle; }
 	uint32_t GetDrawType() { return _draw_type; }
 	

@@ -75,8 +75,6 @@ void Object::Move(float x, float y, float z)
 
 void Object::Move(glm::vec3 delta)
 {
-	_pos += delta;
-
 	_transform.push_back(glm::translate(mat4::unit(), delta));
 }
 
@@ -121,6 +119,4 @@ void Object::Teleport(glm::vec3 pos)
 	glm::vec3 temp{ pos - _pos };
 
 	_transform.push_back(glm::translate(_model, temp));
-
-	_pos = pos;
 }

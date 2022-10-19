@@ -12,7 +12,9 @@ GameScene::GameScene() :
 	_index{ 0 },
 	_grid{},
 	_sub_object{},
-	_stop_animation{ false }
+	_stop_animation{ false },
+	_origin_pos(2, vec3::zero()),
+	_count{ 0 }
 {
 	_grid.push_back(new Line{ vec3::zero(), 5.f });
 	_grid.push_back(new Line{ vec3::zero(), 5.f, false });
@@ -67,6 +69,16 @@ void GameScene::OnLoad()
 
 void GameScene::OnKeyboardMessage(uchar key, int32_t x, int32_t y)
 {
+	// x, y : 우측 도형 자전
+	// g, b : 좌측 도형 자전
+	// t : y축 공전
+	// c : 도형 변경
+	// r : 초기화
+	// +, - : 원점 기준 확대, 축소
+	// wasdfv : 좌측 도형 이동
+	// ijkl;/ : 우측 도형 이동
+	// h : 원점 이동 후 복귀
+	// n : 서로의 자리로 이동 후 복귀
 	switch (key)
 	{
 		case 'x':
@@ -93,13 +105,13 @@ void GameScene::OnKeyboardMessage(uchar key, int32_t x, int32_t y)
 			glutTimerFunc(10, Engine::OnAnimate, -4);
 		}
 		break;
-		case 'a':
+		case 'g':
 		{
 			_stop_animation = false;
 			glutTimerFunc(10, Engine::OnAnimate, 1);
 		}
 		break;
-		case 'A':
+		case 'G':
 		{
 			_stop_animation = false;
 			glutTimerFunc(10, Engine::OnAnimate, -1);
@@ -117,13 +129,13 @@ void GameScene::OnKeyboardMessage(uchar key, int32_t x, int32_t y)
 			glutTimerFunc(10, Engine::OnAnimate, -3);
 		}
 		break;
-		case 'r':
+		case 't':
 		{
 			_stop_animation = false;
 			glutTimerFunc(10, Engine::OnAnimate, 10);
 		}
 		break;
-		case 'R':
+		case 'T':
 		{
 			_stop_animation = false;
 			glutTimerFunc(10, Engine::OnAnimate, -10);
@@ -139,10 +151,11 @@ void GameScene::OnKeyboardMessage(uchar key, int32_t x, int32_t y)
 			_sub_object = temp;
 		}
 		break;
-		case 'S': FALLTHROUGH
-		case 's':
+		case 'R': FALLTHROUGH
+		case 'r':
 		{
 			_stop_animation = true;
+			_count = 0;
 
 			for (auto& obj : _object)
 			{
@@ -173,11 +186,190 @@ void GameScene::OnKeyboardMessage(uchar key, int32_t x, int32_t y)
 				obj->OnLoad();
 			}
 		}
+		case '+':
+		{
+			for (auto& obj : _object)
+			{
+				obj->Scale(1.2f, 1.2f, 1.2f);
+			}
+		}
+		break;
+		case '-':
+		{
+			for (auto& obj : _object)
+			{
+				obj->Scale(0.8f, 0.8f, 0.8f);
+			}
+		}
+		break;
+		case 'W': FALLTHROUGH
+		case 'w':
+		{
+			_object[1]->Move(vec3::front(0.5f));
+		}
+		break;
+		case 'S': FALLTHROUGH
+		case 's':
+		{
+			_object[1]->Move(vec3::back(0.5f));
+		}
+		break;
+		case 'A': FALLTHROUGH
+		case 'a':
+		{
+			_object[1]->Move(vec3::left(0.5f));
+		}
+		break;
+		case 'D': FALLTHROUGH
+		case 'd':
+		{
+			_object[1]->Move(vec3::right(0.5f));
+		}
+		break;
+		case 'F': FALLTHROUGH
+		case 'f':
+		{
+			_object[1]->Move(vec3::up(0.5f));
+		}
+		break;
+		case 'V': FALLTHROUGH
+		case 'v':
+		{
+			_object[1]->Move(vec3::down(0.5f));
+		}
+		break;
+		case 'I': FALLTHROUGH
+		case 'i':
+		{
+			_object[0]->Move(vec3::front(0.5f));
+		}
+		break;
+		case 'K': FALLTHROUGH
+		case 'k':
+		{
+			_object[0]->Move(vec3::back(0.5f));
+		}
+		break;
+		case 'J': FALLTHROUGH
+		case 'j':
+		{
+			_object[0]->Move(vec3::left(0.5f));
+		}
+		break;
+		case 'L': FALLTHROUGH
+		case 'l':
+		{
+			_object[0]->Move(vec3::right(0.5f));
+		}
+		break;
+		case ';':
+		{
+			_object[0]->Move(vec3::up(0.5f));
+		}
+		break;
+		case '/':
+		{
+			_object[0]->Move(vec3::down(0.5f));
+		}
+		break;
+		case 'H': FALLTHROUGH
+		case 'h':
+		{
+			_stop_animation = false;
+
+			for (int32_t i = 0; i < _object.size(); ++i)
+			{
+				_origin_pos[i] = _object[i]->GetPos();
+			}
+
+			glutTimerFunc(10, Engine::OnAnimate, 20);
+		}
+		break;
+		case 'N': FALLTHROUGH
+		case 'n':
+		{
+			_stop_animation = false;
+
+			for (int32_t i = 0; i < _object.size(); ++i)
+			{
+				_origin_pos[i] = _object[i]->GetPos();
+			}
+
+			glutTimerFunc(10, Engine::OnAnimate, 40);
+		}
+		break;
+		default:
+		break;
 	}
 }
 
 void GameScene::OnSpecialKeyMessage(int32_t key, int32_t x, int32_t y)
 {
+	// 상하좌우 : 전체 도형 xz 평면 이동
+	// PAGE UP, DOWN : 제자리 확대, 축소
+	switch (key)
+	{
+		case GLUT_KEY_LEFT:
+		{
+			for (auto& obj : _object)
+			{
+				obj->Move(vec3::left(0.5f));
+			}
+		}
+		break;
+		case GLUT_KEY_RIGHT:
+		{
+			for (auto& obj : _object)
+			{
+				obj->Move(vec3::right(0.5f));
+			}
+		}
+		break;
+		case GLUT_KEY_UP:
+		{
+			for (auto& obj : _object)
+			{
+				obj->Move(vec3::front(0.5f));
+			}
+		}
+		break;
+		case GLUT_KEY_DOWN:
+		{
+			for (auto& obj : _object)
+			{
+				obj->Move(vec3::back(0.5f));
+			}
+		}
+		break;
+		case GLUT_KEY_PAGE_UP:
+		{
+			auto pos{ _object[0]->GetPos() };
+			_object[0]->Move(-pos);
+			_object[0]->Scale(1.2f, 1.2f, 1.2f);
+			_object[0]->Move(pos);
+			
+			pos = _object[1]->GetPos();
+			_object[1]->Move(-pos);
+			_object[1]->Scale(1.2f, 1.2f, 1.2f);
+			_object[1]->Move(pos);
+		}
+		break;
+		case GLUT_KEY_PAGE_DOWN:
+		{
+			auto pos{ _object[0]->GetPos() };
+			_object[0]->Move(-pos);
+			_object[0]->Scale(0.8f, 0.8f, 0.8f);
+			_object[0]->Move(pos);
+
+			pos = _object[1]->GetPos();
+			_object[1]->Move(-pos);
+			_object[1]->Scale(0.8f, 0.8f, 0.8f);
+			_object[1]->Move(pos);
+		}
+		break;
+		default:
+		break;
+	}
 }
 
 void GameScene::OnMouseMessage(int32_t button, int32_t x, int32_t y)
@@ -249,6 +441,41 @@ void GameScene::OnAnimate(int32_t value)
 		for (auto& obj : _object)
 		{
 			obj->RotateY((value / 10) * 0.5f);
+		}
+	}
+	else if (value == 20 or value == 40)
+	{
+		for (int32_t i = 0; i < _object.size(); ++i)
+		{
+			auto o_pos{ _origin_pos[i] };
+			auto pos{ _object[i]->GetPos() };
+
+			// 왜 이렇게 됐을까...
+			if (_count == value * 10)
+			{
+				value = -value;
+				break;
+			}
+
+			++_count;
+			_object[i]->Move(-(_origin_pos[i] / 100));
+		}
+	}
+	else if (value == -20 or value == -40)
+	{
+		for (int32_t i = 0; i < _object.size(); ++i)
+		{
+			auto o_pos{ _origin_pos[i] };
+			auto pos{ _object[i]->GetPos() };
+
+			if (_count == 0)
+			{
+				value = -value;
+				break;
+			}
+
+			--_count;
+			_object[i]->Move(_origin_pos[i] / 100);
 		}
 	}
 	else if (index == 0)
