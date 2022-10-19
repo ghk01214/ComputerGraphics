@@ -1,7 +1,7 @@
 ﻿#include "pch.h"
-#include "Pyramid.h"
+#include "Sphere.h"
 
-Pyramid::Pyramid(glm::vec3 pos)
+Sphere::Sphere(glm::vec3 pos)
 {
 	std::vector<float> vertex;
 	std::vector<float> normal;
@@ -10,7 +10,7 @@ Pyramid::Pyramid(glm::vec3 pos)
 	int32_t vertex_num;
 	int32_t index_num;
 
-	Util::ReadModel("../Dependencies/model/pyramid.obj", &vertex, &normal, &texture, &index, &vertex_num, &index_num);
+	Util::ReadModel("../Dependencies/model/sphere.obj", &vertex, &normal, &texture, &index, &vertex_num, &index_num);
 
 	_mesh->SetVertex(&vertex);
 	_mesh->SetNormal(&normal);
@@ -18,6 +18,6 @@ Pyramid::Pyramid(glm::vec3 pos)
 	_mesh->SetIndex(&index);
 }
 
-Pyramid::~Pyramid()
+Sphere::~Sphere()
 {
 }
