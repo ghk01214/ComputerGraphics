@@ -32,6 +32,8 @@ Tetraherdon::Tetraherdon(glm::vec3 pos)
 	_mesh->SetVertex(&vertex);
 	_mesh->SetColor(&color);
 	_mesh->SetIndex(&index);
+
+	Move(pos);
 }
 
 Tetraherdon::~Tetraherdon()
