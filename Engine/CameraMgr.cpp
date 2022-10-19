@@ -24,7 +24,6 @@ CameraMgr::~CameraMgr()
 
 void CameraMgr::OnLoad()
 {
-	inst->_camera->Rotate(inst->_pitch, inst->_yaw, inst->_roll);
 }
 
 void CameraMgr::OnKeyboardMessage(uchar key, int32_t x, int32_t y)
@@ -97,4 +96,14 @@ void CameraMgr::ProjectionTransform(std::shared_ptr<Shader> shader)
 	inst->_projection = glm::perspective(glm::radians(inst->_camera->GetFOV()), inst->_aspect, 1.f, 1000.f);
 
 	shader->SetMat4("projection", glm::value_ptr(inst->_projection));
+}
+
+void CameraMgr::Move(glm::vec3 delta)
+{
+	inst->_camera->Move(delta);
+}
+
+void CameraMgr::Move(float x, float y, float z)
+{
+	inst->_camera->Move(glm::vec3{ x, y, z });
 }

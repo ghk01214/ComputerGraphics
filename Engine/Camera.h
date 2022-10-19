@@ -11,6 +11,7 @@ public:
 	~Camera();
 
 	void Move(glm::vec3 delta);
+	void Move(float x, float y, float z);
 	void Rotate(float x, float y, float z = 0.f);
 	MAYBE_UNUSED glm::mat4 Zoom();
 

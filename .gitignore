@@ -450,3 +450,4 @@ FodyWeavers.xsd
 !Dependencies/bin/*
 !Dependencies/lib/*
 Dependencies/lib/Debug/*
+!Dependencies/model/*

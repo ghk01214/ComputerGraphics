@@ -28,10 +28,10 @@ void Engine::Init(const Window* window)
 		exit(EXIT_FAILURE);
 	}
 
-	if (glewIsSupported("GL_VERSION_4_6"))
-		std::cout << std::format("GL Version is 4.6") << std::endl;
+	if (glewIsSupported("GL_VERSION_4_5"))
+		std::cout << std::format("GL Version is 4.5") << std::endl;
 	else
-		std::cout << std::format("GLEW 4.6 not supported") << std::endl;
+		std::cout << std::format("GLEW 4.5 not supported") << std::endl;
 
 	glClearDepth(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -110,7 +110,7 @@ void Engine::OnKeyboardUpMessage(uchar key, int32_t x, int32_t y)
 
 			glutLeaveMainLoop();
 		}
-		break;
+		return;
 	}
 
 	inst->_scene_mgr->OnKeyboardUpMessage(key, x, y);

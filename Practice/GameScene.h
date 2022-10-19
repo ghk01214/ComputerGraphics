@@ -2,28 +2,6 @@
 
 #include "Scene.h"
 
-enum class CUBE
-{
-	NONE = 0,
-	LEFT = 0,
-	RIGHT,
-	TOP,
-	BOTTOM,
-	FRONT,
-	BACK,
-	MAX
-};
-
-enum class TETRA
-{
-	NONE = 0,
-	BOTTOM = 0,
-	FRONT,
-	LEFT,
-	RIGHT,
-	MAX
-};
-
 class Object;
 
 class GameScene : public Scene
@@ -45,10 +23,10 @@ public:
 private:
 	std::unique_ptr<class CameraMgr> _camera;
 	std::vector<Object*> _object;
-
-	std::vector<std::vector<uint32_t>> _cube_face;
-	std::vector<std::vector<uint32_t>> _tetra_face;
+	std::vector<Object*> _sub_object;
+	std::vector<Object*> _grid;
 
 	uint32_t _index;
-	uint32_t _rendered;
+
+	bool _stop_animation;
 };

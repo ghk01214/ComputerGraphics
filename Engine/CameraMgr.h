@@ -25,6 +25,9 @@ public:
 
 	void SetAspect(float aspect) { inst->_aspect = aspect; }
 
+	void Move(glm::vec3 delta);
+	void Move(float x, float y, float z);
+
 private:
 	std::unique_ptr<class Camera> _camera;
 

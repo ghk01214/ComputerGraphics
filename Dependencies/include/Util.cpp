@@ -68,12 +68,13 @@ namespace Util
 
 		while (std::getline(file, line))
 		{
+			stream.clear();
 			stream.str(line);
 
 			std::string type;
 			stream >> type;
 
-			if (type != "v" or type != "vn" or type != "vt" or type != "f")
+			if (type == "#" or type.empty() == true)
 				continue;
 
 			if (type == "v")
@@ -179,6 +180,10 @@ namespace Util
 
 		*vertex_num = noDupLocations.size();
 		*index_num = ver_index.size();
+		vertex->resize(*vertex_num * 3);
+		normal->resize(*vertex_num * 3);
+		texture->resize(*vertex_num * 2);
+		index->resize(*index_num);
 
 		for (int i = 0; i < *vertex_num; ++i)
 		{

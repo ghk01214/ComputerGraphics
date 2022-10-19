@@ -50,7 +50,6 @@ void Object::OnLoad()
 #endif
 
 	_shader->Compile(str);
-	_mesh->CreateVertex(_shader);
 }
 
 void Object::Transform()

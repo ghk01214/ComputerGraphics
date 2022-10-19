@@ -25,6 +25,8 @@ public:
 	void CreateVertex(std::shared_ptr<Shader> _shader);
 	void BindIndex();
 
+	void CreateModel(std::shared_ptr<Shader> _shader);
+
 	size_t GetIndexNum() { return _index.size(); }
 
 	void SetVertex(std::vector<float>* vertex) { _vertex = *vertex; }

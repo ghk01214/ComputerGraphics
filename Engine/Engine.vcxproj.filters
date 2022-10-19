@@ -49,6 +49,9 @@
     <Filter Include="Resource\Object\3D">
       <UniqueIdentifier>{dd12395f-fe28-4e70-be6f-bf84c06c175c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource\Object\Interface">
+      <UniqueIdentifier>{5be29ba0-14d1-4260-b5a9-3613712943f7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -68,9 +71,6 @@
     </ClInclude>
     <ClInclude Include="Shader.h">
       <Filter>Resource\Shader</Filter>
-    </ClInclude>
-    <ClInclude Include="Object.h">
-      <Filter>Resource\Object</Filter>
     </ClInclude>
     <ClInclude Include="Mesh.h">
       <Filter>Resource\Mesh</Filter>
@@ -111,10 +111,34 @@
     <ClInclude Include="Pyramid.h">
       <Filter>Resource\Object\3D</Filter>
     </ClInclude>
-    <ClInclude Include="Figure.h">
-      <Filter>Resource\Object</Filter>
-    </ClInclude>
     <ClInclude Include="Tetraherdon.h">
+      <Filter>Resource\Object\3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Sphere.h">
+      <Filter>Resource\Object\3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Teapot.h">
+      <Filter>Resource\Object\3D</Filter>
+    </ClInclude>
+    <ClInclude Include="D2.h">
+      <Filter>Resource\Object\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="D3.h">
+      <Filter>Resource\Object\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="Object.h">
+      <Filter>Resource\Object\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="Cone.h">
+      <Filter>Resource\Object\3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Torus.h">
+      <Filter>Resource\Object\3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Tube.h">
+      <Filter>Resource\Object\3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Cylinder.h">
       <Filter>Resource\Object\3D</Filter>
     </ClInclude>
   </ItemGroup>
@@ -133,9 +157,6 @@
     </ClCompile>
     <ClCompile Include="Shader.cpp">
       <Filter>Resource\Shader</Filter>
-    </ClCompile>
-    <ClCompile Include="Object.cpp">
-      <Filter>Resource\Object</Filter>
     </ClCompile>
     <ClCompile Include="Mesh.cpp">
       <Filter>Resource\Mesh</Filter>
@@ -178,6 +199,33 @@
     </ClCompile>
     <ClCompile Include="..\Dependencies\include\Util.cpp">
       <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Sphere.cpp">
+      <Filter>Resource\Object\3D</Filter>
+    </ClCompile>
+    <ClCompile Include="Teapot.cpp">
+      <Filter>Resource\Object\3D</Filter>
+    </ClCompile>
+    <ClCompile Include="D2.cpp">
+      <Filter>Resource\Object\Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="D3.cpp">
+      <Filter>Resource\Object\Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="Object.cpp">
+      <Filter>Resource\Object\Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="Cone.cpp">
+      <Filter>Resource\Object\3D</Filter>
+    </ClCompile>
+    <ClCompile Include="Torus.cpp">
+      <Filter>Resource\Object\3D</Filter>
+    </ClCompile>
+    <ClCompile Include="Tube.cpp">
+      <Filter>Resource\Object\3D</Filter>
+    </ClCompile>
+    <ClCompile Include="Cylinder.cpp">
+      <Filter>Resource\Object\3D</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
