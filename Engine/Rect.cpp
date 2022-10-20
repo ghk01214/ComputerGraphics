@@ -1,17 +1,40 @@
 ﻿#include "pch.h"
 #include "Rect.h"
 
-Rect::Rect(glm::vec3 pos)
+Rect::Rect(glm::vec3 pos, glm::vec3 size)
 {
-	_pos = pos;
+	std::vector<float> vertex;
 
-	std::vector<float> vertex
+	if (size.z == 0)
 	{
-		pos.x + 0.5f, pos.y + -0.5f, 0.f,
-		pos.x + 0.5f, pos.y + 0.5f, 0.f,
-		pos.x + -0.5f, pos.y + 0.5f, 0.f,
-		pos.x + -0.5f, pos.y + -0.5f, 0.f,
-	};
+		vertex =
+		{
+			 size.x,  -size.y, 0.f,
+			 size.x, size.y, 0.f,
+			 -size.x, size.y, 0.f,
+			 -size.x, -size.y, 0.f,
+		};
+	}
+	else if (size.y == 0)
+	{
+		vertex =
+		{
+			size.x, 0.f, -size.z,
+			size.x, 0.f, size.z,
+			-size.x, 0.f, size.z,
+			-size.x, 0.f, -size.z,
+		};
+	}
+	else if (size.x == 0)
+	{
+		vertex =
+		{
+			 0.f, -size.y, size.x,
+			 0.f, size.y, size.x,
+			 0.f, size.y, -size.x,
+			 0.f, -size.y, -size.x,
+		};
+	}
 
 	std::vector<float> color
 	{
@@ -29,6 +52,8 @@ Rect::Rect(glm::vec3 pos)
 	_mesh->SetVertex(&vertex);
 	_mesh->SetColor(&color);
 	_mesh->SetIndex(&index);
+
+	Move(pos);
 }
 
 Rect::~Rect()
