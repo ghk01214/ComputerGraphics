@@ -9,7 +9,7 @@
 class Line : public D2
 {
 public:
-	Line(glm::vec3 pos = vec3::zero(), float length = 0.5f, bool horizontal = true);
+	Line(glm::vec3 pos = vec3::zero(), glm::vec3 length = vec3::x(5.f));
 	~Line();
 };
 

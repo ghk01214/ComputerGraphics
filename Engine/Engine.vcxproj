@@ -244,6 +244,7 @@ xcopy /y /e $(SolutionDir)Dependencies\shader $(OutDir)Dependencies\shader</Comm
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Dependencies\shader\Fragment.glsl" />
+    <None Include="..\Dependencies\shader\Color.glsl" />
     <None Include="..\Dependencies\shader\Vertex.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

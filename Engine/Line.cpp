@@ -3,29 +3,16 @@
 
 extern std::uniform_real_distribution<float> uid_color;
 
-Line::Line(glm::vec3 pos, float length, bool horizontal)
+Line::Line(glm::vec3 pos, glm::vec3 length)
 {
 	_draw_type = GL_LINES;
 	_pos = pos;
 
-	std::vector<float> vertex;
-
-	if (horizontal == true)
+	std::vector<float> vertex
 	{
-		vertex =
-		{
-			pos.x + length, pos.y, pos.z,
-			pos.x - length, pos.y, pos.z
-		};
-	}
-	else
-	{
-		vertex =
-		{
-			pos.x, pos.y + length, pos.z,
-			pos.x, pos.y - length, pos.z
-		};
-	}
+		pos.x + length.x, pos.y + length.y, pos.z + length.z,
+		pos.x - length.x, pos.y - length.y, pos.z - length.z
+	};
 
 	std::vector<float> color
 	{
