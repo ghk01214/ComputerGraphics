@@ -9,6 +9,6 @@
 class Triangle : public D2
 {
 public:
-	Triangle(glm::vec3 pos = vec3::zero(), bool reverse = false);
+	Triangle(glm::vec3 pos = vec3::zero());
 	~Triangle();
 };

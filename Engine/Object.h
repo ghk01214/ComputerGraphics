@@ -21,14 +21,12 @@ public:
 	
 	virtual void Move(float x, float y, float z);
 	virtual void Move(glm::vec3 delta);
+	virtual void Rotate(float delta, glm::vec3 axis);
 	virtual void RotateX(float delta);
 	virtual void RotateY(float delta);
 	virtual void RotateZ(float delta);
 	virtual void Scale(float x, float y, float z);
 	virtual void Scale(glm::vec3 delta);
-
-	virtual void Teleport(float x, float y, float z);
-	virtual void Teleport(glm::vec3 pos);
 
 	void BindVAO() { _mesh->BindVAO(); }
 	void BindIndex() { _mesh->BindIndex(); }

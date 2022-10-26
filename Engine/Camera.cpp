@@ -22,7 +22,6 @@ void Camera::Move(glm::vec3 delta)
 {
 	_pos += delta;
 	_front += delta;
-
 	//_look += delta;
 }
 

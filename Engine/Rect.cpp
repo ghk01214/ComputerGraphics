@@ -3,38 +3,13 @@
 
 Rect::Rect(glm::vec3 pos, glm::vec3 size)
 {
-	std::vector<float> vertex;
-
-	if (size.z == 0)
+	std::vector<float> vertex
 	{
-		vertex =
-		{
-			 size.x,  -size.y, 0.f,
-			 size.x, size.y, 0.f,
-			 -size.x, size.y, 0.f,
-			 -size.x, -size.y, 0.f,
-		};
-	}
-	else if (size.y == 0)
-	{
-		vertex =
-		{
-			size.x, 0.f, -size.z,
-			size.x, 0.f, size.z,
-			-size.x, 0.f, size.z,
-			-size.x, 0.f, -size.z,
-		};
-	}
-	else if (size.x == 0)
-	{
-		vertex =
-		{
-			 0.f, -size.y, size.x,
-			 0.f, size.y, size.x,
-			 0.f, size.y, -size.x,
-			 0.f, -size.y, -size.x,
-		};
-	}
+		 size.x,  -size.y, 0.f,
+		 size.x, size.y, 0.f,
+		 -size.x, size.y, 0.f,
+		 -size.x, -size.y, 0.f,
+	};
 
 	std::vector<float> color
 	{
@@ -46,7 +21,8 @@ Rect::Rect(glm::vec3 pos, glm::vec3 size)
 
 	std::vector<uint32_t> index
 	{
-		0, 1, 2, 3
+		0, 1, 2,
+		0, 2, 3
 	};
 
 	_mesh->SetVertex(&vertex);

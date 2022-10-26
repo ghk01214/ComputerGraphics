@@ -22,6 +22,7 @@ public:
 
 	void SetPos(glm::vec3 pos) { _pos = pos; }
 	void SetTarget(glm::vec3 target) { _look = target; }
+	void SetFOV(float angle) { _fov = angle; }
 
 private:
 	glm::vec3 _pos;

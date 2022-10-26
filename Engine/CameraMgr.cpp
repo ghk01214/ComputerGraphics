@@ -14,7 +14,10 @@ CameraMgr::CameraMgr() :
 	_old_y{ 0 },
 	_sensitivity{ 0.f },
 	_click{ false },
-	_aspect{ 1.f / 1.f }
+	_near{ 1.f },
+	_far{ 1000.f },
+	_aspect{ 1.f / 1.f },
+	_perspective{ true }
 {
 }
 
@@ -93,9 +96,26 @@ void CameraMgr::ViewTransform(std::shared_ptr<Shader> shader)
 
 void CameraMgr::ProjectionTransform(std::shared_ptr<Shader> shader)
 {
-	inst->_projection = glm::perspective(glm::radians(inst->_camera->GetFOV()), inst->_aspect, 1.f, 1000.f);
+	if (inst->_perspective == true)
+	{
+		inst->_projection = glm::perspective(glm::radians(inst->_camera->GetFOV()), inst->_aspect, inst->_near, inst->_far);
+		inst->_projection = glm::translate(inst->_projection, vec3::front(5.f));
+	}
+	else
+		inst->_projection = glm::ortho(-2.f, 2.f, -2.f, 2.f, inst->_near, inst->_far);
 
 	shader->SetMat4("projection", glm::value_ptr(inst->_projection));
+}
+
+void CameraMgr::SetFOV(float angle)
+{
+	inst->_camera->SetFOV(angle);
+}
+
+void CameraMgr::SetDistance(float near_f, float far_f)
+{
+	inst->SetNear(near_f);
+	inst->SetFar(far_f);
 }
 
 void CameraMgr::Move(glm::vec3 delta)

@@ -24,6 +24,12 @@ public:
 	static void ProjectionTransform(std::shared_ptr<Shader> shader);
 
 	void SetAspect(float aspect) { inst->_aspect = aspect; }
+	void SetFOV(float angle);
+	void SetNear(float near_f) { inst->_near = near_f; }
+	void SetFar(float far_f) { inst->_far = far_f; }
+	void SetDistance(float near_f, float far_f);
+
+	void ChangeProjection() { inst->_perspective = !inst->_perspective; }
 
 	void Move(glm::vec3 delta);
 	void Move(float x, float y, float z);
@@ -43,6 +49,10 @@ private:
 	float _sensitivity;
 	bool _click;
 
+	float _near;
+	float _far;
 	float _aspect;
+
+	bool _perspective;
 };
 

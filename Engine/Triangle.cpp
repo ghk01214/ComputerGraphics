@@ -3,32 +3,14 @@
 
 extern std::uniform_real_distribution<float> uid_color;
 
-Triangle::Triangle(glm::vec3 pos, bool reverse)
+Triangle::Triangle(glm::vec3 pos)
 {
-	_pos = pos;
-
-	std::vector<float> vertex;
-
-	if (reverse == false)
+	std::vector<float> vertex
 	{
-		vertex =
-		{
-			_pos.x + 0.1f, _pos.y + (-0.1f), 0.f,
-			_pos.x + 0.f, _pos.y + 0.2f, 0.f,
-			_pos.x + (-0.1f), _pos.y + (-0.1f), 0.f
-		};
-	}
-	else
-	{
-		vertex =
-		{
-			_pos.x - 0.1f, _pos.y + 0.1f, 0.f,
-			_pos.x, _pos.y - 0.2f, 0.f,
-			_pos.x + 0.1f, _pos.y + 0.1f, 0.f
-		};
-
-		_angle.z = -180.f;
-	}
+		0.5f, -0.5f, 0.f,
+		0.f, 1.f, 0.f,
+		-0.5f, -0.5f, 0.f
+	};
 
 	float rand_color{ uid_color(dre) };
 	float rand_color2{ uid_color(dre) };
@@ -49,6 +31,8 @@ Triangle::Triangle(glm::vec3 pos, bool reverse)
 	_mesh->SetVertex(&vertex);
 	_mesh->SetColor(&color);
 	_mesh->SetIndex(&index);
+
+	Move(pos);
 }
 
 Triangle::~Triangle()

@@ -20,6 +20,12 @@ public:
 	void OnAnimate(int32_t index) override;
 	void OnRender() override;
 
+	void RotateY(char key);
+	void RotateTop(char key);
+	void OpenFront();
+	void OpenSide();
+	void OpenPyramid();
+
 private:
 	std::unique_ptr<class CameraMgr> _camera;
 	std::vector<Object*> _object;
@@ -29,4 +35,10 @@ private:
 	uint32_t _index;
 
 	bool _stop_animation;
+	bool _depth_test;
+	bool _show_cube;
+	bool _open_front;
+	std::vector<bool> _open_side;
+	bool _open_pyramid;
+	float _angle;
 };

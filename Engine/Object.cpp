@@ -78,6 +78,11 @@ void Object::Move(glm::vec3 delta)
 	_transform.push_back(glm::translate(mat4::unit(), delta));
 }
 
+void Object::Rotate(float delta, glm::vec3 axis)
+{
+	_transform.push_back(glm::rotate(mat4::unit(), glm::radians(delta), axis));
+}
+
 void Object::RotateX(float delta)
 {
 	_angle.x += delta;
@@ -107,16 +112,4 @@ void Object::Scale(float x, float y, float z)
 void Object::Scale(glm::vec3 delta)
 {
 	_transform.push_back(glm::scale(mat4::unit(), delta));
-}
-
-void Object::Teleport(float x, float y, float z)
-{
-	Teleport(glm::vec3{ x, y, z });
-}
-
-void Object::Teleport(glm::vec3 pos)
-{
-	glm::vec3 temp{ pos - _pos };
-
-	_transform.push_back(glm::translate(_model, temp));
 }
