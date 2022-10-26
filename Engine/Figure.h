@@ -8,6 +8,7 @@
 #include "Line.h"
 #include "Triangle.h"
 #include "Rect.h"
+#include "Circle.h"
 
 // 3D
 #include "Tetraherdon.h"	// 정사면체

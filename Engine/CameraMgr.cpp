@@ -97,10 +97,7 @@ void CameraMgr::ViewTransform(std::shared_ptr<Shader> shader)
 void CameraMgr::ProjectionTransform(std::shared_ptr<Shader> shader)
 {
 	if (inst->_perspective == true)
-	{
 		inst->_projection = glm::perspective(glm::radians(inst->_camera->GetFOV()), inst->_aspect, inst->_near, inst->_far);
-		inst->_projection = glm::translate(inst->_projection, vec3::front(5.f));
-	}
 	else
 		inst->_projection = glm::ortho(-2.f, 2.f, -2.f, 2.f, inst->_near, inst->_far);
 

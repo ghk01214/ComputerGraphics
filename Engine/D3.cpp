@@ -32,9 +32,9 @@ void D3::OnLoad()
 	str += std::to_string(GL_FRAGMENT_SHADER);
 #else
 	std::string str{ "2 " };
-	str += "Dependencies/shader/Vertex.glsl ";
+	str += "../Dependencies/shader/Vertex.glsl ";
 	str += std::to_string(GL_VERTEX_SHADER);
-	str += " Dependencies/shader/Color.glsl ";
+	str += " ../Dependencies/shader/Color.glsl ";
 	str += std::to_string(GL_FRAGMENT_SHADER);
 #endif
 

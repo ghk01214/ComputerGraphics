@@ -155,7 +155,6 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Figure.h" />
     <ClInclude Include="GameScene.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>

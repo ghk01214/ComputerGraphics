@@ -21,7 +21,6 @@ public:
 	
 	virtual void Move(float x, float y, float z);
 	virtual void Move(glm::vec3 delta);
-	virtual void Rotate(float delta, glm::vec3 axis);
 	virtual void RotateX(float delta);
 	virtual void RotateY(float delta);
 	virtual void RotateZ(float delta);
