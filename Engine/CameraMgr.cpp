@@ -9,10 +9,9 @@ CameraMgr::CameraMgr() :
 	_projection{ mat4::unit() },
 	_pitch{ 0.f },
 	_yaw{ -90.f },
-	_roll{ 0.f },
 	_old_x{ 0 },
 	_old_y{ 0 },
-	_sensitivity{ 0.f },
+	_sensitivity{ 0.1f },
 	_click{ false },
 	_near{ 1.f },
 	_far{ 1000.f },
@@ -64,27 +63,21 @@ void CameraMgr::OnMouseMotionMessage(int32_t x, int32_t y)
 	delta_x *= inst->_sensitivity;
 	delta_y *= inst->_sensitivity;
 
-	if (delta_x != 0.f)
-	{
-		inst->_yaw += delta_x;
+	inst->_yaw += delta_x;
 
-		if (inst->_yaw > 360.f)
-			inst->_yaw -= 360.f;
-		if (inst->_yaw < 0.f)
-			inst->_yaw += 360.f;
-	}
+	//if (inst->_yaw > 360.f)
+	//	inst->_yaw = -360.f;
+	//if (inst->_yaw < 0.f)
+	//	inst->_yaw = 360.f;
 
-	if (delta_y != 0.f)
-	{
-		inst->_pitch += delta_y;
+	inst->_pitch += delta_y;
 
-		if (inst->_pitch > 89.f)
-			inst->_pitch = 89.f;
-		if (inst->_pitch < -89.f)
-			inst->_pitch = -89.f;
-	}
+	//if (inst->_pitch > 89.f)
+	//	inst->_pitch = 89.f;
+	//if (inst->_pitch < -89.f)
+	//	inst->_pitch = -89.f;
 
-	inst->_camera->Rotate(inst->_pitch, inst->_yaw);
+	inst->_camera->Update(inst->_pitch, inst->_yaw);
 }
 
 void CameraMgr::ViewTransform(std::shared_ptr<Shader> shader)
@@ -104,6 +97,11 @@ void CameraMgr::ProjectionTransform(std::shared_ptr<Shader> shader)
 	shader->SetMat4("projection", glm::value_ptr(inst->_projection));
 }
 
+glm::vec3 CameraMgr::GetPos()
+{
+	return inst->_camera->GetPos();
+}
+
 void CameraMgr::SetFOV(float angle)
 {
 	inst->_camera->SetFOV(angle);
@@ -115,6 +113,11 @@ void CameraMgr::SetDistance(float near_f, float far_f)
 	inst->SetFar(far_f);
 }
 
+void CameraMgr::SetPos(glm::vec3 pos)
+{
+	inst->_camera->SetPos(pos);
+}
+
 void CameraMgr::Move(glm::vec3 delta)
 {
 	inst->_camera->Move(delta);
@@ -123,4 +126,15 @@ void CameraMgr::Move(glm::vec3 delta)
 void CameraMgr::Move(float x, float y, float z)
 {
 	inst->_camera->Move(glm::vec3{ x, y, z });
+}
+
+void CameraMgr::Rotate()
+{
+	//inst->_camera->Rotate();
+	inst->_view = glm::rotate(inst->_view, glm::radians(1.f), vec3::y());
+}
+
+void CameraMgr::Zoom(float delta)
+{
+	inst->_camera->Zoom(delta);
 }

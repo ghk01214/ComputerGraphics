@@ -23,16 +23,22 @@ public:
 	static void ViewTransform(std::shared_ptr<Shader> shader);
 	static void ProjectionTransform(std::shared_ptr<Shader> shader);
 
+	glm::vec3 GetPos();
+
 	void SetAspect(float aspect) { inst->_aspect = aspect; }
 	void SetFOV(float angle);
 	void SetNear(float near_f) { inst->_near = near_f; }
 	void SetFar(float far_f) { inst->_far = far_f; }
 	void SetDistance(float near_f, float far_f);
+	void SetPos(float x, float y, float z) { SetPos(glm::vec3{ x, y, z }); }
+	void SetPos(glm::vec3 pos);
 
 	void ChangeProjection() { inst->_perspective = !inst->_perspective; }
 
 	void Move(glm::vec3 delta);
 	void Move(float x, float y, float z);
+	void Rotate();
+	void Zoom(float delta);
 
 private:
 	std::unique_ptr<class Camera> _camera;
@@ -40,9 +46,8 @@ private:
 	glm::mat4 _view;
 	glm::mat4 _projection;
 
-	float _pitch;
-	float _yaw;
-	float _roll;
+	float _pitch;		// x축 회전
+	float _yaw;			// y축 회전
 
 	int32_t _old_x;
 	int32_t _old_y;

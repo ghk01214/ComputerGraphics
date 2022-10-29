@@ -12,8 +12,9 @@ public:
 
 	void Move(glm::vec3 delta);
 	void Move(float x, float y, float z);
-	void Rotate(float x, float y, float z = 0.f);
-	MAYBE_UNUSED glm::mat4 Zoom();
+	void Rotate();
+	void Zoom(float delta);
+	void Update(float x, float y);
 
 	glm::vec3 GetPos() { return _pos; }
 	glm::vec3 GetLook() { return _look; }
@@ -29,7 +30,6 @@ private:
 	glm::vec3 _look;
 	glm::vec3 _up;
 	glm::vec3 _right;
-	glm::vec3 _front;
 
 	float _fov;
 };

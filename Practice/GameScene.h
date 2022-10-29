@@ -20,17 +20,16 @@ public:
 	void OnAnimate(int32_t index) override;
 	void OnRender() override;
 
-	void RotateInnerMoon();
-	void RotateOuterMoon();
+	void Revolve();
 
 private:
 	std::unique_ptr<class CameraMgr> _camera;
 	std::vector<Object*> _object;
 	std::vector<Object*> _sub_object;
 	std::vector<Object*> _grid;
-	std::vector<Object*> _orbit;
 
 	uint32_t _index;
 
 	bool _stop_animation;
+	float _radius;
 };

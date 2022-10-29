@@ -8,6 +8,7 @@ extern std::uniform_real_distribution<float> uid_color;
 #define BLACK 0.f, 0.f, 0.f
 #define WHITE 1.f, 1.f, 1.f
 #define GRAY 0.5f, 0.5f, 0.5f
+#define YELLOW 1.f, 1.f, 0.f
 #define RAND_COLOR uid_color(dre), uid_color(dre), uid_color(dre)
 
 enum class SCENE_TYPE
