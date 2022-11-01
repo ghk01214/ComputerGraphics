@@ -2,13 +2,14 @@
 #include "Shader.h"
 #include "Camera.h"
 
-Camera::Camera(glm::vec3 pos, glm::vec3 up) :
+Camera::Camera(glm::vec3 pos, glm::vec3 up, float pitch, float yaw) :
 	_pos{ pos },
-	_look{ vec3::front() },
+	_front{ vec3::front() },
 	_up{ vec3::zero() },
 	_right{ vec3::zero() },
-	_pitch{ 0.f },
-	_yaw{ -90.f },
+	_look{ _pos + _front },
+	_pitch{ pitch },
+	_yaw{ yaw },
 	_sensitivity{ 0.1f },
 	_world_up{ up },
 	_view{ mat4::unit() },
@@ -39,21 +40,25 @@ void Camera::OnSpecialKeyMessage(int32_t key, int32_t x, int32_t y, float delta)
 		case GLUT_KEY_LEFT:
 		{
 			_pos -= _right * velocity;
+			_look = _pos + _front;
 		}
 		break;
 		case GLUT_KEY_RIGHT:
 		{
 			_pos += _right * velocity;
+			_look = _pos + _front;
 		}
 		break;
 		case GLUT_KEY_UP:
 		{
-			_pos += _look * velocity;
+			_pos += _front * velocity;
+			_look = _pos + _front;
 		}
 		break;
 		case GLUT_KEY_DOWN:
 		{
-			_pos -= _look * velocity;
+			_pos -= _front * velocity;
+			_look = _pos + _front;
 		}
 		break;
 		case GLUT_KEY_PAGE_UP:
@@ -109,12 +114,18 @@ void Camera::OnMouseMotionMessage(float delta_x, float delta_y)
 	Update();
 }
 
-void Camera::Rotate()
+void Camera::RotateX(int32_t direction)
 {
-	static float x, y;
+	_pitch += _sensitivity * 10 * direction;
 
-	x += 1.f;
+	Update();
+}
 
+void Camera::RotateY(int32_t direction)
+{
+	_yaw += _sensitivity * 10 * direction;
+
+	Update();
 }
 
 void Camera::Zoom(float delta)
@@ -134,20 +145,21 @@ void Camera::Update()
 	look.y = std::sin(glm::radians(_pitch));
 	look.z = std::sin(glm::radians(_yaw)) * std::cos(glm::radians(_pitch));
 
-	_look = glm::normalize(look);
-	_right = glm::normalize(glm::cross(_look, _world_up));
-	_up = glm::normalize(glm::cross(_right, _look));
+	_front = glm::normalize(look);
+	_right = glm::normalize(glm::cross(_front, _world_up));
+	_up = glm::normalize(glm::cross(_right, _front));
+	_look = _pos + _front;
 }
 
 glm::mat4 Camera::GetViewMatrix()
 {
-	return glm::lookAt(_pos, _pos + _look, _up);
+	return glm::lookAt(_pos, _look, _up);
 }
 
 glm::mat4 Camera::GetProjectionMatrix()
 {
-	if (_perspective == true)
-		return glm::perspective(glm::radians(_fov), _aspect, _near, _far);
-	else
+	if (_perspective == false)
 		return glm::ortho(-2.f, 2.f, -2.f, 2.f, _near, _far);
+
+	return glm::perspective(glm::radians(_fov), _aspect, _near, _far);
 }

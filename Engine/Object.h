@@ -36,6 +36,7 @@ public:
 	glm::vec3 GetPos() { return _pos = _model[3]; }
 	glm::vec3 GetAngle() { return _angle; }
 	uint32_t GetDrawType() { return _draw_type; }
+	glm::mat4 GetModel() { return _model; }
 	
 	void SetModelMat(glm::mat4 model) { _model = model; }
 	void SetPos(glm::vec3 pos) { _pos = pos; }

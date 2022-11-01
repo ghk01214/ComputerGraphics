@@ -20,16 +20,27 @@ public:
 	void OnAnimate(int32_t index) override;
 	void OnRender() override;
 
-	void Revolve();
+	void ViewProjection(std::shared_ptr<class Shader>& shader);
+
+	void RotateBase();
+	void RotateCenter();
+	void RotateArm();
+	void Orbit();
 
 private:
-	std::unique_ptr<class CameraMgr> _camera;
+	std::unique_ptr<class Camera> _camera;
 	std::vector<Object*> _object;
 	std::vector<Object*> _sub_object;
 	std::vector<Object*> _grid;
 
-	uint32_t _index;
-
 	bool _stop_animation;
-	float _radius;
+	bool _click;
+
+	int32_t _old_x;
+	int32_t _old_y;
+
+	bool _rotate_base;
+	bool _rotate_center;
+	bool _rotate_arm;
+	bool _rotate_camera;
 };

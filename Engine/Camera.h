@@ -9,7 +9,7 @@ class Shader;
 class Camera
 {
 public:
-	Camera(glm::vec3 pos = vec3::back(), glm::vec3 up = vec3::up());
+	Camera(glm::vec3 pos = vec3::back(), glm::vec3 up = vec3::up(), float pitch = 0.f, float yaw = -90.f);
 	~Camera();
 
 	void OnKeyboardMessage(uchar key, int32_t x, int32_t y);
@@ -18,18 +18,26 @@ public:
 	void OnMouseUpMessage(int32_t button, int32_t x, int32_t y);
 	void OnMouseMotionMessage(float delta_x, float delta_y);
 
-	void Rotate();
+	void RotateX(int32_t direction);
+	void RotateY(int32_t direction);
 	void Zoom(float delta);
 	void Update();
 
+	glm::vec3 GetPos() { return _pos; }
 	glm::mat4 GetViewMatrix();
 	glm::mat4 GetProjectionMatrix();
 
+	void SetPos(glm::vec3 pos) { _pos = pos; }
+	void SetPos(float x, float y, float z) { SetPos(glm::vec3{ x, y, z }); }
+	void SetLook(glm::vec3 look) { _look = look; }
+	void SetLook(float x, float y, float z) { SetLook(glm::vec3{ x, y, z }); }
+
 private:
 	glm::vec3 _pos;
-	glm::vec3 _look;
+	glm::vec3 _front;
 	glm::vec3 _up;
 	glm::vec3 _right;
+	glm::vec3 _look;
 
 	float _pitch;
 	float _yaw;
