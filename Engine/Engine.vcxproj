@@ -172,7 +172,6 @@ xcopy /y /e $(SolutionDir)Dependencies\shader $(OutDir)Dependencies\shader</Comm
     <ClInclude Include="..\Dependencies\include\Singleton.hpp" />
     <ClInclude Include="..\Dependencies\include\Util.h" />
     <ClInclude Include="Camera.h" />
-    <ClInclude Include="CameraMgr.h" />
     <ClInclude Include="Circle.h" />
     <ClInclude Include="Cone.h" />
     <ClInclude Include="Cube.h" />
@@ -206,7 +205,6 @@ xcopy /y /e $(SolutionDir)Dependencies\shader $(OutDir)Dependencies\shader</Comm
   <ItemGroup>
     <ClCompile Include="..\Dependencies\include\Util.cpp" />
     <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="CameraMgr.cpp" />
     <ClCompile Include="Circle.cpp" />
     <ClCompile Include="Cone.cpp" />
     <ClCompile Include="Cube.cpp" />

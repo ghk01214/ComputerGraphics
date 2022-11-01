@@ -87,9 +87,6 @@
     <ClInclude Include="Camera.h">
       <Filter>Camera</Filter>
     </ClInclude>
-    <ClInclude Include="CameraMgr.h">
-      <Filter>Manager</Filter>
-    </ClInclude>
     <ClInclude Include="DebugScene.h">
       <Filter>Debug</Filter>
     </ClInclude>
@@ -175,9 +172,6 @@
     </ClCompile>
     <ClCompile Include="Camera.cpp">
       <Filter>Camera</Filter>
-    </ClCompile>
-    <ClCompile Include="CameraMgr.cpp">
-      <Filter>Manager</Filter>
     </ClCompile>
     <ClCompile Include="DebugScene.cpp">
       <Filter>Debug</Filter>
