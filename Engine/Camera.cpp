@@ -159,7 +159,7 @@ glm::mat4 Camera::GetViewMatrix()
 glm::mat4 Camera::GetProjectionMatrix()
 {
 	if (_perspective == false)
-		return glm::ortho(-2.f, 2.f, -2.f, 2.f, _near, _far);
+		return glm::ortho(-10.f, 10.f, -10.f, 10.f, _near, _far);
 
 	return glm::perspective(glm::radians(_fov), _aspect, _near, _far);
 }

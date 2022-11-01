@@ -17,8 +17,7 @@ enum
 };
 
 GameScene::GameScene() :
-	_camera{ std::make_unique<Camera>(glm::vec3{0.f, 0.5f, 3.f}, vec3::up(), 0.f, -90.f) },
-	//_camera{ std::make_unique<Camera>(glm::vec3{0.f, 5.f, 0.f}, vec3::up(), -90.f, 90.f) },
+	_camera{},
 	_object{},
 	_grid{},
 	_sub_object{},
@@ -54,6 +53,14 @@ GameScene::GameScene() :
 	_sub_object.push_back(new Rect{});
 	_sub_object.back()->Scale(glm::vec3{ 10.f });
 	_sub_object.back()->RotateX(-90.f);
+
+	_camera.resize(3);
+	_camera[0] = std::make_unique<Camera>(glm::vec3{ 0.f, 1.f, 3.f }, vec3::up(), -10.f, -90.f);
+	_camera[1] = std::make_unique<Camera>(glm::vec3{ 0.f, 5.f, 0.f }, vec3::up(), -90.f, -90.f);
+	_camera[2] = std::make_unique<Camera>(glm::vec3{ 0.f, 0.f, 3.f }, vec3::up(), 0.f, -90.f);
+
+	_camera[1]->SetCameraMode(false);
+	_camera[2]->SetCameraMode(false);
 }
 
 GameScene::~GameScene()
@@ -131,13 +138,19 @@ void GameScene::OnKeyboardMessage(uchar key, int32_t x, int32_t y)
 		case 'Y':
 		{
 			direction = -1;
-			_camera->RotateY(direction);
+			for (auto& camera : _camera)
+			{
+				camera->RotateY(direction);
+			}
 		}
 		break;
 		case 'y':
 		{
 			direction = 1;
-			_camera->RotateY(direction);
+			for (auto& camera : _camera)
+			{
+				camera->RotateY(direction);
+			}
 		}
 		break;
 		case 'R': FALLTHROUGH
@@ -176,7 +189,11 @@ void GameScene::OnKeyboardMessage(uchar key, int32_t x, int32_t y)
 			_object.reserve(4);
 			_sub_object.reserve(1);
 
-			_camera = std::make_unique<Camera>(glm::vec3{0.f, 0.5f, 3.f}, vec3::up(), 0.f, -90.f);
+			_camera.clear();
+			_camera.resize(3);
+			_camera[0] = std::make_unique<Camera>(glm::vec3{ 0.f, 1.f, 3.f }, vec3::up(), -10.f, -90.f);
+			_camera[1] = std::make_unique<Camera>(glm::vec3{ 0.f, 5.f, 0.f }, vec3::up(), -90.f, -90.f);
+			_camera[2] = std::make_unique<Camera>(glm::vec3{ 0.f, 0.f, 3.f }, vec3::up(), 0.f, -90.f);
 			
 			_object.push_back(new Cube{});
 			_object.back()->Scale(glm::vec3{ 1.f, 0.3f, 1.f });
@@ -208,7 +225,8 @@ void GameScene::OnKeyboardMessage(uchar key, int32_t x, int32_t y)
 
 void GameScene::OnSpecialKeyMessage(int32_t key, int32_t x, int32_t y)
 {
-	_camera->OnSpecialKeyMessage(key, x, y, 0.1f);
+	for (auto& camera : _camera)
+		camera->OnSpecialKeyMessage(key, x, y, 0.1f);
 }
 
 void GameScene::OnMouseMessage(int32_t button, int32_t x, int32_t y)
@@ -239,7 +257,10 @@ void GameScene::OnMouseMotionMessage(int32_t x, int32_t y)
 	_old_x = x;
 	_old_y = y;
 
-	_camera->OnMouseMotionMessage(delta_x, delta_y);
+	for (auto& camera : _camera)
+	{
+		camera->OnMouseMotionMessage(delta_x, delta_y);
+	}
 }
 
 void GameScene::OnMouseUpMessage(int32_t button, int32_t x, int32_t y)
@@ -269,6 +290,18 @@ void GameScene::OnRender()
 	//	glDrawElements(line->GetDrawType(), line->GetIndexNum(), GL_UNSIGNED_INT, 0);
 	//}
 
+	glViewport(0, 0, 400, 400);
+	RenderScene(0);
+
+	glViewport(400, 0, 400, 400);
+	RenderScene(1);
+
+	glViewport(400, 400, 400, 400);
+	RenderScene(2);
+}
+
+void GameScene::RenderScene(int32_t index)
+{
 	for (auto& obj : _object)
 	{
 		auto shader{ obj->GetShader() };
@@ -277,7 +310,7 @@ void GameScene::OnRender()
 		obj->BindVAO();
 
 		obj->Transform();
-		ViewProjection(shader);
+		ViewProjection(shader, index);
 
 		glDrawElements(obj->GetDrawType(), obj->GetIndexNum(), GL_UNSIGNED_INT, 0);
 	}
@@ -290,16 +323,16 @@ void GameScene::OnRender()
 		obj->BindVAO();
 
 		obj->Transform();
-		ViewProjection(shader);
+		ViewProjection(shader, index);
 
 		glDrawElements(obj->GetDrawType(), obj->GetIndexNum(), GL_UNSIGNED_INT, 0);
 	}
 }
 
-void GameScene::ViewProjection(std::shared_ptr<Shader>& shader)
+void GameScene::ViewProjection(std::shared_ptr<Shader>& shader, int32_t camera_index)
 {
-	auto view{ _camera->GetViewMatrix() };
-	auto projection{ _camera->GetProjectionMatrix() };
+	auto view{ _camera[camera_index]->GetViewMatrix() };
+	auto projection{ _camera[camera_index]->GetProjectionMatrix() };
 
 	shader->SetMat4("view", glm::value_ptr(view));
 	shader->SetMat4("projection", glm::value_ptr(projection));
@@ -362,13 +395,16 @@ void GameScene::RotateArm()
 void GameScene::Orbit()
 {
 	static float angle{ 0.f };
-	static auto pos{ _camera->GetPos() };
-	float radius{ Convert::ToFloat(std::sqrt((pos.x * pos.x) + (pos.z * pos.z))) };
-	float x{ std::sin(angle) * radius };
-	float z{ std::cos(angle) * radius };
+	for (auto& camera : _camera)
+	{
+		auto pos{ camera->GetPos() };
+		float radius{ Convert::ToFloat(std::sqrt((pos.x * pos.x) + (pos.z * pos.z))) };
+		float x{ std::sin(angle) * radius };
+		float z{ std::cos(angle) * radius };
 
-	_camera->RotateY(1.f);
-	_camera->SetPos(x, pos.y, z);
+		camera->RotateY(1.f);
+		camera->SetPos(x, pos.y, z);
+	}
 	angle -= 0.0175f;
 }
 

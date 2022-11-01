@@ -32,6 +32,8 @@ public:
 	void SetLook(glm::vec3 look) { _look = look; }
 	void SetLook(float x, float y, float z) { SetLook(glm::vec3{ x, y, z }); }
 
+	void SetCameraMode(bool perspective) { _perspective = perspective; }
+
 private:
 	glm::vec3 _pos;
 	glm::vec3 _front;
