@@ -11,6 +11,7 @@ public:
 	virtual ~Scene() = default;
 
 	virtual void OnLoad() {}
+	virtual void OnRelease() {}
 
 	virtual void OnIdleMessage() {}
 	virtual void OnKeyboardMessage(uchar key, int32_t x, int32_t y) {}

@@ -9,89 +9,44 @@ extern Window window;
 enum
 {
 	NONE = 0,
-	BASE = 0,
-	CENTER ,
+	BODY = NONE,
+	HEAD,
+	NOSE,
 	LEFT_ARM,
 	RIGHT_ARM,
+	LEFT_LEG,
+	RIGHT_LEG,
 	MAX
 };
 
 GameScene::GameScene() :
-	_camera{},
-	_object{},
-	_grid{},
-	_sub_object{},
-	_stop_animation{ false },
+	_camera{ std::make_unique<Camera>(glm::vec3{ 0.f, 0.f, 4.f }) },
+	_robot{},
+	_stage{},
+	_stop_animation{ true },
 	_click{ false },
 	_old_x{ 0 },
 	_old_y{ 0 },
-	_rotate_base{ false },
-	_rotate_center{ false },
-	_rotate_arm{ false },
-	_rotate_camera{ false }
+	_direction{ DIRECTION::BACK },
+	_camera_angle{ 0.f },
+	_gravity{ 9.8f },
+	_jump_speed{ 0.f },
+	_jump_pos{ 0.f },
+	_delta_time{ 0.f },
+	_old_time{ glutGet(GLUT_ELAPSED_TIME) }
 {
-	//_grid.push_back(new Line{ vec3::zero(), vec3::x(100.f) });
-	//_grid.push_back(new Line{ vec3::zero(), vec3::y(100.f) });
-	//_grid.push_back(new Line{ vec3::zero(), vec3::z(100.f) });
-
-	_object.push_back(new Cube{});
-	_object.back()->Scale(glm::vec3{ 1.f, 0.3f, 1.f });
-	_object.back()->Move(vec3::up(0.15f));
-	
-	_object.push_back(new Cube{});
-	_object.back()->Scale(glm::vec3{ 0.5f, 0.2f, 0.5f });
-	_object.back()->Move(vec3::up(0.35f));
-
-	_object.push_back(new Cylinder{});
-	_object.back()->Scale(glm::vec3{ 0.07f });
-	_object.back()->Move(glm::vec3{ -0.1f, 0.59f, 0.f });
-
-	_object.push_back(new Cylinder{});
-	_object.back()->Scale(glm::vec3{ 0.07f });
-	_object.back()->Move(glm::vec3{ 0.1f, 0.59f, 0.f });
-
-	_sub_object.push_back(new Rect{});
-	_sub_object.back()->Scale(glm::vec3{ 10.f });
-	_sub_object.back()->RotateX(-90.f);
-
-	_camera.resize(3);
-	_camera[0] = std::make_unique<Camera>(glm::vec3{ 0.f, 1.f, 3.f }, vec3::up(), -10.f, -90.f);
-	_camera[1] = std::make_unique<Camera>(glm::vec3{ 0.f, 5.f, 0.f }, vec3::up(), -90.f, -90.f);
-	_camera[2] = std::make_unique<Camera>(glm::vec3{ 0.f, 0.f, 3.f }, vec3::up(), 0.f, -90.f);
-
-	_camera[1]->SetCameraMode(false);
-	_camera[2]->SetCameraMode(false);
+	CreateRobot();
+	CreateStage();
 }
 
 GameScene::~GameScene()
 {
-	for (auto& line : _grid)
-	{
-		delete line;
-	}
-
-	for (auto& obj : _object)
-	{
-		delete obj;
-	}
-
-	for (auto& obj : _sub_object)
-	{
-		delete obj;
-	}
-
-	_grid.clear();
-	_object.clear();
+	OnRelease();
 }
 
 void GameScene::OnLoad()
 {
-	//for (auto& line : _grid)
-	//{
-	//	line->OnLoad();
-	//}
-
-	for (auto& obj : _object)
+	for (auto& obj : _robot)
 	{
 		obj->OnLoad();
 
@@ -99,134 +54,90 @@ void GameScene::OnLoad()
 		obj->GetShader()->SetVec3("f_color", glm::value_ptr(color));
 	}
 
-	for (auto& obj : _sub_object)
+	_stage[0]->OnLoad();
+	glm::vec3 color{ RAND_COLOR };
+	_stage[0]->GetShader()->SetVec3("f_color", glm::value_ptr(color));
+
+	for (auto iter = ++_stage.begin(); iter != _stage.end(); ++iter)
 	{
-		obj->OnLoad();
+		(*iter)->OnLoad();
 	}
+}
+
+void GameScene::OnRelease()
+{
+	for (auto& obj : _robot)
+	{
+		delete obj;
+	}
+
+	for (auto& obj : _stage)
+	{
+		delete obj;
+	}
+
+	_robot.clear();
+	_stage.clear();
+}
+
+void GameScene::OnIdleMessage()
+{
+	int32_t time{ glutGet(GLUT_ELAPSED_TIME) };
+
+	_delta_time = Convert::ToFloat((time - _old_time)) / 1000.f;
+	_old_time = time;
 }
 
 void GameScene::OnKeyboardMessage(uchar key, int32_t x, int32_t y)
 {
-	static int32_t direction{ 1 };
-
 	switch (key)
 	{
-		case 'B': FALLTHROUGH
-		case 'b': FALLTHROUGH
+		case 'O': FALLTHROUGH
+		case 'o':
+		{
+			_stage.back()->Move(vec3::up(0.1f));
+		}
+		break;
+		case 'W': FALLTHROUGH
+		case 'w': FALLTHROUGH
+		case 'A': FALLTHROUGH
+		case 'a': FALLTHROUGH
+		case 'S': FALLTHROUGH
+		case 's': FALLTHROUGH
+		case 'D': FALLTHROUGH
+		case 'd':
+		{
+			MoveRobot(key);
+		}
+		break;
+		case 'J': FALLTHROUGH
+		case 'j':
 		{
 			_stop_animation = false;
-			_rotate_base = !_rotate_base;
+			_jump_speed = 4.f;
+			_jump_pos = _robot[BODY]->GetPos().y;
+
 			glutTimerFunc(10, Engine::OnAnimate, key);
 		}
 		break;
-		case 'M': FALLTHROUGH
-		case 'm': FALLTHROUGH
-		{
-			_stop_animation = false;
-			_rotate_center = !_rotate_center;
-			glutTimerFunc(10, Engine::OnAnimate, key);
-		}
-		break;
-		case 'T': FALLTHROUGH
-		case 't':
-		{
-			_stop_animation = false;
-			_rotate_arm = !_rotate_arm;
-			glutTimerFunc(10, Engine::OnAnimate, key);
-		}
-		break;
-		case 'Y':
-		{
-			direction = -1;
-			for (auto& camera : _camera)
-			{
-				camera->RotateY(direction);
-			}
-		}
-		break;
+		case 'Y': FALLTHROUGH
 		case 'y':
-		{
-			direction = 1;
-			for (auto& camera : _camera)
-			{
-				camera->RotateY(direction);
-			}
-		}
-		break;
-		case 'R': FALLTHROUGH
-		case 'r':
 		{
 			Orbit();
 		}
 		break;
-		case 'A': FALLTHROUGH
-		case 'a':
+		case 'I': FALLTHROUGH
+		case 'i':
 		{
-			_stop_animation = false;
-			_rotate_camera = !_rotate_camera;
-			glutTimerFunc(10, Engine::OnAnimate, key);
+			Reset();
 		}
-		break;
-		case 'S': FALLTHROUGH
-		case 's':
-		{
-			_stop_animation = true;
-		}
-		break;
-		case 'C': FALLTHROUGH
-		case 'c':
-		{
-			_stop_animation = true;
-			_rotate_base = false;
-			_rotate_center = false;
-			_rotate_camera = false;
-			_rotate_arm = false;
-			_click = false;
-
-			_object.clear();
-			_sub_object.clear();
-
-			_object.reserve(4);
-			_sub_object.reserve(1);
-
-			_camera.clear();
-			_camera.resize(3);
-			_camera[0] = std::make_unique<Camera>(glm::vec3{ 0.f, 1.f, 3.f }, vec3::up(), -10.f, -90.f);
-			_camera[1] = std::make_unique<Camera>(glm::vec3{ 0.f, 5.f, 0.f }, vec3::up(), -90.f, -90.f);
-			_camera[2] = std::make_unique<Camera>(glm::vec3{ 0.f, 0.f, 3.f }, vec3::up(), 0.f, -90.f);
-			
-			_object.push_back(new Cube{});
-			_object.back()->Scale(glm::vec3{ 1.f, 0.3f, 1.f });
-			_object.back()->Move(vec3::up(0.15f));
-
-			_object.push_back(new Cube{});
-			_object.back()->Scale(glm::vec3{ 0.5f, 0.2f, 0.5f });
-			_object.back()->Move(vec3::up(0.35f));
-
-			_object.push_back(new Cylinder{});
-			_object.back()->Scale(glm::vec3{ 0.07f });
-			_object.back()->Move(glm::vec3{ -0.1f, 0.59f, 0.f });
-
-			_object.push_back(new Cylinder{});
-			_object.back()->Scale(glm::vec3{ 0.07f });
-			_object.back()->Move(glm::vec3{ 0.1f, 0.59f, 0.f });
-
-			_sub_object.push_back(new Rect{});
-			_sub_object.back()->Scale(glm::vec3{ 10.f });
-			_sub_object.back()->RotateX(-90.f);
-
-			OnLoad();
-		}
-		break;
-		default:
 		break;
 	}
 }
 
 void GameScene::OnSpecialKeyMessage(int32_t key, int32_t x, int32_t y)
 {
-	for (auto& camera : _camera)
-		camera->OnSpecialKeyMessage(key, x, y, 0.1f);
+	_camera->OnSpecialKeyMessage(key, x, y, 0.1f);
 }
 
 void GameScene::OnMouseMessage(int32_t button, int32_t x, int32_t y)
@@ -257,10 +168,7 @@ void GameScene::OnMouseMotionMessage(int32_t x, int32_t y)
 	_old_x = x;
 	_old_y = y;
 
-	for (auto& camera : _camera)
-	{
-		camera->OnMouseMotionMessage(delta_x, delta_y);
-	}
+	_camera->OnMouseMotionMessage(delta_x, delta_y);
 }
 
 void GameScene::OnMouseUpMessage(int32_t button, int32_t x, int32_t y)
@@ -279,171 +187,302 @@ void GameScene::OnRender()
 	glEnable(GL_DEPTH_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	//for (auto& line : _grid)
-	//{
-	//	line->GetShader()->Use();
-	//	line->BindVAO();
-
-	//	line->Transform();
-	//	ViewProjection(shader);
-
-	//	glDrawElements(line->GetDrawType(), line->GetIndexNum(), GL_UNSIGNED_INT, 0);
-	//}
-
-	glViewport(0, 0, 400, 400);
-	RenderScene(0);
-
-	glViewport(400, 0, 400, 400);
-	RenderScene(1);
-
-	glViewport(400, 400, 400, 400);
-	RenderScene(2);
+	RenderObject(&_robot);
+	RenderObject(&_stage);
 }
 
-void GameScene::RenderScene(int32_t index)
+void GameScene::ViewProjection(std::shared_ptr<Shader>& shader)
 {
-	for (auto& obj : _object)
-	{
-		auto shader{ obj->GetShader() };
-
-		shader->Use();
-		obj->BindVAO();
-
-		obj->Transform();
-		ViewProjection(shader, index);
-
-		glDrawElements(obj->GetDrawType(), obj->GetIndexNum(), GL_UNSIGNED_INT, 0);
-	}
-
-	for (auto& obj : _sub_object)
-	{
-		auto shader{ obj->GetShader() };
-
-		shader->Use();
-		obj->BindVAO();
-
-		obj->Transform();
-		ViewProjection(shader, index);
-
-		glDrawElements(obj->GetDrawType(), obj->GetIndexNum(), GL_UNSIGNED_INT, 0);
-	}
-}
-
-void GameScene::ViewProjection(std::shared_ptr<Shader>& shader, int32_t camera_index)
-{
-	auto view{ _camera[camera_index]->GetViewMatrix() };
-	auto projection{ _camera[camera_index]->GetProjectionMatrix() };
+	auto view{ _camera->GetViewMatrix() };
+	auto projection{ _camera->GetProjectionMatrix() };
 
 	shader->SetMat4("view", glm::value_ptr(view));
 	shader->SetMat4("projection", glm::value_ptr(projection));
 }
 
-void GameScene::RotateBase()
+void GameScene::CreateRobot()
 {
-	auto obj{ _object[BASE] };
-	auto pos{ obj->GetPos() };
-	
-	obj->Move(-pos);
-	obj->RotateY(1.f);
-	obj->Move(pos);
-}
+	// body
+	_robot.push_back(new Cube{});
+	_robot.back()->Scale(glm::vec3{ 0.4f, 0.6f, 0.4f });
 
-void GameScene::RotateCenter()
-{
-	auto obj{ _object[CENTER] };
-	auto pos{ obj->GetPos() };
+	// head
+	_robot.push_back(new Cube{});
+	_robot.back()->Scale(glm::vec3{ 0.2f, 0.25f, 0.2f });
+	_robot.back()->Move(vec3::up(0.425f));
 
-	obj->Move(-pos);
-	obj->RotateY(1.f);
-	obj->Move(pos);
-}
+	// nose
+	_robot.push_back(new Cube{});
+	_robot.back()->Scale(glm::vec3{ 0.04f, 0.07f, 0.04f });
+	_robot.back()->Move(glm::vec3{ 0.f, 0.4f, 0.12f });
 
-void GameScene::RotateArm()
-{
-	static bool rotate{ true };
-	static float angle{ 1.f };
-	auto left{ _object[LEFT_ARM] };
-	auto l_pos{ left->GetPos() };
+	// left arm
+	_robot.push_back(new Cube{});
+	_robot.back()->Scale(glm::vec3{ 0.05f, 0.3f, 0.05f });
+	_robot.back()->RotateZ(-40.f);
+	_robot.back()->Move(vec3::left(0.27f));
 
-	auto right{ _object[RIGHT_ARM] };
-	auto r_pos{ right->GetPos() };
+	// right arm
+	_robot.push_back(new Cube{});
+	_robot.back()->Scale(glm::vec3{ 0.05f, 0.3f, 0.05f });
+	_robot.back()->RotateZ(40.f);
+	_robot.back()->Move(vec3::right(0.27f));
 
-	if (left->GetAngle().x > 90.f and rotate == true)
+	// left leg
+	_robot.push_back(new Cube{});
+	_robot.back()->Scale(glm::vec3{ 0.05f, 0.3f, 0.05f });
+	_robot.back()->Move(glm::vec3{ 0.1f, -0.45f, 0.f });
+
+	// right leg
+	_robot.push_back(new Cube{});
+	_robot.back()->Scale(glm::vec3{ 0.05f, 0.3f, 0.05f });
+	_robot.back()->Move(glm::vec3{ -0.1f, -0.45f, 0.f });
+
+	for (auto& obj : _robot)
 	{
-		rotate = false;
-		angle = -angle;
+		obj->Move(vec3::down(0.4f));
 	}
-	else if (left->GetAngle().x < -90.f and rotate == false)
-	{
-		rotate = true;
-		angle = -angle;
-	}
-	
-	left->Move(-glm::vec3{ -0.1f, 0.59f, 0.f });
-	left->Move(vec3::up(0.14f));
-	left->RotateX(angle);
-	left->Move(vec3::down(0.14f));
-	left->Move(glm::vec3{ -0.1f, 0.59f, 0.f });
 
-	right->Move(-glm::vec3{ 0.1f, 0.59f, 0.f });
-	right->Move(vec3::up(0.14f));
-	right->RotateX(-angle);
-	right->Move(vec3::down(0.14f));
-	right->Move(glm::vec3{ 0.1f, 0.59f, 0.f });
+	//for (auto& obj : _robot)
+	//{
+	//	obj->Transform();
+	//}
+
+	//_jump_pos = _robot[BODY]->GetPos().y;
 }
 
-void GameScene::Orbit()
+void GameScene::CreateStage()
 {
-	static float angle{ 0.f };
-	for (auto& camera : _camera)
-	{
-		auto pos{ camera->GetPos() };
-		float radius{ Convert::ToFloat(std::sqrt((pos.x * pos.x) + (pos.z * pos.z))) };
-		float x{ std::sin(angle) * radius };
-		float z{ std::cos(angle) * radius };
+	glm::vec3 scale_offset{ 3.f };
+	float move_offset{ 1.5f };
 
-		camera->RotateY(1.f);
-		camera->SetPos(x, pos.y, z);
+	_stage.push_back(new Cube{});
+	_stage.back()->Scale(glm::vec3{ 0.5f, 0.3f, 0.5f });
+	_stage.back()->Move(glm::vec3{ -0.7f, -0.85f, 1.f });
+
+	_stage.push_back(new Rect{});
+	_stage.back()->Scale(scale_offset);
+	_stage.back()->RotateY(90.f);
+	_stage.back()->Move(vec3::left(move_offset));
+
+	_stage.push_back(new Rect{});
+	_stage.back()->Scale(scale_offset);
+	_stage.back()->RotateY(90.f);
+	_stage.back()->Move(vec3::right(move_offset));
+
+	_stage.push_back(new Rect{});
+	_stage.back()->Scale(scale_offset);
+	_stage.back()->RotateX(90.f);
+	_stage.back()->Move(vec3::up(move_offset));
+
+	_stage.push_back(new Rect{});
+	_stage.back()->Scale(scale_offset);
+	_stage.back()->RotateX(90.f);
+	_stage.back()->Move(vec3::down(move_offset));
+
+	_stage.push_back(new Rect{});
+	_stage.back()->Scale(scale_offset);
+	_stage.back()->Move(vec3::front(move_offset));
+
+	//_stage.push_back(new Rect{});
+	//_stage.back()->Scale(scale_offset);
+	//_stage.back()->Move(vec3::back(move_offset));
+
+	for (auto iter = ++_stage.begin(); iter != _stage.end(); ++iter)
+	{
+		(*iter)->Move(vec3::up(0.5f));
 	}
-	angle -= 0.0175f;
 }
 
-void GameScene::OnAnimate(int32_t value)
+void GameScene::RenderObject(std::vector<Object*>* object)
 {
-	switch (value)
+	for (auto& obj : *object)
 	{
-		case 'B': FALLTHROUGH
-		case 'b':
+		auto shader{ obj->GetShader() };
+
+		shader->Use();
+		obj->BindVAO();
+
+		obj->Transform();
+		ViewProjection(shader);
+
+		glDrawElements(obj->GetDrawType(), obj->GetIndexNum(), GL_UNSIGNED_INT, 0);
+	}
+}
+
+void GameScene::MoveRobot(uchar key)
+{
+	float angle{ 0.f };
+	auto pos{ _robot[BODY]->GetPos() };
+	auto move_offset{ vec3::zero() };
+
+	switch (key)
+	{
+		case 'W': FALLTHROUGH
+		case 'w':
 		{
-			RotateBase();
-		}
-		break;
-		case 'M': FALLTHROUGH
-		case 'm':
-		{
-			RotateCenter();
-		}
-		break;
-		case 'T': FALLTHROUGH
-		case 't':
-		{
-			RotateArm();
+			if (_direction == DIRECTION::LEFT)
+				angle = -90.f;
+			else if (_direction == DIRECTION::RIGHT)
+				angle = 90.f;
+			else if (_direction == DIRECTION::BACK)
+				angle = 180.f;
+
+			for (auto& obj : _robot)
+			{
+				obj->Move(-pos);
+				obj->RotateY(angle);
+				obj->Move(pos);
+			}
+
+			_direction = DIRECTION::FRONT;
+			move_offset = vec3::front(0.1f);
 		}
 		break;
 		case 'A': FALLTHROUGH
 		case 'a':
 		{
-			Orbit();
+			if (_direction == DIRECTION::RIGHT)
+				angle = 180.f;
+			else if (_direction == DIRECTION::FRONT)
+				angle = 90.f;
+			else if (_direction == DIRECTION::BACK)
+				angle = -90.f;
+
+			for (auto& obj : _robot)
+			{
+				obj->Move(-pos);
+				obj->RotateY(angle);
+				obj->Move(pos);
+			}
+
+			_direction = DIRECTION::LEFT;
+			move_offset = vec3::left(0.1f);
+		}
+		break;
+		case 'S': FALLTHROUGH
+		case 's':
+		{
+			if (_direction == DIRECTION::LEFT)
+				angle = 90.f;
+			else if (_direction == DIRECTION::RIGHT)
+				angle = -90.f;
+			else if (_direction == DIRECTION::FRONT)
+				angle = 180.f;
+
+			for (auto& obj : _robot)
+			{
+				obj->Move(-pos);
+				obj->RotateY(angle);
+				obj->Move(pos);
+			}
+
+			_direction = DIRECTION::BACK;
+			move_offset = vec3::back(0.1f);
+		}
+		break;
+		case 'D': FALLTHROUGH
+		case 'd':
+		{
+			if (_direction == DIRECTION::LEFT)
+				angle = 180.f;
+			else if (_direction == DIRECTION::FRONT)
+				angle = -90.f;
+			else if (_direction == DIRECTION::BACK)
+				angle = 90.f;
+
+			for (auto& obj : _robot)
+			{
+				obj->Move(-pos);
+				obj->RotateY(angle);
+				obj->Move(pos);
+			}
+
+			_direction = DIRECTION::RIGHT;
+			move_offset = vec3::right(0.1f);
 		}
 		break;
 	}
 
+	for (auto& obj : _robot)
+	{
+		obj->Move(move_offset);
+	}
+
+	auto new_pos{ _robot[BODY]->GetPos() };
+	auto new_move_offset{ vec3::zero() };
+
+	if (new_pos.x < -1.5f)
+		new_move_offset = vec3::right(3.f);
+	else if (new_pos.x > 1.5f)
+		new_move_offset = vec3::left(3.f);
+	else if (new_pos.z > 1.5f)
+		new_move_offset = vec3::front(3.f);
+	else if (new_pos.z < -1.5f)
+		new_move_offset = vec3::back(3.f);
+
+	for (auto& obj : _robot)
+	{
+		obj->Move(new_move_offset);
+	}
+}
+
+void GameScene::Jump()
+{
+	auto pos{ _robot[BODY]->GetPos().y };
+
+	if (pos < _jump_pos)
+	{
+		_stop_animation = true;
+
+		for (auto& obj : _robot)
+		{
+			obj->Move(vec3::up(_jump_pos - pos));
+		}
+
+		return;
+	}
+
+	for (auto& obj : _robot)
+	{
+		obj->Move(vec3::up(_jump_speed * _delta_time * 2.f));
+	}
+
+	_jump_speed -= _gravity * _delta_time * 2.f;
+}
+
+void GameScene::Orbit()
+{
+	auto pos{ _camera->GetPos() };
+	float radius{ Convert::ToFloat(std::sqrt((pos.x * pos.x) + (pos.z * pos.z))) };
+	float x{ std::sin(_camera_angle) * radius };
+	float z{ std::cos(_camera_angle) * radius };
+
+	_camera->RotateY(1.f);
+	_camera->SetPos(x, pos.y, z);
+
+	_camera_angle -= 0.0175f;
+}
+
+void GameScene::Reset()
+{
+	OnRelease();
+
+	_camera = std::make_unique<Camera>(glm::vec3{ 0.f, 0.f, 4.f });
+	_camera_angle = 0.f;
+
+	CreateRobot();
+	CreateStage();
+
+	OnLoad();
+}
+
+void GameScene::OnAnimate(int32_t value)
+{
+	Jump();
+
 	if (_stop_animation == false)
 	{
-		if (_rotate_base == true or
-			_rotate_center == true or
-			_rotate_arm == true or
-			_rotate_camera == true)
-			glutTimerFunc(10, Engine::OnAnimate, value);
+		glutTimerFunc(10, Engine::OnAnimate, value);
 	}
 }

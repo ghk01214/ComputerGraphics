@@ -2,17 +2,28 @@
 
 #include "Scene.h"
 
+enum class DIRECTION
+{
+	NONE = 0,
+	LEFT,
+	RIGHT,
+	FRONT,
+	BACK,
+	MAX
+};
+
 class Object;
 
 class GameScene : public Scene
 {
 public:
 	GameScene();
-	GameScene(glm::vec3 camera_pos, glm::vec3 camera_up, float pitch, float yaw, bool persective);
 	~GameScene();
 
 	void OnLoad() override;
+	void OnRelease() override;
 
+	void OnIdleMessage() override;
 	void OnKeyboardMessage(uchar key, int32_t x, int32_t y) override;
 	void OnSpecialKeyMessage(int32_t key, int32_t x, int32_t y) override;
 	void OnMouseMessage(int32_t button, int32_t x, int32_t y) override;
@@ -21,29 +32,37 @@ public:
 	void OnAnimate(int32_t index) override;
 	void OnRender() override;
 
-	void ViewProjection(std::shared_ptr<class Shader>& shader, int32_t camera_index);
+	void ViewProjection(std::shared_ptr<class Shader>& shader);
+public:
+	void CreateRobot();
+	void CreateStage();
+	
+	void RenderObject(std::vector<Object*>* object);
 
-	void RotateBase();
-	void RotateCenter();
-	void RotateArm();
+	void MoveRobot(uchar key);
+	void Jump();
 	void Orbit();
 
-	void RenderScene(int32_t index);
+	void Reset();
 
 private:
-	std::vector<std::unique_ptr<class Camera>> _camera;
-	std::vector<Object*> _object;
-	std::vector<Object*> _sub_object;
-	std::vector<Object*> _grid;
+	std::unique_ptr<class Camera> _camera;
+	std::vector<Object*> _robot;
+	std::vector<Object*> _stage;
 
 	bool _stop_animation;
 	bool _click;
 
 	int32_t _old_x;
 	int32_t _old_y;
+private:
+	DIRECTION _direction;
+	float _camera_angle;
 
-	bool _rotate_base;
-	bool _rotate_center;
-	bool _rotate_arm;
-	bool _rotate_camera;
+	float _gravity;
+	float _jump_speed;
+	float _jump_pos;
+
+	float _delta_time;
+	int32_t _old_time;
 };

@@ -9,7 +9,7 @@ class Shader;
 class Camera
 {
 public:
-	Camera(glm::vec3 pos = vec3::back(), glm::vec3 up = vec3::up(), float pitch = 0.f, float yaw = -90.f);
+	Camera(glm::vec3 pos, glm::vec3 up = vec3::up(), float pitch = 0.f, float yaw = -90.f);
 	~Camera();
 
 	void OnKeyboardMessage(uchar key, int32_t x, int32_t y);

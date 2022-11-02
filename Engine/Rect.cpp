@@ -11,12 +11,14 @@ Rect::Rect(glm::vec3 pos, glm::vec3 size)
 		 -size.x, -size.y, 0.f,
 	};
 
+	glm::vec3 rand_color{ RAND_COLOR };
+
 	std::vector<float> color
 	{
-		BLUE, 1.f,
-		YELLOW, 1.f,
-		RED, 1.f,
-		GREEN, 1.f,
+		rand_color.x, rand_color.y, rand_color.z, 1.f,
+		rand_color.x, rand_color.y, rand_color.z, 1.f,
+		rand_color.x, rand_color.y, rand_color.z, 1.f,
+		rand_color.x, rand_color.y, rand_color.z, 1.f,
 	};
 
 	std::vector<uint32_t> index

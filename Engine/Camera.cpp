@@ -33,7 +33,7 @@ void Camera::OnKeyboardMessage(uchar key, int32_t x, int32_t y)
 
 void Camera::OnSpecialKeyMessage(int32_t key, int32_t x, int32_t y, float delta)
 {
-	float velocity{ 2.5f * delta };
+	float velocity{ 1.f * delta };
 
 	switch (key)
 	{
@@ -63,10 +63,14 @@ void Camera::OnSpecialKeyMessage(int32_t key, int32_t x, int32_t y, float delta)
 		break;
 		case GLUT_KEY_PAGE_UP:
 		{
+			_pos += _up * velocity;
+			_look = _pos + _front;
 		}
 		break;
 		case GLUT_KEY_PAGE_DOWN:
 		{
+			_pos -= _up * velocity;
+			_look = _pos + _front;
 		}
 		break;
 		case GLUT_KEY_HOME:

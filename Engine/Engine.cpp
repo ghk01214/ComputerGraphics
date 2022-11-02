@@ -37,7 +37,7 @@ void Engine::Init(const Window* window)
 
 	glutDisplayFunc(Render);
 	glutReshapeFunc(Reshape);
-	//glutIdleFunc(OnIdleMessage);
+	glutIdleFunc(OnIdleMessage);
 	glutKeyboardFunc(OnKeyboardMessage);
 	glutSpecialFunc(OnSpecialKeyMessage);
 	glutKeyboardUpFunc(OnKeyboardUpMessage);
@@ -70,7 +70,7 @@ void Engine::Init(const Window* window, const std::string& name)
 	glClearDepth(1.f);
 
 	glutDisplayFunc(Render);
-	//glutReshapeFunc(Reshape);
+	glutReshapeFunc(Reshape);
 	glutIdleFunc(OnIdleMessage);
 	glutKeyboardFunc(OnKeyboardMessage);
 	glutSpecialFunc(OnSpecialKeyMessage);
