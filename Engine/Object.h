@@ -30,6 +30,8 @@ public:
 	void BindVAO() { _mesh->BindVAO(); }
 	void BindIndex() { _mesh->BindIndex(); }
 
+	virtual bool Collide(Object* obj, int32_t direction) { return false; }
+
 	std::shared_ptr<Mesh> GetMesh() { return _mesh; }
 	std::shared_ptr<Shader> GetShader() { return _shader; }
 	size_t GetIndexNum() { return _mesh->GetIndexNum(); }

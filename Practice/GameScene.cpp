@@ -14,8 +14,8 @@ enum
 	NOSE,
 	LEFT_ARM,
 	RIGHT_ARM,
-	LEFT_LEG,
 	RIGHT_LEG,
+	LEFT_LEG,
 	MAX
 };
 
@@ -33,6 +33,8 @@ GameScene::GameScene() :
 	_jump_speed{ 0.f },
 	_jump_pos{ 0.f },
 	_delta_time{ 0.f },
+	_jumping{ false },
+	_origin_pos{ 0.f },
 	_old_time{ glutGet(GLUT_ELAPSED_TIME) }
 {
 	CreateRobot();
@@ -86,6 +88,16 @@ void GameScene::OnIdleMessage()
 
 	_delta_time = Convert::ToFloat((time - _old_time)) / 1000.f;
 	_old_time = time;
+
+	if (_robot[BODY]->GetPos().y > _origin_pos and _jumping == false)
+	{
+		for (auto& obj : _robot)
+		{
+			obj->Move(vec3::up(_jump_speed * _delta_time * 2.f));
+		}
+
+		_jump_speed -= _gravity * _delta_time * 2.f;
+	}
 }
 
 void GameScene::OnKeyboardMessage(uchar key, int32_t x, int32_t y)
@@ -111,13 +123,18 @@ void GameScene::OnKeyboardMessage(uchar key, int32_t x, int32_t y)
 		}
 		break;
 		case 'J': FALLTHROUGH
-		case 'j':
+		case 'j': FALLTHROUGH
+		case 0x20:	// space bar
 		{
-			_stop_animation = false;
-			_jump_speed = 4.f;
-			_jump_pos = _robot[BODY]->GetPos().y;
+			if (_jumping == false)
+			{
+				_stop_animation = false;
+				_jump_speed = 4.f;
+				_jump_pos = _robot[BODY]->GetPos().y;
+				_jumping = true;
 
-			glutTimerFunc(10, Engine::OnAnimate, key);
+				glutTimerFunc(10, Engine::OnAnimate, key);
+			}
 		}
 		break;
 		case 'Y': FALLTHROUGH
@@ -228,15 +245,17 @@ void GameScene::CreateRobot()
 	_robot.back()->RotateZ(40.f);
 	_robot.back()->Move(vec3::right(0.27f));
 
-	// left leg
-	_robot.push_back(new Cube{});
-	_robot.back()->Scale(glm::vec3{ 0.05f, 0.3f, 0.05f });
-	_robot.back()->Move(glm::vec3{ 0.1f, -0.45f, 0.f });
-
 	// right leg
 	_robot.push_back(new Cube{});
 	_robot.back()->Scale(glm::vec3{ 0.05f, 0.3f, 0.05f });
 	_robot.back()->Move(glm::vec3{ -0.1f, -0.45f, 0.f });
+	dynamic_cast<Cube*>(_robot.back())->SetScaleSize(0.05f, 0.3f, 0.05f);
+
+	// left leg
+	_robot.push_back(new Cube{});
+	_robot.back()->Scale(glm::vec3{ 0.05f, 0.3f, 0.05f });
+	_robot.back()->Move(glm::vec3{ 0.1f, -0.45f, 0.f });
+	dynamic_cast<Cube*>(_robot.back())->SetScaleSize(0.05f, 0.3f, 0.05f);
 
 	for (auto& obj : _robot)
 	{
@@ -259,6 +278,7 @@ void GameScene::CreateStage()
 	_stage.push_back(new Cube{});
 	_stage.back()->Scale(glm::vec3{ 0.5f, 0.3f, 0.5f });
 	_stage.back()->Move(glm::vec3{ -0.7f, -0.85f, 1.f });
+	dynamic_cast<Cube*>(_stage.back())->SetScaleSize(0.5f, 0.3f, 0.5f);
 
 	_stage.push_back(new Rect{});
 	_stage.back()->Scale(scale_offset);
@@ -404,11 +424,60 @@ void GameScene::MoveRobot(uchar key)
 		break;
 	}
 
+	if (_robot[LEFT_LEG]->Collide(_stage[0], Convert::ToInt32(_direction)) == true or
+		_robot[RIGHT_LEG]->Collide(_stage[0], Convert::ToInt32(_direction)) == true)
+	{
+		for (auto& obj : _robot)
+		{
+			obj->Move(-move_offset);
+		}
+
+		return;
+	}
+
 	for (auto& obj : _robot)
 	{
 		obj->Move(move_offset);
 	}
 
+	static float rotate_angle{ 1.f };
+
+	for (int32_t i = LEFT_ARM; i < MAX; ++i)
+	{
+		auto obj{ _robot[i] };
+		auto pos{ obj->GetPos() };
+
+		obj->Move(-pos);
+
+		if (_direction == DIRECTION::LEFT or _direction == DIRECTION::RIGHT)
+		{
+			if (i % 2 == 1)
+			{
+				obj->RotateZ(std::sin(rotate_angle) * 20);
+			}
+			else
+			{
+				obj->RotateZ(-std::sin(rotate_angle) * 20);
+			}
+		}
+		else if (_direction == DIRECTION::FRONT or _direction == DIRECTION::BACK)
+		{
+			if (i % 2 == 1)
+			{
+				obj->RotateX(std::sin(rotate_angle) * 20);
+			}
+			else
+			{
+				obj->RotateX(-std::sin(rotate_angle) * 20);
+			}
+		}
+
+		obj->Move(pos);
+	}
+
+	rotate_angle += 1.f;
+
+	// 벽에 부딪혔을 경우 위치 변경
 	auto new_pos{ _robot[BODY]->GetPos() };
 	auto new_move_offset{ vec3::zero() };
 
@@ -440,6 +509,17 @@ void GameScene::Jump()
 			obj->Move(vec3::up(_jump_pos - pos));
 		}
 
+		_jumping = false;
+
+		return;
+	}
+	else if (_robot[LEFT_LEG]->Collide(_stage[0], Convert::ToInt32(_direction)) == true or
+		_robot[RIGHT_LEG]->Collide(_stage[0], Convert::ToInt32(_direction)) == true)
+	{
+		_stop_animation = true;
+		_jumping = false;
+		_jump_pos = pos;
+
 		return;
 	}
 
@@ -470,7 +550,16 @@ void GameScene::Reset()
 
 	_camera = std::make_unique<Camera>(glm::vec3{ 0.f, 0.f, 4.f });
 	_camera_angle = 0.f;
-
+	_direction = DIRECTION::BACK;
+	_jump_speed = 0.f;
+	_jump_pos = 0.f;
+	_delta_time = 0.f;
+	_click = false;
+	_old_x = 0.f;
+	_old_y = 0.f;
+	_old_time = glutGet(GLUT_ELAPSED_TIME);
+	_jumping = false;
+	
 	CreateRobot();
 	CreateStage();
 

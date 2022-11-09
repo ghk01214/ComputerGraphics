@@ -62,6 +62,8 @@ private:
 	float _gravity;
 	float _jump_speed;
 	float _jump_pos;
+	bool _jumping;
+	float _origin_pos;
 
 	float _delta_time;
 	int32_t _old_time;
