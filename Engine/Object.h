@@ -18,7 +18,7 @@ public:
 	virtual void OnLoad();
 	void OnRelease();
 
-	void Transform(std::shared_ptr<Shader>& shader);
+	void Transform();
 	
 	virtual void Move(float x, float y, float z);
 	virtual void Move(glm::vec3 delta);

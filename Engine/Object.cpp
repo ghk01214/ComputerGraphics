@@ -42,7 +42,7 @@ void Object::OnRelease()
 	_mesh->OnRelease();
 }
 
-void Object::Transform(std::shared_ptr<Shader>& shader)
+void Object::Transform()
 {
 	auto model{ mat4::unit() };
 
@@ -55,7 +55,7 @@ void Object::Transform(std::shared_ptr<Shader>& shader)
 
 	_transform.clear();
 
-	shader->SetMat4("model", glm::value_ptr(_model));
+	_shader->SetMat4("model", &_model);
 }
 
 void Object::Move(float x, float y, float z)

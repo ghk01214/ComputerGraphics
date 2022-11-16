@@ -241,5 +241,8 @@
     <None Include="..\Dependencies\shader\Color.glsl">
       <Filter>Resource\Shader</Filter>
     </None>
+    <None Include="..\Dependencies\shader\Light.glsl">
+      <Filter>Resource\Shader</Filter>
+    </None>
   </ItemGroup>
 </Project>
