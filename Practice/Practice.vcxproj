@@ -151,7 +151,9 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>if not exist $(OutDir)*.dll copy $(SolutionDir)Dependencies\bin\*.dll $(OutDir)</Command>
+      <Command>if not exist $(OutDir)*.dll copy $(SolutionDir)Dependencies\bin\*.dll $(OutDir)
+if not exist $(OutDir)Dependencies\shader\ mkdir $(OutDir)Data\Shader\
+xcopy $(SolutionDir)Dependencies\shader\ $(OutDir)Data\Shader\</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

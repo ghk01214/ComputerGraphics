@@ -2,16 +2,7 @@
 
 #include "Scene.h"
 
-enum class DIRECTION
-{
-	NONE = 0,
-	LEFT,
-	RIGHT,
-	FRONT,
-	BACK,
-	MAX
-};
-
+class Shader;
 class Object;
 
 class GameScene : public Scene
@@ -33,38 +24,52 @@ public:
 	void OnRender() override;
 
 	void ViewProjection(std::shared_ptr<class Shader>& shader);
+
+	void Render2D(std::vector<Object*>* object, std::shared_ptr<Shader>& shader);
+	void Render3D(std::vector<Object*>* object, std::shared_ptr<Shader>& shader);
+private:
+	void LoadObject(std::vector<Object*>* object, std::shared_ptr<Shader>& shader);
+	void ReleaseObject(std::vector<Object*>* object);
+	void Render(Object* obj, std::shared_ptr<Shader>& shader);
+
 public:
-	void CreateRobot();
-	void CreateStage();
-	
-	void RenderObject(std::vector<Object*>* object);
+	void CreateGrid();
+	void CreateCube();
+	void CreatePyramid();
+	void CreateLight();
+	void CreateOrbit();
 
-	void MoveRobot(uchar key);
-	void Jump();
-	void Orbit();
-
-	void Reset();
+	void ChangeObject();
+	void ChangeLightState();
+	void RotateObject();
+	void RotateLight(int32_t direction);
+	void MoveLight(int32_t delta);
 
 private:
 	std::unique_ptr<class Camera> _camera;
-	std::vector<Object*> _robot;
-	std::vector<Object*> _stage;
+	std::shared_ptr<Shader> _color_shader;
+	std::shared_ptr<Shader> _light_shader;
+
+	std::vector<Object*>* _object;
 
 	bool _stop_animation;
 	bool _click;
 
 	int32_t _old_x;
 	int32_t _old_y;
-private:
-	DIRECTION _direction;
-	float _camera_angle;
-
-	float _gravity;
-	float _jump_speed;
-	float _jump_pos;
-	bool _jumping;
-	float _origin_pos;
 
 	float _delta_time;
 	int32_t _old_time;
+
+	glm::vec3 _light_pos;
+
+private:
+	std::vector<Object*> _grid;
+	std::vector<Object*> _cube;
+	std::vector<Object*> _pyramid;
+	std::vector<Object*> _light;
+	std::vector<Object*> _orbit;
+
+	bool _draw_cube;
+	bool _turn_on;
 };

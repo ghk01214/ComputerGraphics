@@ -1,4 +1,5 @@
 ﻿#include "pch.h"
+#include "Shader.h"
 #include "Figure.h"
 #include "Camera.h"
 #include "GameScene.h"
@@ -6,39 +7,41 @@
 
 extern Window window;
 
-enum
-{
-	NONE = 0,
-	BODY = NONE,
-	HEAD,
-	NOSE,
-	LEFT_ARM,
-	RIGHT_ARM,
-	RIGHT_LEG,
-	LEFT_LEG,
-	MAX
-};
-
 GameScene::GameScene() :
-	_camera{ std::make_unique<Camera>(glm::vec3{ 0.f, 0.f, 4.f }) },
-	_robot{},
-	_stage{},
+#pragma region [BASE ATTRIBUTE]
+	_camera{ std::make_unique<Camera>(glm::vec3{ 5.f, 5.f, 5.f }, vec3::up(), -35.f, -90.f - 45.f) },
+	_color_shader{ std::make_shared<Shader>() },
+	_light_shader{ std::make_shared<Shader>() },
+	_object{ nullptr },
 	_stop_animation{ true },
 	_click{ false },
 	_old_x{ 0 },
 	_old_y{ 0 },
-	_direction{ DIRECTION::BACK },
-	_camera_angle{ 0.f },
-	_gravity{ 9.8f },
-	_jump_speed{ 0.f },
-	_jump_pos{ 0.f },
-	_delta_time{ 0.f },
-	_jumping{ false },
-	_origin_pos{ 0.f },
-	_old_time{ glutGet(GLUT_ELAPSED_TIME) }
+	_old_time{ glutGet(GLUT_ELAPSED_TIME) },
+#pragma endregion
+	_grid{},
+	_cube{},
+	_pyramid{},
+	_light{},
+	_orbit{},
+	_draw_cube{ true },
+	_turn_on{ true }
 {
-	CreateRobot();
-	CreateStage();
+#if _DEBUG
+	_color_shader->OnLoad("../Dependencies/shader/Vertex.glsl", "../Dependencies/shader/Color.glsl");
+	_light_shader->OnLoad("../Dependencies/shader/Vertex.glsl", "../Dependencies/shader/Light.glsl");
+#else
+	_2d->OnLoad("Data/Shader/Vertex.glsl", "Data/Shader/Fragment.glsl");
+	_3d->OnLoad("Data/Shader/Vertex.glsl", "Data/Shader/Color.glsl");
+#endif
+
+	_object = &_cube;
+
+	CreateGrid();
+	CreateCube();
+	CreatePyramid();
+	CreateLight();
+	CreateOrbit();
 }
 
 GameScene::~GameScene()
@@ -48,38 +51,37 @@ GameScene::~GameScene()
 
 void GameScene::OnLoad()
 {
-	for (auto& obj : _robot)
-	{
-		obj->OnLoad();
-
-		glm::vec3 color{ RAND_COLOR };
-		obj->GetShader()->SetVec3("f_color", glm::value_ptr(color));
-	}
-
-	_stage[0]->OnLoad();
-	glm::vec3 color{ RAND_COLOR };
-	_stage[0]->GetShader()->SetVec3("f_color", glm::value_ptr(color));
-
-	for (auto iter = ++_stage.begin(); iter != _stage.end(); ++iter)
-	{
-		(*iter)->OnLoad();
-	}
+	LoadObject(&_grid, _color_shader);
+	LoadObject(&_cube, _light_shader);
+	LoadObject(&_pyramid, _light_shader);
+	LoadObject(&_light, _color_shader);
+	LoadObject(&_orbit, _color_shader);
 }
 
 void GameScene::OnRelease()
 {
-	for (auto& obj : _robot)
+	ReleaseObject(&_grid);
+	ReleaseObject(&_cube);
+	ReleaseObject(&_pyramid);
+	ReleaseObject(&_light);
+	ReleaseObject(&_orbit);
+}
+
+void GameScene::LoadObject(std::vector<Object*>* object, std::shared_ptr<Shader>& shader)
+{
+	for (auto& obj : *object)
+	{
+		obj->OnLoad(shader);
+	}
+}
+
+void GameScene::ReleaseObject(std::vector<Object*>* object)
+{
+	for (auto& obj : *object)
 	{
 		delete obj;
+		obj = nullptr;
 	}
-
-	for (auto& obj : _stage)
-	{
-		delete obj;
-	}
-
-	_robot.clear();
-	_stage.clear();
 }
 
 void GameScene::OnIdleMessage()
@@ -88,65 +90,48 @@ void GameScene::OnIdleMessage()
 
 	_delta_time = Convert::ToFloat((time - _old_time)) / 1000.f;
 	_old_time = time;
-
-	if (_robot[BODY]->GetPos().y > _origin_pos and _jumping == false)
-	{
-		for (auto& obj : _robot)
-		{
-			obj->Move(vec3::up(_jump_speed * _delta_time * 2.f));
-		}
-
-		_jump_speed -= _gravity * _delta_time * 2.f;
-	}
 }
 
 void GameScene::OnKeyboardMessage(uchar key, int32_t x, int32_t y)
 {
 	switch (key)
 	{
-		case 'O': FALLTHROUGH
-		case 'o':
+		case 'N': FALLTHROUGH
+		case 'n':
 		{
-			_stage.back()->Move(vec3::up(0.1f));
+			ChangeObject();
 		}
 		break;
-		case 'W': FALLTHROUGH
-		case 'w': FALLTHROUGH
-		case 'A': FALLTHROUGH
-		case 'a': FALLTHROUGH
-		case 'S': FALLTHROUGH
-		case 's': FALLTHROUGH
-		case 'D': FALLTHROUGH
-		case 'd':
+		case 'M': FALLTHROUGH
+		case 'm':
 		{
-			MoveRobot(key);
-		}
-		break;
-		case 'J': FALLTHROUGH
-		case 'j': FALLTHROUGH
-		case 0x20:	// space bar
-		{
-			if (_jumping == false)
-			{
-				_stop_animation = false;
-				_jump_speed = 4.f;
-				_jump_pos = _robot[BODY]->GetPos().y;
-				_jumping = true;
-
-				glutTimerFunc(10, Engine::OnAnimate, key);
-			}
+			ChangeLightState();
 		}
 		break;
 		case 'Y': FALLTHROUGH
 		case 'y':
 		{
-			Orbit();
+			RotateObject();
 		}
 		break;
-		case 'I': FALLTHROUGH
-		case 'i':
+		case 'R':
 		{
-			Reset();
+			RotateLight(-1);
+		}
+		break;
+		case 'r':
+		{
+			RotateLight(1);
+		}
+		break;
+		case 'Z':
+		{
+			MoveLight(1);
+		}
+		break;
+		case 'z':
+		{
+			MoveLight(-1);
 		}
 		break;
 	}
@@ -197,15 +182,17 @@ void GameScene::OnMouseUpMessage(int32_t button, int32_t x, int32_t y)
 
 void GameScene::OnRender()
 {
-	glClearColor(GRAY, 1.f);
+	glClearColor(BLACK, 1.f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glEnable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	RenderObject(&_robot);
-	RenderObject(&_stage);
+	Render2D(&_grid, _color_shader);
+	Render3D(_object, _light_shader);
+	Render2D(&_light, _color_shader);
+	Render2D(&_orbit, _color_shader);
 }
 
 void GameScene::ViewProjection(std::shared_ptr<Shader>& shader)
@@ -213,365 +200,156 @@ void GameScene::ViewProjection(std::shared_ptr<Shader>& shader)
 	auto view{ _camera->GetViewMatrix() };
 	auto projection{ _camera->GetProjectionMatrix() };
 
-	shader->SetMat4("view", glm::value_ptr(view));
-	shader->SetMat4("projection", glm::value_ptr(projection));
+	shader->SetMat4("view", &view);
+	shader->SetMat4("projection", &projection);
 }
 
-void GameScene::CreateRobot()
+void GameScene::CreateGrid()
 {
-	// body
-	_robot.push_back(new Cube{});
-	_robot.back()->Scale(glm::vec3{ 0.4f, 0.6f, 0.4f });
+	_grid.push_back(new Line{ vec3::zero(), vec3::x(100.f) });
+	_grid.back()->SetShader(_color_shader);
+	_grid.back()->SetColor(RED);
 
-	// head
-	_robot.push_back(new Cube{});
-	_robot.back()->Scale(glm::vec3{ 0.2f, 0.25f, 0.2f });
-	_robot.back()->Move(vec3::up(0.425f));
+	_grid.push_back(new Line{ vec3::zero(), vec3::y(100.f) });
+	_grid.back()->SetShader(_color_shader);
+	_grid.back()->SetColor(GREEN);
 
-	// nose
-	_robot.push_back(new Cube{});
-	_robot.back()->Scale(glm::vec3{ 0.04f, 0.07f, 0.04f });
-	_robot.back()->Move(glm::vec3{ 0.f, 0.4f, 0.12f });
+	_grid.push_back(new Line{ vec3::zero(), vec3::z(100.f) });
+	_grid.back()->SetShader(_color_shader);
+	_grid.back()->SetColor(BLUE);
+}
 
-	// left arm
-	_robot.push_back(new Cube{});
-	_robot.back()->Scale(glm::vec3{ 0.05f, 0.3f, 0.05f });
-	_robot.back()->RotateZ(-40.f);
-	_robot.back()->Move(vec3::left(0.27f));
+void GameScene::CreateCube()
+{
+	_cube.push_back(new Cube{});
+	_cube.back()->SetShader(_light_shader);
+	_cube.back()->Scale(glm::vec3{ 1.5f });
+	_cube.back()->SetLight(0.3f, 0.5f, 128, vec3::back(2.f), vec3::unit());
+	_cube.back()->SetColor(RAND_COLOR);
+}
 
-	// right arm
-	_robot.push_back(new Cube{});
-	_robot.back()->Scale(glm::vec3{ 0.05f, 0.3f, 0.05f });
-	_robot.back()->RotateZ(40.f);
-	_robot.back()->Move(vec3::right(0.27f));
+void GameScene::CreatePyramid()
+{
+	_pyramid.push_back(new Pyramid{});
+	_pyramid.back()->SetShader(_light_shader);
+	_pyramid.back()->Scale(glm::vec3{ 1.5f });
+	_pyramid.back()->SetLight(0.3f, 0.5f, 128, vec3::back(2.f), vec3::unit());
+	_pyramid.back()->SetColor(RAND_COLOR);
+}
 
-	// right leg
-	_robot.push_back(new Cube{});
-	_robot.back()->Scale(glm::vec3{ 0.05f, 0.3f, 0.05f });
-	_robot.back()->Move(glm::vec3{ -0.1f, -0.45f, 0.f });
-	dynamic_cast<Cube*>(_robot.back())->SetScaleSize(0.05f, 0.3f, 0.05f);
+void GameScene::CreateLight()
+{
+	_light.push_back(new Cube{});
+	_light.back()->SetShader(_color_shader);
+	_light.back()->Scale(glm::vec3{ 0.2f });
+	_light.back()->Move(vec3::back(2.f));
+	_light.back()->SetColor(WHITE);
+}
 
-	// left leg
-	_robot.push_back(new Cube{});
-	_robot.back()->Scale(glm::vec3{ 0.05f, 0.3f, 0.05f });
-	_robot.back()->Move(glm::vec3{ 0.1f, -0.45f, 0.f });
-	dynamic_cast<Cube*>(_robot.back())->SetScaleSize(0.05f, 0.3f, 0.05f);
+void GameScene::CreateOrbit()
+{
+	_orbit.push_back(new Circle{});
+	_orbit.back()->SetShader(_color_shader);
+	//_orbit.back()->Scale(glm::vec3{ 10.f });
+	_orbit.back()->RotateX(-90.f);
+	_orbit.back()->SetColor(GREEN);
+}
 
-	for (auto& obj : _robot)
-	{
-		obj->Move(vec3::down(0.4f));
-	}
+void GameScene::ChangeObject()
+{
+	_draw_cube = !_draw_cube;
 
-	//for (auto& obj : _robot)
+	if (_draw_cube == true)
+		_object = &_cube;
+	else
+		_object = &_pyramid;
+}
+
+void GameScene::ChangeLightState()
+{
+	//for (auto& obj : *_object)
 	//{
-	//	obj->Transform();
+	//	obj->ChangeLightState();
 	//}
-
-	//_jump_pos = _robot[BODY]->GetPos().y;
+	_turn_on = !_turn_on;
 }
 
-void GameScene::CreateStage()
+void GameScene::RotateObject()
 {
-	glm::vec3 scale_offset{ 3.f };
-	float move_offset{ 1.5f };
-
-	_stage.push_back(new Cube{});
-	_stage.back()->Scale(glm::vec3{ 0.5f, 0.3f, 0.5f });
-	_stage.back()->Move(glm::vec3{ -0.7f, -0.85f, 1.f });
-	dynamic_cast<Cube*>(_stage.back())->SetScaleSize(0.5f, 0.3f, 0.5f);
-
-	_stage.push_back(new Rect{});
-	_stage.back()->Scale(scale_offset);
-	_stage.back()->RotateY(90.f);
-	_stage.back()->Move(vec3::left(move_offset));
-
-	_stage.push_back(new Rect{});
-	_stage.back()->Scale(scale_offset);
-	_stage.back()->RotateY(90.f);
-	_stage.back()->Move(vec3::right(move_offset));
-
-	_stage.push_back(new Rect{});
-	_stage.back()->Scale(scale_offset);
-	_stage.back()->RotateX(90.f);
-	_stage.back()->Move(vec3::up(move_offset));
-
-	_stage.push_back(new Rect{});
-	_stage.back()->Scale(scale_offset);
-	_stage.back()->RotateX(90.f);
-	_stage.back()->Move(vec3::down(move_offset));
-
-	_stage.push_back(new Rect{});
-	_stage.back()->Scale(scale_offset);
-	_stage.back()->Move(vec3::front(move_offset));
-
-	//_stage.push_back(new Rect{});
-	//_stage.back()->Scale(scale_offset);
-	//_stage.back()->Move(vec3::back(move_offset));
-
-	for (auto iter = ++_stage.begin(); iter != _stage.end(); ++iter)
+	for (auto& obj : *_object)
 	{
-		(*iter)->Move(vec3::up(0.5f));
+		obj->RotateY(1.f);
 	}
 }
 
-void GameScene::RenderObject(std::vector<Object*>* object)
+void GameScene::RotateLight(int32_t direction)
 {
+	for (auto& light : _light)
+	{
+		light->RotateY(1.f * direction);
+	}
+	// 왜 얘는 안 되지?
+	//_light->Transform(_color_shader);
+
+	//auto pos{ _light->GetPos() };
+
+	//for (auto& obj : *_object)
+	//{
+	//	obj->SetLightPos(pos);
+	//}
+}
+
+void GameScene::MoveLight(int32_t delta)
+{
+	for (auto& light : _light)
+	{
+		light->Move(delta * light->GetPos() * glm::vec3{ 0.1f });
+	}
+}
+
+void GameScene::Render(Object* obj, std::shared_ptr<Shader>& shader)
+{
+	obj->BindVAO();
+
+	obj->Transform(shader);
+	ViewProjection(shader);
+
+	obj->ApplyColor();
+	obj->SetLightPos(_light.back()->GetPos());
+
+	glDrawElements(obj->GetDrawType(), obj->GetIndexNum(), GL_UNSIGNED_INT, 0);
+}
+
+void GameScene::Render2D(std::vector<Object*>* object, std::shared_ptr<Shader>& shader)
+{
+	shader->OnUse();
+
 	for (auto& obj : *object)
 	{
-		auto shader{ obj->GetShader() };
-
-		shader->Use();
-		obj->BindVAO();
-
-		obj->Transform();
-		ViewProjection(shader);
-
-		glDrawElements(obj->GetDrawType(), obj->GetIndexNum(), GL_UNSIGNED_INT, 0);
+		Render(obj, shader);
 	}
 }
 
-void GameScene::MoveRobot(uchar key)
+void GameScene::Render3D(std::vector<Object*>* object, std::shared_ptr<Shader>& shader)
 {
-	float angle{ 0.f };
-	auto pos{ _robot[BODY]->GetPos() };
-	auto move_offset{ vec3::zero() };
+	glm::vec3 view_pos{ _camera->GetPos() };
+	shader->SetVec3("view_pos", &view_pos);
 
-	switch (key)
+	shader->OnUse();
+
+	for (auto& obj : *object)
 	{
-		case 'W': FALLTHROUGH
-		case 'w':
-		{
-			if (_direction == DIRECTION::LEFT)
-				angle = -90.f;
-			else if (_direction == DIRECTION::RIGHT)
-				angle = 90.f;
-			else if (_direction == DIRECTION::BACK)
-				angle = 180.f;
+		if (_turn_on == true)
+			obj->TurnOnLight();
+		else
+			obj->TurnOffLight();
 
-			for (auto& obj : _robot)
-			{
-				obj->Move(-pos);
-				obj->RotateY(angle);
-				obj->Move(pos);
-			}
-
-			_direction = DIRECTION::FRONT;
-			move_offset = vec3::front(0.1f);
-		}
-		break;
-		case 'A': FALLTHROUGH
-		case 'a':
-		{
-			if (_direction == DIRECTION::RIGHT)
-				angle = 180.f;
-			else if (_direction == DIRECTION::FRONT)
-				angle = 90.f;
-			else if (_direction == DIRECTION::BACK)
-				angle = -90.f;
-
-			for (auto& obj : _robot)
-			{
-				obj->Move(-pos);
-				obj->RotateY(angle);
-				obj->Move(pos);
-			}
-
-			_direction = DIRECTION::LEFT;
-			move_offset = vec3::left(0.1f);
-		}
-		break;
-		case 'S': FALLTHROUGH
-		case 's':
-		{
-			if (_direction == DIRECTION::LEFT)
-				angle = 90.f;
-			else if (_direction == DIRECTION::RIGHT)
-				angle = -90.f;
-			else if (_direction == DIRECTION::FRONT)
-				angle = 180.f;
-
-			for (auto& obj : _robot)
-			{
-				obj->Move(-pos);
-				obj->RotateY(angle);
-				obj->Move(pos);
-			}
-
-			_direction = DIRECTION::BACK;
-			move_offset = vec3::back(0.1f);
-		}
-		break;
-		case 'D': FALLTHROUGH
-		case 'd':
-		{
-			if (_direction == DIRECTION::LEFT)
-				angle = 180.f;
-			else if (_direction == DIRECTION::FRONT)
-				angle = -90.f;
-			else if (_direction == DIRECTION::BACK)
-				angle = 90.f;
-
-			for (auto& obj : _robot)
-			{
-				obj->Move(-pos);
-				obj->RotateY(angle);
-				obj->Move(pos);
-			}
-
-			_direction = DIRECTION::RIGHT;
-			move_offset = vec3::right(0.1f);
-		}
-		break;
+		Render(obj, shader);
 	}
-
-	if (_robot[LEFT_LEG]->Collide(_stage[0], Convert::ToInt32(_direction)) == true or
-		_robot[RIGHT_LEG]->Collide(_stage[0], Convert::ToInt32(_direction)) == true)
-	{
-		for (auto& obj : _robot)
-		{
-			obj->Move(-move_offset);
-		}
-
-		return;
-	}
-
-	for (auto& obj : _robot)
-	{
-		obj->Move(move_offset);
-	}
-
-	static float rotate_angle{ 1.f };
-
-	for (int32_t i = LEFT_ARM; i < MAX; ++i)
-	{
-		auto obj{ _robot[i] };
-		auto pos{ obj->GetPos() };
-
-		obj->Move(-pos);
-
-		if (_direction == DIRECTION::LEFT or _direction == DIRECTION::RIGHT)
-		{
-			if (i % 2 == 1)
-			{
-				obj->RotateZ(std::sin(rotate_angle) * 20);
-			}
-			else
-			{
-				obj->RotateZ(-std::sin(rotate_angle) * 20);
-			}
-		}
-		else if (_direction == DIRECTION::FRONT or _direction == DIRECTION::BACK)
-		{
-			if (i % 2 == 1)
-			{
-				obj->RotateX(std::sin(rotate_angle) * 20);
-			}
-			else
-			{
-				obj->RotateX(-std::sin(rotate_angle) * 20);
-			}
-		}
-
-		obj->Move(pos);
-	}
-
-	rotate_angle += 1.f;
-
-	// 벽에 부딪혔을 경우 위치 변경
-	auto new_pos{ _robot[BODY]->GetPos() };
-	auto new_move_offset{ vec3::zero() };
-
-	if (new_pos.x < -1.5f)
-		new_move_offset = vec3::right(3.f);
-	else if (new_pos.x > 1.5f)
-		new_move_offset = vec3::left(3.f);
-	else if (new_pos.z > 1.5f)
-		new_move_offset = vec3::front(3.f);
-	else if (new_pos.z < -1.5f)
-		new_move_offset = vec3::back(3.f);
-
-	for (auto& obj : _robot)
-	{
-		obj->Move(new_move_offset);
-	}
-}
-
-void GameScene::Jump()
-{
-	auto pos{ _robot[BODY]->GetPos().y };
-
-	if (pos < _jump_pos)
-	{
-		_stop_animation = true;
-
-		for (auto& obj : _robot)
-		{
-			obj->Move(vec3::up(_jump_pos - pos));
-		}
-
-		_jumping = false;
-
-		return;
-	}
-	else if (_robot[LEFT_LEG]->Collide(_stage[0], Convert::ToInt32(_direction)) == true or
-		_robot[RIGHT_LEG]->Collide(_stage[0], Convert::ToInt32(_direction)) == true)
-	{
-		_stop_animation = true;
-		_jumping = false;
-		_jump_pos = pos;
-
-		return;
-	}
-
-	for (auto& obj : _robot)
-	{
-		obj->Move(vec3::up(_jump_speed * _delta_time * 2.f));
-	}
-
-	_jump_speed -= _gravity * _delta_time * 2.f;
-}
-
-void GameScene::Orbit()
-{
-	auto pos{ _camera->GetPos() };
-	float radius{ Convert::ToFloat(std::sqrt((pos.x * pos.x) + (pos.z * pos.z))) };
-	float x{ std::sin(_camera_angle) * radius };
-	float z{ std::cos(_camera_angle) * radius };
-
-	_camera->RotateY(1.f);
-	_camera->SetPos(x, pos.y, z);
-
-	_camera_angle -= 0.0175f;
-}
-
-void GameScene::Reset()
-{
-	OnRelease();
-
-	_camera = std::make_unique<Camera>(glm::vec3{ 0.f, 0.f, 4.f });
-	_camera_angle = 0.f;
-	_direction = DIRECTION::BACK;
-	_jump_speed = 0.f;
-	_jump_pos = 0.f;
-	_delta_time = 0.f;
-	_click = false;
-	_old_x = 0.f;
-	_old_y = 0.f;
-	_old_time = glutGet(GLUT_ELAPSED_TIME);
-	_jumping = false;
-	
-	CreateRobot();
-	CreateStage();
-
-	OnLoad();
 }
 
 void GameScene::OnAnimate(int32_t value)
 {
-	Jump();
-
 	if (_stop_animation == false)
-	{
 		glutTimerFunc(10, Engine::OnAnimate, value);
-	}
 }
