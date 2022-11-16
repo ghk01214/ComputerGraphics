@@ -24,20 +24,20 @@ void D3::OnLoad()
 {
 	_mesh->CreateBuffer();
 
-#if _DEBUG
-	std::string str{ "2 " };
-	str += "../Dependencies/shader/Vertex.glsl ";
-	str += std::to_string(GL_VERTEX_SHADER);
-	str += " ../Dependencies/shader/Color.glsl ";
-	str += std::to_string(GL_FRAGMENT_SHADER);
-#else
-	std::string str{ "2 " };
-	str += "../Dependencies/shader/Vertex.glsl ";
-	str += std::to_string(GL_VERTEX_SHADER);
-	str += " ../Dependencies/shader/Color.glsl ";
-	str += std::to_string(GL_FRAGMENT_SHADER);
-#endif
-
-	_shader->Compile(str);
-	_mesh->CreateModel(_shader);
+//#if _DEBUG
+//	std::string str{ "2 " };
+//	str += "../Dependencies/shader/Vertex.glsl ";
+//	str += std::to_string(GL_VERTEX_SHADER);
+//	str += " ../Dependencies/shader/Color.glsl ";
+//	str += std::to_string(GL_FRAGMENT_SHADER);
+//#else
+//	std::string str{ "2 " };
+//	str += "../Dependencies/shader/Vertex.glsl ";
+//	str += std::to_string(GL_VERTEX_SHADER);
+//	str += " ../Dependencies/shader/Color.glsl ";
+//	str += std::to_string(GL_FRAGMENT_SHADER);
+//#endif
+//
+//	_shader->Compile(str);
+	_mesh->CreateVertex3(_shader);
 }

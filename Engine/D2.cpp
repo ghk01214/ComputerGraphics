@@ -5,5 +5,5 @@ void D2::OnLoad()
 {
 	Object::OnLoad();
 
-	_mesh->CreateVertex(_shader);
+	_mesh->CreateVertex2(_shader);
 }

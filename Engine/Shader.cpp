@@ -7,15 +7,20 @@ Shader::Shader() :
 {
 }
 
+Shader::Shader(const std::string& vertex, const std::string& fragment)
+{
+	OnLoad(vertex, fragment);
+}
+
 Shader::~Shader()
 {
 }
 
 bool Shader::Add(const std::string& path, uint32_t type)
 {
-	uint32_t _shader{ glCreateShader(type) };
+	uint32_t shader{ glCreateShader(type) };
 
-	if (_shader == 0)
+	if (shader == 0)
 	{
 		std::cout << std::format("Error creating shader type\n");
 		return false;
@@ -30,25 +35,25 @@ bool Shader::Add(const std::string& path, uint32_t type)
 	}
 
 	auto source{ code.data() };
-	glShaderSource(_shader, 1, &source, nullptr);
-	glCompileShader(_shader);
+	glShaderSource(shader, 1, &source, nullptr);
+	glCompileShader(shader);
 
 	int32_t success{};
-	glGetShaderiv(_shader, GL_COMPILE_STATUS, &success);
+	glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
 
 	if (_FAILED success)
 	{
 		std::string log{};
 		log.resize(1024);
 
-		glGetShaderInfoLog(_shader, log.size(), nullptr, log.data());
+		glGetShaderInfoLog(shader, log.size(), nullptr, log.data());
 		std::cout << std::format("Error compiling shader type {} : {}\n{}", type, log, code);
 
 		return false;
 	}
 
-	glAttachShader(_id, _shader);
-	glDeleteShader(_shader);
+	glAttachShader(_id, shader);
+	glDeleteShader(shader);
 
 	return true;
 }
@@ -102,7 +107,10 @@ void Shader::Compile(const std::string& type, ...)
 		attribute >> path >> shader_type;
 
 		if (Add(path, shader_type) == false)
+		{
+			std::cout << std::format("Error attaching {} shader", path);
 			return;
+		}
 	}
 
 	int32_t link{ Link() };
@@ -120,10 +128,24 @@ void Shader::Compile(const std::string& type, ...)
 	}
 
 	std::cout << std::format("Shader compiling is done\n");
-	Use();
+	OnUse();
 }
 
-void Shader::Use()
+void Shader::OnLoad(const std::string& vertex, const std::string& fragment)
+{
+	std::string str{ "2 " };
+	str += vertex;
+	str += " ";
+	str += std::to_string(GL_VERTEX_SHADER);
+	str += " ";
+	str += fragment;
+	str += " ";
+	str += std::to_string(GL_FRAGMENT_SHADER);
+
+	Compile(str);
+}
+
+void Shader::OnUse()
 {
 	glUseProgram(_id);
 }

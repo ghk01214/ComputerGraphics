@@ -8,13 +8,15 @@ class Shader
 {
 public:
 	Shader();
+	Shader(const std::string& vertex, const std::string& fragment);
 	~Shader();
 
 	bool Add(const std::string& path, uint32_t type);
 	int Link();
 	void Compile(const std::string& type, ...);
 
-	void Use();
+	void OnLoad(const std::string& vertex, const std::string& fragment);
+	void OnUse();
 
 	void SetInt(const std::string& name, int32_t value);
 	void SetFloat(const std::string& name, float value);

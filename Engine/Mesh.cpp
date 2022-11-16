@@ -14,6 +14,17 @@ Mesh::Mesh() :
 
 Mesh::~Mesh()
 {
+	OnRelease();
+}
+
+void Mesh::OnRelease()
+{
+	glDeleteBuffers(1, &_vertex_vbo);
+	glDeleteBuffers(1, &_normal_vbo);
+	glDeleteBuffers(1, &_texture_vbo);
+	glDeleteBuffers(1, &_color_vbo);
+	glDeleteBuffers(1, &_ibo);
+	glDeleteVertexArrays(1, &_vao);
 }
 
 void Mesh::CreateBuffer()
@@ -31,7 +42,13 @@ void Mesh::BindVAO()
 	glBindVertexArray(_vao);
 }
 
-void Mesh::CreateVertex(std::shared_ptr<Shader> _shader)
+void Mesh::BindIndex()
+{
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, &_index);
+}
+
+void Mesh::CreateVertex2(std::shared_ptr<Shader>& _shader)
 {
 	BindVAO();
 
@@ -42,13 +59,7 @@ void Mesh::CreateVertex(std::shared_ptr<Shader> _shader)
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, &_index);
 }
 
-void Mesh::BindIndex()
-{
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, &_index);
-}
-
-void Mesh::CreateModel(std::shared_ptr<Shader> _shader)
+void Mesh::CreateVertex3(std::shared_ptr<Shader>& _shader)
 {
 	BindVAO();
 
@@ -69,13 +80,6 @@ void Mesh::CreateVBO(uint32_t vbo, const std::vector<T>* cont, std::shared_ptr<S
 	int32_t attrib{ glGetAttribLocation(_shader->ID(), name.c_str()) };
 	glEnableVertexAttribArray(attrib);
 	glVertexAttribPointer(attrib, count, GL_FLOAT, GL_FALSE, 0, 0);
-}
-
-void Mesh::InputAttrib(std::shared_ptr<Shader>& _shader, const std::string& name, uint32_t count, int32_t offset)
-{
-	int32_t attrib{ glGetAttribLocation(_shader->ID(), name.c_str()) };
-	glEnableVertexAttribArray(attrib);
-	glVertexAttribPointer(attrib, count, GL_FLOAT, GL_FALSE, sizeof(Vertex), Convert::ToPointer<void*>(offset));
 }
 
 template<typename T>

@@ -6,9 +6,9 @@ std::uniform_real_distribution<float> uid_color{ 0.f, 1.f };
 Object::Object() :
 	_mesh{ std::make_shared<Mesh>() },
 	_material{ std::make_shared<Material>() },
-	_shader{ _material->GetShader() },
 	_pos{ vec3::zero() },
 	_angle{ vec3::zero() },
+	_color{ glm::vec3{-1} },
 	_model{ mat4::unit() },
 	_transform{},
 	_draw_type{ GL_TRIANGLES }
@@ -18,9 +18,9 @@ Object::Object() :
 Object::Object(glm::vec3 pos) :
 	_mesh{ std::make_shared<Mesh>() },
 	_material{ std::make_shared<Material>() },
-	_shader{ _material->GetShader() },
 	_pos{ pos },
 	_angle{ vec3::zero() },
+	_color{ glm::vec3{-1} },
 	_model{ mat4::unit() },
 	_transform{},
 	_draw_type{ GL_TRIANGLES }
@@ -29,30 +29,20 @@ Object::Object(glm::vec3 pos) :
 
 Object::~Object()
 {
+	OnRelease();
 }
 
 void Object::OnLoad()
 {
 	_mesh->CreateBuffer();
-
-#if _DEBUG
-	std::string str{ "2 " };
-	str += "../Dependencies/shader/Vertex.glsl ";
-	str += std::to_string(GL_VERTEX_SHADER);
-	str += " ../Dependencies/shader/Fragment.glsl ";
-	str += std::to_string(GL_FRAGMENT_SHADER);
-#else
-	std::string str{ "2 " };
-	str += "../Dependencies/shader/Vertex.glsl ";
-	str += std::to_string(GL_VERTEX_SHADER);
-	str += " ../Dependencies/shader/Fragment.glsl ";
-	str += std::to_string(GL_FRAGMENT_SHADER);
-#endif
-
-	_shader->Compile(str);
 }
 
-void Object::Transform()
+void Object::OnRelease()
+{
+	_mesh->OnRelease();
+}
+
+void Object::Transform(std::shared_ptr<Shader>& shader)
 {
 	auto model{ mat4::unit() };
 
@@ -65,7 +55,7 @@ void Object::Transform()
 
 	_transform.clear();
 
-	_shader->SetMat4("model", glm::value_ptr(_model));
+	shader->SetMat4("model", glm::value_ptr(_model));
 }
 
 void Object::Move(float x, float y, float z)

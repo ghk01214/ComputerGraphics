@@ -16,8 +16,9 @@ public:
 	virtual ~Object();
 
 	virtual void OnLoad();
+	void OnRelease();
 
-	void Transform();
+	void Transform(std::shared_ptr<Shader>& shader);
 	
 	virtual void Move(float x, float y, float z);
 	virtual void Move(glm::vec3 delta);
@@ -37,17 +38,18 @@ public:
 	size_t GetIndexNum() { return _mesh->GetIndexNum(); }
 	glm::vec3 GetPos() { return _pos = _model[3]; }
 	glm::vec3 GetAngle() { return _angle; }
+	glm::vec3 GetColor() { return _color; }
 	uint32_t GetDrawType() { return _draw_type; }
 	glm::mat4 GetModel() { return _model; }
 	
+	void SetShader(std::shared_ptr<Shader>& shader) { _shader = shader; }
 	void SetModelMat(glm::mat4 model) { _model = model; }
 	void SetPos(glm::vec3 pos) { _pos = pos; }
-	void ChangeDrawType(uint32_t type) { _draw_type = type; }
+	void SetPos(float x, float y, float z) { SetPos(glm::vec3{ x, y, z }); }
+	void SetColor(glm::vec3 color) { _color = color; }
+	void SetColor(float x, float y, float z) { SetColor(glm::vec3(x, y, z)); }
+	void SetDrawType(uint32_t type) { _draw_type = type; }
 	void SetIndex(std::vector<uint32_t>* index) { _mesh->SetIndex(index); }
-
-public:
-	friend std::hash<Object>;
-	friend std::equal_to<Object>;
 
 protected:
 	std::shared_ptr<Mesh> _mesh;
@@ -56,35 +58,10 @@ protected:
 
 	glm::vec3 _pos;
 	glm::vec3 _angle;
+	glm::vec3 _color;
 
 	glm::mat4 _model;
 	std::list<glm::mat4> _transform;
 
 	uint32_t _draw_type;
 };
-
-namespace std
-{
-	template<>
-	class hash<Object>
-	{
-	public:
-		size_t operator()(const Object& p) const
-		{
-			return std::hash<int32_t>()(reinterpret_cast<int32_t>(&*p._shader)) ^ p._shader->ID();
-		}
-	};
-
-	template<>
-	class equal_to<Object>
-	{
-	public:
-		bool operator()(const Object& left, const Object& right) const
-		{
-			if (left._shader != right._shader)
-				return false;
-
-			return true;
-		}
-	};
-}
