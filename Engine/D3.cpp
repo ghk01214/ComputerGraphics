@@ -20,24 +20,9 @@ D3::D3(const std::string& path, glm::vec3 pos)
 	Move(pos);
 }
 
-void D3::OnLoad()
+void D3::OnLoad(std::shared_ptr<Shader>& shader)
 {
-	_mesh->CreateBuffer();
+	Object::OnLoad(shader);
 
-//#if _DEBUG
-//	std::string str{ "2 " };
-//	str += "../Dependencies/shader/Vertex.glsl ";
-//	str += std::to_string(GL_VERTEX_SHADER);
-//	str += " ../Dependencies/shader/Color.glsl ";
-//	str += std::to_string(GL_FRAGMENT_SHADER);
-//#else
-//	std::string str{ "2 " };
-//	str += "../Dependencies/shader/Vertex.glsl ";
-//	str += std::to_string(GL_VERTEX_SHADER);
-//	str += " ../Dependencies/shader/Color.glsl ";
-//	str += std::to_string(GL_FRAGMENT_SHADER);
-//#endif
-//
-//	_shader->Compile(str);
-	_mesh->CreateVertex3(_shader);
+	_mesh->CreateVertex3(shader);
 }

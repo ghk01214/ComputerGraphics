@@ -150,6 +150,11 @@ void Shader::OnUse()
 	glUseProgram(_id);
 }
 
+void Shader::SetBool(const std::string& name, bool value)
+{
+	SetInt(name, value);
+}
+
 void Shader::SetInt(const std::string& name, int32_t value)
 {
 	auto location{ glGetUniformLocation(_id, name.c_str()) };

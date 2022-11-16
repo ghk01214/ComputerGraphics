@@ -40,9 +40,6 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="Debug">
-      <UniqueIdentifier>{eb4f61cd-1dc2-494a-9c8b-9262ce50d99b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resource\Object\2D">
       <UniqueIdentifier>{4984f067-c981-4be6-a5dc-c8a4cb55a5f1}</UniqueIdentifier>
     </Filter>
@@ -86,9 +83,6 @@
     </ClInclude>
     <ClInclude Include="Camera.h">
       <Filter>Camera</Filter>
-    </ClInclude>
-    <ClInclude Include="DebugScene.h">
-      <Filter>Debug</Filter>
     </ClInclude>
     <ClInclude Include="..\Dependencies\include\Util.h">
       <Filter>Util</Filter>
@@ -172,12 +166,6 @@
     </ClCompile>
     <ClCompile Include="Camera.cpp">
       <Filter>Camera</Filter>
-    </ClCompile>
-    <ClCompile Include="DebugScene.cpp">
-      <Filter>Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="main.cpp">
-      <Filter>Debug</Filter>
     </ClCompile>
     <ClCompile Include="Line.cpp">
       <Filter>Resource\Object\2D</Filter>

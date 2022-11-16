@@ -55,8 +55,7 @@ void Mesh::CreateVertex2(std::shared_ptr<Shader>& _shader)
 	CreateVBO(_vertex_vbo, &_vertex, _shader, "v_pos", 3);
 	CreateVBO(_color_vbo, &_color, _shader, "v_color", 4);
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, &_index);
+	BindIndex();
 }
 
 void Mesh::CreateVertex3(std::shared_ptr<Shader>& _shader)
@@ -67,8 +66,7 @@ void Mesh::CreateVertex3(std::shared_ptr<Shader>& _shader)
 	CreateVBO(_normal_vbo, &_normal, _shader, "v_normal", 3);
 	CreateVBO(_texture_vbo, &_texture, _shader, "v_texture", 2);
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, &_index);
+	BindIndex();
 }
 
 template<typename T> requires requires {  std::is_arithmetic_v<T>; std::is_class_v<T>; }

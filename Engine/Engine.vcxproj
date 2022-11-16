@@ -180,10 +180,6 @@ xcopy /y /e $(SolutionDir)Dependencies\shader $(OutDir)Dependencies\shader</Comm
     <ClInclude Include="D3.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="EnginePch.h" />
-    <ClInclude Include="DebugScene.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClInclude>
     <ClInclude Include="Figure.h" />
     <ClInclude Include="Line.h" />
     <ClInclude Include="Material.h" />
@@ -213,15 +209,7 @@ xcopy /y /e $(SolutionDir)Dependencies\shader $(OutDir)Dependencies\shader</Comm
     <ClCompile Include="D3.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="EnginePch.cpp" />
-    <ClCompile Include="DebugScene.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="Line.cpp" />
-    <ClCompile Include="main.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Object.cpp" />

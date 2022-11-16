@@ -9,5 +9,5 @@ public:
 	D3(const std::string& path, glm::vec3 pos = vec3::zero());
 	~D3() = default;
 
-	virtual void OnLoad() override;
+	virtual void OnLoad(std::shared_ptr<Shader>& shader) override;
 };

@@ -8,5 +8,5 @@ public:
 	D2() = default;
 	~D2() = default;
 
-	virtual void OnLoad() override;
+	virtual void OnLoad(std::shared_ptr<Shader>& shader) override;
 };

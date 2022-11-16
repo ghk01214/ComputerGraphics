@@ -6,17 +6,22 @@ in vec2 f_texture;
 
 out vec4 color;
 
-uniform vec3 ambient_light;
-uniform int shininess;
-uniform vec3 view_pos;
+uniform mat4 model;
 
+uniform float ambient_strength;
+uniform float specular_strength;
+uniform int shininess;
 uniform vec3 light_pos;
-uniform vec3 obj_color;
 uniform vec3 light_color;
+
+uniform vec3 view_pos;
+uniform vec3 obj_color;
+
+uniform bool light_on;
 
 vec3 Ambient()
 {	
-	return ambient_light * light_color;
+	return ambient_strength * light_color;
 }
 
 vec3 Diffuse(vec3 normal, vec3 light_direction)
@@ -28,17 +33,25 @@ vec3 Specular(vec3 normal, vec3 light_direction)
 {
 	vec3 view_direction = normalize(view_pos - f_pos);
 	vec3 reflect_direction = reflect(-light_direction, normal);
-	float specular_light = max(dot(view_direction, reflect_direction), 0.0);
+	float specular_light = pow(max(dot(view_direction, reflect_direction), 0.0), shininess);
 
-	return pow(specular_light, shininess) * light_color;
+	return specular_strength * specular_light * light_color;
+}
+
+vec3 Phong(vec3 normal, vec3 light_direction)
+{
+	return Ambient() + Diffuse(normal, light_direction) + Specular(normal, light_direction);
 }
 
 void main()
 {
 	vec3 normal = normalize(f_normal);
 	vec3 light_direction = normalize(light_pos - f_pos);
+	
+	vec3 result = Phong(normal, light_direction) * obj_color;
 
-	vec3 result = (Ambient() + Diffuse(normal, light_direction) + Specular(normal, light_direction)) * obj_color;
-
-	color = vec4(result, 1.0);
+	if (light_on == true)
+		color = vec4(result, 1.0);
+	else
+		color = vec4(obj_color, 1.0);
 }

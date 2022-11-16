@@ -8,7 +8,6 @@ Object::Object() :
 	_material{ std::make_shared<Material>() },
 	_pos{ vec3::zero() },
 	_angle{ vec3::zero() },
-	_color{ glm::vec3{-1} },
 	_model{ mat4::unit() },
 	_transform{},
 	_draw_type{ GL_TRIANGLES }
@@ -20,7 +19,6 @@ Object::Object(glm::vec3 pos) :
 	_material{ std::make_shared<Material>() },
 	_pos{ pos },
 	_angle{ vec3::zero() },
-	_color{ glm::vec3{-1} },
 	_model{ mat4::unit() },
 	_transform{},
 	_draw_type{ GL_TRIANGLES }
@@ -32,7 +30,7 @@ Object::~Object()
 	OnRelease();
 }
 
-void Object::OnLoad()
+void Object::OnLoad(std::shared_ptr<Shader>& shader)
 {
 	_mesh->CreateBuffer();
 }
@@ -42,7 +40,7 @@ void Object::OnRelease()
 	_mesh->OnRelease();
 }
 
-void Object::Transform()
+void Object::Transform(std::shared_ptr<Shader>& shader)
 {
 	auto model{ mat4::unit() };
 
@@ -55,7 +53,7 @@ void Object::Transform()
 
 	_transform.clear();
 
-	_shader->SetMat4("model", &_model);
+	shader->SetMat4("model", &_model);
 }
 
 void Object::Move(float x, float y, float z)

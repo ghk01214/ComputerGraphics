@@ -18,6 +18,7 @@ public:
 	void OnLoad(const std::string& vertex, const std::string& fragment);
 	void OnUse();
 
+	void SetBool(const std::string& name, bool value);
 	void SetInt(const std::string& name, int32_t value);
 	void SetFloat(const std::string& name, float value);
 	void SetVec2(const std::string& name, glm::vec3* value_ptr);

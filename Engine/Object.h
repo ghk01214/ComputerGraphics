@@ -15,10 +15,10 @@ public:
 	Object(glm::vec3 pos);
 	virtual ~Object();
 
-	virtual void OnLoad();
+	virtual void OnLoad(std::shared_ptr<Shader>& shader);
 	void OnRelease();
 
-	void Transform();
+	void Transform(std::shared_ptr<Shader>& shader);
 	
 	virtual void Move(float x, float y, float z);
 	virtual void Move(glm::vec3 delta);
@@ -31,34 +31,39 @@ public:
 	void BindVAO() { _mesh->BindVAO(); }
 	void BindIndex() { _mesh->BindIndex(); }
 
-	virtual bool Collide(Object* obj, int32_t direction) { return false; }
+	void ApplyColor() { _material->ApplyColor(); }
+	void ApplyLight() { _material->ApplyLight(); }
+	void ChangeLightState() { _material->ChangeLightState(); }
+	void TurnOnLight() { _material->TurnOnLight(); }
+	void TurnOffLight() { _material->TurnOffLight(); }
 
-	std::shared_ptr<Mesh> GetMesh() { return _mesh; }
-	std::shared_ptr<Shader> GetShader() { return _shader; }
 	size_t GetIndexNum() { return _mesh->GetIndexNum(); }
 	glm::vec3 GetPos() { return _pos = _model[3]; }
 	glm::vec3 GetAngle() { return _angle; }
-	glm::vec3 GetColor() { return _color; }
+	glm::vec3 GetColor() { return _material->GetColor(); }
 	uint32_t GetDrawType() { return _draw_type; }
-	glm::mat4 GetModel() { return _model; }
 	
-	void SetShader(std::shared_ptr<Shader>& shader) { _shader = shader; }
-	void SetModelMat(glm::mat4 model) { _model = model; }
 	void SetPos(glm::vec3 pos) { _pos = pos; }
 	void SetPos(float x, float y, float z) { SetPos(glm::vec3{ x, y, z }); }
-	void SetColor(glm::vec3 color) { _color = color; }
-	void SetColor(float x, float y, float z) { SetColor(glm::vec3(x, y, z)); }
+	void SetColor(glm::vec3 color) { _material->SetColor(color); }
+	void SetColor(float r, float g, float b) { SetColor(glm::vec3(r, g, b)); }
 	void SetDrawType(uint32_t type) { _draw_type = type; }
-	void SetIndex(std::vector<uint32_t>* index) { _mesh->SetIndex(index); }
+	void SetShader(std::shared_ptr<Shader>& shader) { _material->SetShader(shader); }
+	void SetLight(Light light) { _material->SetLight(light); }
+	void SetLight(float ambient, float specular, int32_t shininess, glm::vec3 pos, glm::vec3 color) { _material->SetLight(ambient, specular, shininess, pos, color); }
+	void SetAmbient(float ambient) { _material->SetAmbient(ambient); }
+	void SetShininess(int32_t shininess) { _material->SetShininess(shininess); }
+	void SetLightPos(glm::vec3 pos) { _material->SetLightPos(pos); }
+	void SetLightPos(float x, float y, float z) { _material->SetLightPos(glm::vec3{ x, y, z }); }
+	void SetLightColor(glm::vec3 color) { _material->SetLightColor(color); }
+	void SetLightColor(float r, float g, float b) { _material->SetLightColor(glm::vec3{ r, g, b }); }
 
 protected:
 	std::shared_ptr<Mesh> _mesh;
 	std::shared_ptr<Material> _material;
-	std::shared_ptr<Shader> _shader;
 
 	glm::vec3 _pos;
 	glm::vec3 _angle;
-	glm::vec3 _color;
 
 	glm::mat4 _model;
 	std::list<glm::mat4> _transform;
