@@ -5,7 +5,7 @@
 // Singleton model로 만들어서 메모리 상엔 1개 밖에 존재하지 않는다
 //
 
-class SceneMgr;
+#include "SceneMgr.h"
 
 class Engine : public Singleton<Engine>
 {
@@ -32,6 +32,8 @@ public:
 	static void OnAnimate(int32_t index);
 
 	constexpr std::unique_ptr<SceneMgr>& GetSceneMgr() { return _scene_mgr; }
+	int32_t GetWindowWidth() const { return _window->width; }
+	int32_t GetWindowHeight() const { return _window->height; }
 
 private:
 	std::shared_ptr<Window> _window;

@@ -5,7 +5,7 @@
 #include "GameScene.h"
 #include "Engine.h"
 
-extern Window window;
+extern Engine engine;
 
 GameScene::GameScene() :
 #pragma region [BASE ATTRIBUTE]
@@ -144,8 +144,8 @@ void GameScene::OnSpecialKeyMessage(int32_t key, int32_t x, int32_t y)
 
 void GameScene::OnMouseMessage(int32_t button, int32_t x, int32_t y)
 {
-	float x2{ Convert::ToFloat(x) / (window.width / 2) - 1.f };
-	float y2{ 1.f - Convert::ToFloat(y) / (window.height / 2) };
+	float x2{ Convert::ToFloat(x) / (engine.GetWindowWidth() / 2) - 1.f };
+	float y2{ 1.f - Convert::ToFloat(y) / (engine.GetWindowHeight() / 2) };
 
 	if (button == GLUT_LEFT_BUTTON)
 	{
@@ -155,8 +155,8 @@ void GameScene::OnMouseMessage(int32_t button, int32_t x, int32_t y)
 
 void GameScene::OnMouseMotionMessage(int32_t x, int32_t y)
 {
-	float x2{ Convert::ToFloat(x) / (window.width / 2) - 1.f };
-	float y2{ 1.f - Convert::ToFloat(y) / (window.height / 2) };
+	float x2{ Convert::ToFloat(x) / (engine.GetWindowWidth() / 2) - 1.f };
+	float y2{ 1.f - Convert::ToFloat(y) / (engine.GetWindowHeight() / 2) };
 
 	if (_click)
 	{

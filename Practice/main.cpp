@@ -1,15 +1,14 @@
 ﻿#include "pch.h"
 #include "GameScene.h"
-#include "SceneMgr.h"
 #include "Engine.h"
 
 Window window{ 800, 800, true };
+Engine engine;
 
 int main(int32_t argc, char** argv)
 {
 	glutInit(&argc, argv);
 
-	Engine engine;
 
 	engine.Init(&window);
 
