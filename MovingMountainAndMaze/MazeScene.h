@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include <Scene.h>
-#include "Maze.h"
 
 class Shader;
 class Object;
@@ -46,5 +45,5 @@ private:
 	int32_t _old_time;
 	float _delta_time;
 
-	Maze _maze;
+	std::vector<std::vector<char>> _maze;
 };

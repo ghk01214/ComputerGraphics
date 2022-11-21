@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <EnginePch.h>
+#include <chrono>
 
 #if _DEBUG
 #pragma comment(lib, "Debug/Engine")

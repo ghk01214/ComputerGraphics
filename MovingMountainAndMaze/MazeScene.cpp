@@ -4,6 +4,7 @@
 #include <Camera.h>
 #include "MazeScene.h"
 #include <Engine.h>
+#include "MazeGenerator.h"
 
 extern Engine engine;
 
@@ -20,7 +21,7 @@ MazeScene::MazeScene(int32_t size) :
 	_time{ glutGet(GLUT_ELAPSED_TIME) },
 	_old_time{ _time },
 	_delta_time{ 0.f },
-	_maze{ size }
+	_maze{}
 #pragma endregion
 {
 #if _DEBUG
@@ -30,8 +31,9 @@ MazeScene::MazeScene(int32_t size) :
 	_color_shader->OnLoad("Data/Shader/Vertex.glsl", "Data/Shader/Color.glsl");
 	_light_shader->OnLoad("Data/Shader/Vertex.glsl", "Data/Shader/Light.glsl");
 #endif
+	MazeGenerator generator{ size };
 
-
+	_maze = generator.GetMaze();
 }
 
 MazeScene::~MazeScene()

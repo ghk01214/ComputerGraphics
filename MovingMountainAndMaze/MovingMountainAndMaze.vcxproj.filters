@@ -27,7 +27,7 @@
     <ClCompile Include="MazeScene.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
-    <ClCompile Include="Maze.cpp">
+    <ClCompile Include="MazeGenerator.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
   </ItemGroup>
@@ -38,7 +38,7 @@
     <ClInclude Include="MazeScene.h">
       <Filter>Scene</Filter>
     </ClInclude>
-    <ClInclude Include="Maze.h">
+    <ClInclude Include="MazeGenerator.h">
       <Filter>Scene</Filter>
     </ClInclude>
   </ItemGroup>
