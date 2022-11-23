@@ -5,11 +5,10 @@
 class Shader;
 class Object;
 
-
 class MazeScene : public Scene
 {
 public:
-	MazeScene(int32_t size = 5);
+	MazeScene(int32_t width = 5, int32_t height = 5);
 	~MazeScene();
 
 	void OnLoad() override;
@@ -24,6 +23,7 @@ public:
 	void OnAnimate(int32_t index) override;
 	void OnRender() override;
 private:
+	void CalculateDeltaTime();
 	void LoadObject(std::vector<Object*>* object, std::shared_ptr<Shader>& shader);
 
 	void ViewProjection(std::shared_ptr<class Shader>& shader);

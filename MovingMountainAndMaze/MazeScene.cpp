@@ -8,7 +8,7 @@
 
 extern Engine engine;
 
-MazeScene::MazeScene(int32_t size) :
+MazeScene::MazeScene(int32_t width, int32_t height) :
 #pragma region [BASE ATTRIBUTE]
 	_camera{ std::make_unique<Camera>(glm::vec3{ 0.f, 3.f, 0.f }) },
 	_color_shader{ std::make_shared<Shader>() },
@@ -31,7 +31,7 @@ MazeScene::MazeScene(int32_t size) :
 	_color_shader->OnLoad("Data/Shader/Vertex.glsl", "Data/Shader/Color.glsl");
 	_light_shader->OnLoad("Data/Shader/Vertex.glsl", "Data/Shader/Light.glsl");
 #endif
-	MazeGenerator generator{ size };
+	MazeGenerator generator{ width, height };
 
 	_maze = generator.GetMaze();
 }
@@ -40,6 +40,8 @@ MazeScene::~MazeScene()
 {
 	OnRelease();
 }
+
+// =======================================PUBLIC METHOD=======================================
 
 void MazeScene::OnLoad()
 {
@@ -51,17 +53,89 @@ void MazeScene::OnRelease()
 
 void MazeScene::OnIdleMessage()
 {
-	_time = glutGet(GLUT_ELAPSED_TIME);
-
-	_delta_time = Convert::ToFloat((_time - _old_time)) / 1000.f;
-	_old_time = _time;
+	CalculateDeltaTime();
 }
 
 void MazeScene::OnKeyboardMessage(uchar key, int32_t x, int32_t y)
 {
 	switch (key)
 	{
+		// 직각 투영
+		case 'O': FALLTHROUGH
+		case 'o':
+		{
 
+		}
+		break;
+		// 원근 투영
+		case 'P': FALLTHROUGH
+		case 'p':
+		{
+
+		}
+		break;
+		// 
+		case 'M':
+		{
+
+		}
+		break;
+		case 'm':
+		{
+
+		}
+		break;
+		case 'Y':
+		{
+
+		}
+		break;
+		case 'y':
+		{
+
+		}
+		break;
+		// 미로 제작
+		case 'R': FALLTHROUGH
+		case 'r':
+		{
+
+		}
+		break;
+		case 'V': FALLTHROUGH
+		case 'v':
+		{
+
+		}
+		break;
+		case 'S': FALLTHROUGH
+		case 's':
+		{
+
+		}
+		break;
+		case '1': FALLTHROUGH
+		case '3':
+		{
+
+		}
+		break;
+		case '+':
+		{
+
+		}
+		break;
+		case '-':
+		{
+
+		}
+		break;
+		case 'C': FALLTHROUGH
+		case 'c':
+		{
+
+		}
+		break;
 	}
 }
 
@@ -107,6 +181,8 @@ void MazeScene::OnMouseUpMessage(int32_t button, int32_t x, int32_t y)
 
 void MazeScene::OnAnimate(int32_t index)
 {
+	if (_stop_animation == false)
+		glutTimerFunc(10, Engine::OnAnimate, index);
 }
 
 void MazeScene::OnRender()
@@ -119,6 +195,16 @@ void MazeScene::OnRender()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// TODO : Object render
+}
+
+// =======================================PRIVATE METHOD=======================================
+
+void MazeScene::CalculateDeltaTime()
+{
+	_time = glutGet(GLUT_ELAPSED_TIME);
+
+	_delta_time = Convert::ToFloat((_time - _old_time)) / 1000.f;
+	_old_time = _time;
 }
 
 void MazeScene::LoadObject(std::vector<Object*>* object, std::shared_ptr<Shader>& shader)
