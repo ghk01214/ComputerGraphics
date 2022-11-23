@@ -177,3 +177,18 @@ void Engine::Resize(const Window* window)
 
 	glutReshapeWindow(window->width, window->height);
 }
+
+std::unique_ptr<SceneMgr>& Engine::GetSceneMgr()
+{
+	return inst->_scene_mgr;
+}
+
+const int32_t Engine::GetWindowWidth() const
+{
+	return inst->_window->width;
+}
+
+const int32_t Engine::GetWindowHeight() const
+{
+	return inst->_window->height;
+}

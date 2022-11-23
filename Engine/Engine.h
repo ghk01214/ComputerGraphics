@@ -31,9 +31,9 @@ public:
 	static void OnMousePassiveMotionMessage(int32_t x, int32_t y);
 	static void OnAnimate(int32_t index);
 
-	constexpr std::unique_ptr<SceneMgr>& GetSceneMgr() { return _scene_mgr; }
-	int32_t GetWindowWidth() const { return _window->width; }
-	int32_t GetWindowHeight() const { return _window->height; }
+	std::unique_ptr<SceneMgr>& GetSceneMgr();
+	const int32_t GetWindowWidth() const;
+	const int32_t GetWindowHeight() const;
 
 private:
 	std::shared_ptr<Window> _window;
