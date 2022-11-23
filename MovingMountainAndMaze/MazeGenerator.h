@@ -15,17 +15,17 @@ private:
 		MAX
 	};
 public:
-	MazeGenerator(int32_t width, int32_t height);
+	MazeGenerator(std::vector<std::vector<char>>& maze, int32_t width, int32_t height);
 	~MazeGenerator();
 
-	std::vector<std::vector<char>>& GetMaze() { return _maze; }
+	constexpr int32_t GetBlockNum() const { return _block_num; }
 
 private:
-	void MakeGrid();
-	void Create();
+	void MakeGrid(std::vector<std::vector<char>>& maze);
+	void Create(std::vector<std::vector<char>>& maze);
 	
 	int32_t Index(int32_t x, int32_t y, std::vector<cell> cell_list);
-	void Print();
+	void Print(std::vector<std::vector<char>>& maze);
 
 private:
 	int32_t _width;
@@ -34,5 +34,5 @@ private:
 	int32_t _row;
 	int32_t _column;
 
-	std::vector<std::vector<char>> _maze;
+	int32_t _block_num;
 };

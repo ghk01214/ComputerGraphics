@@ -13,8 +13,8 @@ int main(int32_t argc, char** argv)
 	engine.Init(&window);
 
 	std::shared_ptr<GameScene> scene{ std::make_shared<GameScene>() };
-	engine.GetSceneMgr()->AddScene(SCENE_TYPE::GAME, &*scene);
-	engine.GetSceneMgr()->ChangeScene(SCENE_TYPE::GAME);
+	engine.GetSceneMgr()->AddScene(define::SCENE_TYPE::GAME, &*scene);
+	engine.GetSceneMgr()->ChangeScene(define::SCENE_TYPE::GAME);
 
 	engine.Update();
 }

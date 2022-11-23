@@ -4,7 +4,7 @@
 #include "DebugScene.h"
 
 SceneMgr::SceneMgr() :
-	_current{ SCENE_TYPE::NONE }
+	_current{ define::SCENE_TYPE::NONE }
 {
 }
 
@@ -16,12 +16,12 @@ SceneMgr::~SceneMgr()
 	}
 }
 
-void SceneMgr::AddScene(SCENE_TYPE type, Scene* scene)
+void SceneMgr::AddScene(define::SCENE_TYPE type, Scene* scene)
 {
 	inst->_scene.insert(std::make_pair(type, scene));
 }
 
-void SceneMgr::ChangeScene(SCENE_TYPE type)
+void SceneMgr::ChangeScene(define::SCENE_TYPE type)
 {
 	inst->_current = type;
 	inst->LoadScene();

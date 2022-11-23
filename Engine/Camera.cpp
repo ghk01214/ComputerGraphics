@@ -39,38 +39,32 @@ void Camera::OnSpecialKeyMessage(int32_t key, int32_t x, int32_t y, float delta)
 	{
 		case GLUT_KEY_LEFT:
 		{
-			_pos -= _right * velocity;
-			_look = _pos + _front;
+			Move(DIRECTION::LEFT, velocity);
 		}
 		break;
 		case GLUT_KEY_RIGHT:
 		{
-			_pos += _right * velocity;
-			_look = _pos + _front;
+			Move(DIRECTION::RIGHT, velocity);
 		}
 		break;
 		case GLUT_KEY_UP:
 		{
-			_pos += _front * velocity;
-			_look = _pos + _front;
+			Move(DIRECTION::FRONT, velocity);
 		}
 		break;
 		case GLUT_KEY_DOWN:
 		{
-			_pos -= _front * velocity;
-			_look = _pos + _front;
+			Move(DIRECTION::BACK, velocity);
 		}
 		break;
 		case GLUT_KEY_PAGE_UP:
 		{
-			_pos += _up * velocity;
-			_look = _pos + _front;
+			Move(DIRECTION::UP, velocity);
 		}
 		break;
 		case GLUT_KEY_PAGE_DOWN:
 		{
-			_pos -= _up * velocity;
-			_look = _pos + _front;
+			Move(DIRECTION::DOWN, velocity);
 		}
 		break;
 		case GLUT_KEY_HOME:
@@ -102,12 +96,6 @@ void Camera::OnMouseMotionMessage(float delta_x, float delta_y)
 	delta_y *= _sensitivity;
 
 	_yaw += delta_x;
-
-	//if (_yaw > 360.f)
-	//	_yaw = -360.f;
-	//if (_yaw < 0.f)
-	//	_yaw = 360.f;
-
 	_pitch += delta_y;
 
 	if (_pitch > 89.f)
@@ -116,6 +104,45 @@ void Camera::OnMouseMotionMessage(float delta_x, float delta_y)
 		_pitch = -89.f;
 
 	Update();
+}
+
+void Camera::Move(DIRECTION direction, float velocity)
+{
+	switch (direction)
+	{
+		case DIRECTION::LEFT:
+		{
+			_pos -= _right * velocity;
+		}
+		break;
+		case DIRECTION::RIGHT:
+		{
+			_pos += _right * velocity;
+		}
+		break;
+		case DIRECTION::FRONT:
+		{
+			_pos += _front * velocity;
+		}
+		break;
+		case DIRECTION::BACK:
+		{
+			_pos -= _front * velocity;
+		}
+		break;
+		case DIRECTION::UP:
+		{
+			_pos += _up * velocity;
+		}
+		break;
+		case DIRECTION::DOWN:
+		{
+			_pos -= _up * velocity;
+		}
+		break;
+	}
+
+	_look = _pos + _front;
 }
 
 void Camera::RotateX(int32_t direction)

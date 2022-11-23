@@ -11,14 +11,28 @@ extern std::uniform_real_distribution<float> uid_color;
 #define YELLOW 1.f, 1.f, 0.f
 #define RAND_COLOR uid_color(dre), uid_color(dre), uid_color(dre)
 
-enum class SCENE_TYPE
+namespace define
 {
-	NONE = 0,
-	START,
-	GAME,
-	END,
-	MAX
-};
+	enum class SCENE_TYPE
+	{
+		NONE = 0,
+		START,
+		GAME,
+		END,
+		MAX
+	};
+
+	enum class CAMERA_TYPE
+	{
+		NONE = 0,
+		ORTHOGRAPHIC,
+		PERSPECTIVE,
+		FIRST,
+		THIRD,
+		TOP,
+		MAX
+	};
+}
 
 namespace glm
 {

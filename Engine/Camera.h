@@ -8,7 +8,20 @@ class Shader;
 
 class Camera
 {
+private:
+	enum class DIRECTION
+	{
+		NONE = 0,
+		LEFT,
+		RIGHT,
+		FRONT,
+		BACK,
+		UP,
+		DOWN,
+		MAX
+	};
 public:
+	Camera() = default;
 	Camera(glm::vec3 pos, glm::vec3 up = vec3::up(), float pitch = 0.f, float yaw = -90.f);
 	~Camera();
 
@@ -18,6 +31,7 @@ public:
 	void OnMouseUpMessage(int32_t button, int32_t x, int32_t y);
 	void OnMouseMotionMessage(float delta_x, float delta_y);
 
+	void Move(DIRECTION direction, float velocity);
 	void RotateX(int32_t direction);
 	void RotateY(int32_t direction);
 	void Zoom(float delta);

@@ -4,38 +4,43 @@
 
 std::uniform_int_distribution<int32_t> uid{ 1, 100 };
 
-MazeGenerator::MazeGenerator(int32_t width, int32_t height) :
+MazeGenerator::MazeGenerator(std::vector<std::vector<char>>& maze, int32_t width, int32_t height) :
 	_width{ width },
 	_height{ height },
 	_row{ height * 2 + 1 },
-	_column{ width * 2 + 1 }
+	_column{ width * 2 + 1 },
+	_block_num{ _row * _column }
 {
-	MakeGrid();
-	Create();
 
-	//Print();
+	MakeGrid(maze);
+	Create(maze);
+
+	//Print(maze);
 }
 
 MazeGenerator::~MazeGenerator()
 {
 }
 
-void MazeGenerator::MakeGrid()
+void MazeGenerator::MakeGrid(std::vector<std::vector<char>>& maze)
 {
 	std::vector<char> temp(_column, '#');
-	_maze.resize(_row, temp);
+	maze.resize(_row, temp);
 
 	for (int32_t i = 0; i < _row; ++i)
 	{
 		for (int32_t j = 0; j < _column; ++j)
 		{
 			if (i % 2 != 0 and j % 2 != 0)
-				_maze[i][j] = ' ';
+			{
+				maze[i][j] = ' ';
+				--_block_num;
+			}
 		}
 	}
 }
 
-void MazeGenerator::Create()
+void MazeGenerator::Create(std::vector<std::vector<char>>& maze)
 {
 	std::vector<cell> cell_list;
 	std::vector<bool> visit_list(_width * _height, false);
@@ -66,7 +71,7 @@ void MazeGenerator::Create()
 			int32_t x{ in.second };
 			int32_t y{ in.first - 2 };
 
-			if (_maze[y][x] and visit_list[Index(y, x, cell_list)] == false)
+			if (maze[y][x] and visit_list[Index(y, x, cell_list)] == false)
 				neighbour.push_back(DIRECTION::NORTH);
 		}
 
@@ -75,7 +80,7 @@ void MazeGenerator::Create()
 			int32_t x{ in.second + 2 };
 			int32_t y{ in.first };
 
-			if (_maze[y][x] and visit_list[Index(y, x, cell_list)] == false)
+			if (maze[y][x] and visit_list[Index(y, x, cell_list)] == false)
 				neighbour.push_back(DIRECTION::EAST);
 		}
 
@@ -84,7 +89,7 @@ void MazeGenerator::Create()
 			int32_t x{ in.second };
 			int32_t y{ in.first + 2 };
 
-			if (_maze[y][x] and visit_list[Index(y, x, cell_list)] == false)
+			if (maze[y][x] and visit_list[Index(y, x, cell_list)] == false)
 				neighbour.push_back(DIRECTION::SOUTH);
 		}
 
@@ -93,7 +98,7 @@ void MazeGenerator::Create()
 			int32_t x{ in.second - 2 };
 			int32_t y{ in.first };
 
-			if (_maze[y][x] and visit_list[Index(y, x, cell_list)] == false)
+			if (maze[y][x] and visit_list[Index(y, x, cell_list)] == false)
 				neighbour.push_back(DIRECTION::WEST);
 		}
 
@@ -110,26 +115,30 @@ void MazeGenerator::Create()
 		{
 			case DIRECTION::NORTH:
 			{
-				_maze[y - 1][x] = ' ';
+				maze[y - 1][x] = ' ';
 				stack.push(cell_list[Index(y - 2, x, cell_list)]);
+				--_block_num;
 			}
 			break;
 			case DIRECTION::EAST:
 			{
-				_maze[y][x + 1] = ' ';
+				maze[y][x + 1] = ' ';
 				stack.push(cell_list[Index(y, x + 2, cell_list)]);
+				--_block_num;
 			}
 			break;
 			case DIRECTION::SOUTH:
 			{
-				_maze[y + 1][x] = ' ';
+				maze[y + 1][x] = ' ';
 				stack.push(cell_list[Index(y + 2, x, cell_list)]);
+				--_block_num;
 			}
 			break;
 			case DIRECTION::WEST:
 			{
-				_maze[y][x - 1] = ' ';
+				maze[y][x - 1] = ' ';
 				stack.push(cell_list[Index(y, x - 2, cell_list)]);
+				--_block_num;
 			}
 			break;
 		}
@@ -138,8 +147,9 @@ void MazeGenerator::Create()
 		++visited;
 	}
 
-	_maze[0][1] = ' ';
-	_maze[_height * 2][_width * 2 - 1] = ' ';
+	maze[0][1] = ' ';
+	maze[_height * 2][_width * 2 - 1] = ' ';
+	_block_num -= 2;
 }
 
 int32_t MazeGenerator::Index(int32_t x, int32_t y, std::vector<cell> cell_list)
@@ -154,9 +164,9 @@ int32_t MazeGenerator::Index(int32_t x, int32_t y, std::vector<cell> cell_list)
 	return -1;
 }
 
-void MazeGenerator::Print()
+void MazeGenerator::Print(std::vector<std::vector<char>>& maze)
 {
-	for (auto& row : _maze)
+	for (auto& row : maze)
 	{
 		for (auto& col : row)
 		{
