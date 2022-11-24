@@ -34,16 +34,10 @@ private:
 
 public:
 	void CreateGrid();
-	void CreateCube();
-	void CreatePyramid();
-	void CreateLight();
-	void CreateOrbit();
+	void CreatePlanets();
 
-	void ChangeObject();
-	void ChangeLightState();
-	void RotateObject();
-	void RotateLight(int32_t direction);
-	void MoveLight(int32_t delta);
+	void ChangeLightColor();
+	void RotateLight();
 
 private:
 	std::unique_ptr<class Camera> _camera;
@@ -65,11 +59,7 @@ private:
 
 private:
 	std::vector<Object*> _grid;
-	std::vector<Object*> _cube;
-	std::vector<Object*> _pyramid;
-	std::vector<Object*> _light;
-	std::vector<Object*> _orbit;
+	std::vector<Object*> _planets;
 
-	bool _draw_cube;
-	bool _turn_on;
+	glm::mat4 _light_mat;
 };

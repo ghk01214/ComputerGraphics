@@ -20,12 +20,9 @@ GameScene::GameScene() :
 	_old_time{ glutGet(GLUT_ELAPSED_TIME) },
 #pragma endregion
 	_grid{},
-	_cube{},
-	_pyramid{},
-	_light{},
-	_orbit{},
-	_draw_cube{ true },
-	_turn_on{ true }
+	_planets{},
+	_light_pos{ vec3::zero() },
+	_light_mat{ mat4::unit() }
 {
 #if _DEBUG
 	_color_shader->OnLoad("../Dependencies/shader/Vertex.glsl", "../Dependencies/shader/Color.glsl");
@@ -35,13 +32,11 @@ GameScene::GameScene() :
 	_3d->OnLoad("Data/Shader/Vertex.glsl", "Data/Shader/Color.glsl");
 #endif
 
-	_object = &_cube;
-
 	CreateGrid();
-	CreateCube();
-	CreatePyramid();
-	CreateLight();
-	CreateOrbit();
+	CreatePlanets();
+
+	_light_mat = glm::translate(mat4::unit(), vec3::back(4.f));
+	_light_pos = _light_mat[3];
 }
 
 GameScene::~GameScene()
@@ -52,19 +47,13 @@ GameScene::~GameScene()
 void GameScene::OnLoad()
 {
 	LoadObject(&_grid, _color_shader);
-	LoadObject(&_cube, _light_shader);
-	LoadObject(&_pyramid, _light_shader);
-	LoadObject(&_light, _color_shader);
-	LoadObject(&_orbit, _color_shader);
+	LoadObject(&_planets, _light_shader);
 }
 
 void GameScene::OnRelease()
 {
 	ReleaseObject(&_grid);
-	ReleaseObject(&_cube);
-	ReleaseObject(&_pyramid);
-	ReleaseObject(&_light);
-	ReleaseObject(&_orbit);
+	ReleaseObject(&_planets);
 }
 
 void GameScene::LoadObject(std::vector<Object*>* object, std::shared_ptr<Shader>& shader)
@@ -96,43 +85,17 @@ void GameScene::OnKeyboardMessage(uchar key, int32_t x, int32_t y)
 {
 	switch (key)
 	{
-		case 'N': FALLTHROUGH
-		case 'n':
-		{
-			ChangeObject();
-		}
-		break;
-		case 'M': FALLTHROUGH
-		case 'm':
-		{
-			ChangeLightState();
-		}
-		break;
-		case 'Y': FALLTHROUGH
-		case 'y':
-		{
-			RotateObject();
-		}
-		break;
-		case 'R':
-		{
-			RotateLight(-1);
-		}
-		break;
 		case 'r':
 		{
-			RotateLight(1);
+			RotateLight();
 		}
 		break;
-		case 'Z':
+		case 'c':
 		{
-			MoveLight(1);
+			ChangeLightColor();
 		}
 		break;
-		case 'z':
-		{
-			MoveLight(-1);
-		}
+		default:
 		break;
 	}
 }
@@ -190,9 +153,7 @@ void GameScene::OnRender()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	Render2D(&_grid, _color_shader);
-	Render3D(_object, _light_shader);
-	Render2D(&_light, _color_shader);
-	Render2D(&_orbit, _color_shader);
+	Render3D(&_planets, _light_shader);
 }
 
 void GameScene::ViewProjection(std::shared_ptr<Shader>& shader)
@@ -202,6 +163,18 @@ void GameScene::ViewProjection(std::shared_ptr<Shader>& shader)
 
 	shader->SetMat4("view", &view);
 	shader->SetMat4("projection", &projection);
+}
+
+void GameScene::Render(Object* obj, std::shared_ptr<Shader>& shader)
+{
+	obj->BindVAO();
+
+	obj->Transform(shader);
+	ViewProjection(shader);
+
+	obj->ApplyColor();
+
+	glDrawElements(obj->GetDrawType(), obj->GetIndexNum(), GL_UNSIGNED_INT, 0);
 }
 
 void GameScene::CreateGrid()
@@ -219,105 +192,59 @@ void GameScene::CreateGrid()
 	_grid.back()->SetColor(BLUE);
 }
 
-void GameScene::CreateCube()
+void GameScene::CreatePlanets()
 {
-	_cube.push_back(new Cube{});
-	_cube.back()->SetShader(_light_shader);
-	_cube.back()->Scale(glm::vec3{ 1.5f });
-	_cube.back()->SetLight(0.3f, 0.5f, 128, vec3::back(2.f), vec3::unit());
-	_cube.back()->SetColor(RAND_COLOR);
-}
+	_planets.push_back(new Sphere{});
+	_planets.back()->Scale(glm::vec3{ 0.1f });
+	_planets.back()->SetShader(_light_shader);
+	_planets.back()->SetLight(0.3f, 0.5f, 128, _light_pos, vec3::unit());
+	_planets.back()->SetColor(RAND_COLOR);
 
-void GameScene::CreatePyramid()
-{
-	_pyramid.push_back(new Pyramid{});
-	_pyramid.back()->SetShader(_light_shader);
-	_pyramid.back()->Scale(glm::vec3{ 1.5f });
-	_pyramid.back()->SetLight(0.3f, 0.5f, 128, vec3::back(2.f), vec3::unit());
-	_pyramid.back()->SetColor(RAND_COLOR);
-}
+	_planets.push_back(new Sphere{});
+	_planets.push_back(new Sphere{});
+	_planets.push_back(new Sphere{});
 
-void GameScene::CreateLight()
-{
-	_light.push_back(new Cube{});
-	_light.back()->SetShader(_color_shader);
-	_light.back()->Scale(glm::vec3{ 0.2f });
-	_light.back()->Move(vec3::back(2.f));
-	_light.back()->SetColor(WHITE);
-}
-
-void GameScene::CreateOrbit()
-{
-	_orbit.push_back(new Circle{});
-	_orbit.back()->SetShader(_color_shader);
-	//_orbit.back()->Scale(glm::vec3{ 10.f });
-	_orbit.back()->RotateX(-90.f);
-	_orbit.back()->SetColor(GREEN);
-}
-
-void GameScene::ChangeObject()
-{
-	_draw_cube = !_draw_cube;
-
-	if (_draw_cube == true)
-		_object = &_cube;
-	else
-		_object = &_pyramid;
-}
-
-void GameScene::ChangeLightState()
-{
-	//for (auto& obj : *_object)
-	//{
-	//	obj->ChangeLightState();
-	//}
-	_turn_on = !_turn_on;
-}
-
-void GameScene::RotateObject()
-{
-	for (auto& obj : *_object)
+	for (auto iter = ++_planets.begin(); iter != _planets.end(); ++iter)
 	{
-		obj->RotateY(1.f);
+		(*iter)->Scale(glm::vec3{ 0.05f });
+		(*iter)->Move(vec3::back(2.5f));
+		(*iter)->SetShader(_light_shader);
+		(*iter)->SetLight(0.3f, 0.5f, 128, _light_pos, vec3::unit());
+		(*iter)->SetColor(RAND_COLOR);
+	}
+
+	_planets.push_back(new Sphere{});
+	_planets.push_back(new Sphere{});
+	_planets.push_back(new Sphere{});
+
+	for (auto iter = _planets.begin(); iter != _planets.end(); ++iter)
+	{
+		if (iter == _planets.begin())
+			std::advance(iter, 4);
+
+		(*iter)->Scale(glm::vec3{ 0.01f });
+		(*iter)->Move(vec3::back(1.f));
+		(*iter)->RotateY(-90.f);
+		(*iter)->Move(vec3::back(2.5f));
+		(*iter)->SetShader(_light_shader);
+		(*iter)->SetLight(0.3f, 0.5f, 128, _light_pos, vec3::unit());
+		(*iter)->SetColor(RAND_COLOR);
 	}
 }
 
-void GameScene::RotateLight(int32_t direction)
+void GameScene::ChangeLightColor()
 {
-	for (auto& light : _light)
+	for (auto& obj : _planets)
 	{
-		light->RotateY(1.f * direction);
-	}
-	// 왜 얘는 안 되지?
-	//_light->Transform(_color_shader);
-
-	//auto pos{ _light->GetPos() };
-
-	//for (auto& obj : *_object)
-	//{
-	//	obj->SetLightPos(pos);
-	//}
-}
-
-void GameScene::MoveLight(int32_t delta)
-{
-	for (auto& light : _light)
-	{
-		light->Move(delta * light->GetPos() * glm::vec3{ 0.1f });
+		obj->SetLightColor(RAND_COLOR);
 	}
 }
 
-void GameScene::Render(Object* obj, std::shared_ptr<Shader>& shader)
+void GameScene::RotateLight()
 {
-	obj->BindVAO();
+	_light_mat = glm::rotate(mat4::unit(), glm::radians(2.f), vec3::y()) * _light_mat;
 
-	obj->Transform(shader);
-	ViewProjection(shader);
-
-	obj->ApplyColor();
-	obj->SetLightPos(_light.back()->GetPos());
-
-	glDrawElements(obj->GetDrawType(), obj->GetIndexNum(), GL_UNSIGNED_INT, 0);
+	_light_pos = _light_mat[3];
 }
 
 void GameScene::Render2D(std::vector<Object*>* object, std::shared_ptr<Shader>& shader)
@@ -326,7 +253,14 @@ void GameScene::Render2D(std::vector<Object*>* object, std::shared_ptr<Shader>& 
 
 	for (auto& obj : *object)
 	{
-		Render(obj, shader);
+		obj->BindVAO();
+
+		obj->Transform(shader);
+		ViewProjection(shader);
+
+		obj->ApplyColor();
+
+		glDrawElements(obj->GetDrawType(), obj->GetIndexNum(), GL_UNSIGNED_INT, 0);
 	}
 }
 
@@ -339,12 +273,16 @@ void GameScene::Render3D(std::vector<Object*>* object, std::shared_ptr<Shader>& 
 
 	for (auto& obj : *object)
 	{
-		if (_turn_on == true)
-			obj->TurnOnLight();
-		else
-			obj->TurnOffLight();
+		obj->BindVAO();
 
-		Render(obj, shader);
+		obj->Transform(shader);
+		ViewProjection(shader);
+
+		obj->ApplyColor();
+		obj->TurnOnLight();
+		obj->SetLightPos(_light_pos);
+
+		glDrawElements(obj->GetDrawType(), obj->GetIndexNum(), GL_UNSIGNED_INT, 0);
 	}
 }
 
