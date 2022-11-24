@@ -24,6 +24,7 @@ MazeScene::MazeScene(int32_t width, int32_t height) :
 	_delta_time{ 0.f },
 #pragma endregion
 	_maze{},
+	_block_pos_index{},
 	_block_num{},
 	_direction{ DIRECTION::NONE },
 	_render_player{ true },
@@ -50,13 +51,21 @@ MazeScene::~MazeScene()
 #pragma region [PUBLIC]
 void MazeScene::OnLoad()
 {
-	LoadObject(&_block, _light_shader);
+	for (int32_t z = 0; z < _block.size(); ++z)
+	{
+		LoadObject(&_block[z], _light_shader);
+	}
+
 	LoadObject(&_player, _light_shader);
 }
 
 void MazeScene::OnRelease()
 {
-	ReleaseObject(&_block);
+	for (int32_t z = 0; z < _block.size(); ++z)
+	{
+		ReleaseObject(&_block[z]);
+	}
+
 	ReleaseObject(&_player);
 }
 
@@ -112,7 +121,7 @@ void MazeScene::OnKeyboardMessage(uchar key, int32_t x, int32_t y)
 		case 'R': FALLTHROUGH
 		case 'r':
 		{
-			RemakeMaze();
+			MakeMaze();
 		}
 		break;
 		// 육면체 움직임 멈춤, 낮은 높이로 변환
@@ -257,7 +266,8 @@ void MazeScene::OnRender()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// TODO : Object render
-	Render(&_block, _light_shader);
+	RenderMaze();
+
 	if (_render_player)
 		Render(&_player, _light_shader);
 }
@@ -284,6 +294,9 @@ void MazeScene::ReleaseObject(std::vector<Object*>* object)
 {
 	for (auto& obj : *object)
 	{
+		if (obj == nullptr)
+			continue;
+
 		delete obj;
 		obj = nullptr;
 	}
@@ -319,22 +332,53 @@ void MazeScene::Render(std::vector<Object*>* object, std::shared_ptr<Shader>& sh
 	}
 }
 
-void MazeScene::CreateMaze()
+void MazeScene::RenderMaze()
 {
-	for (int32_t z = 0; z < _maze.size(); ++z)
+	glm::vec3 view_pos{ _camera->GetPos() };
+	_light_shader->SetVec3("view_pos", &view_pos);
+
+	_light_shader->OnUse();
+
+	for (int32_t z = 0; z < _block.size(); ++z)
 	{
-		for (int32_t x = 0; x < _maze[z].size(); ++x)
+		for (int32_t x = 0; x < _block[z].size(); ++x)
 		{
-			if (_maze[z][x] == ' ')
+			if (_block[z][x] == nullptr)
 				continue;
 
+			auto obj{ _block[z][x] };
+
+			obj->BindVAO();
+
+			obj->Transform(_light_shader);
+			ViewProjection(_light_shader);
+
+			obj->ApplyColor();
+			//obj->SetLightPos(_light.back()->GetPos());
+
+			glDrawElements(obj->GetDrawType(), obj->GetIndexNum(), GL_UNSIGNED_INT, 0);
+		}
+	}
+}
+
+void MazeScene::CreateMaze()
+{
+	std::vector<Object*> temp;
+	_block.resize(_maze.size(), temp);
+
+	for (int32_t z = 0; z < _maze.size(); ++z)
+	{
+		_block[z].resize(_maze[z].size(), nullptr);
+
+		for (int32_t x = 0; x < _maze[z].size(); ++x)
+		{
 			float scale_size{ urd_scale(dre) };
 
-			_block.push_back(new Cube{});
-			_block.back()->SetShader(_light_shader);
-			_block.back()->Scale(2.f, scale_size, 2.f);
-			_block.back()->SetColor(RAND_COLOR);
-			_block.back()->Move((x - 1) * 2, scale_size / 2, -(z * 2));
+			_block[z][x] = new Cube{};
+			_block[z][x]->SetShader(_light_shader);
+			_block[z][x]->Scale(2.f, scale_size, 2.f);
+			_block[z][x]->SetColor(RAND_COLOR);
+			_block[z][x]->Move((x - 1) * 2, scale_size / 2, -(z * 2));
 		}
 	}
 }
@@ -367,8 +411,19 @@ void MazeScene::RotateCamera(int32_t direction)
 	_camera->RotateY(2 * direction);
 }
 
-void MazeScene::RemakeMaze()
+void MazeScene::MakeMaze()
 {
+	for (int32_t z = 0; z < _maze.size(); ++z)
+	{
+		for (int32_t x = 0; x < _maze[z].size(); ++x)
+		{
+			if (_maze[z][x] == ' ')
+			{
+				delete _block[z][x];
+				_block[z][x] = nullptr;
+			}
+		}
+	}
 }
 
 void MazeScene::ShowPlayer()
@@ -380,13 +435,17 @@ void MazeScene::ShowMaze()
 {
 	_stop_animation = true;
 
-	for (auto& obj : _block)
+	for (int32_t z = 0; z < _maze.size(); ++z)
 	{
-		auto pos{ obj->GetPos() };
+		for (int32_t x = 0; x < _maze[z].size(); ++x)
+		{
+			auto obj{ _block[z][x] };
+			auto pos{ obj->GetPos() };
 
-		obj->Move(-pos);
-		obj->Scale(2.f, 0.1f, 2.f);
-		obj->Move(pos.x, pos.y, pos.z);
+			obj->Move(-pos);
+			obj->Scale(2.f, 0.1f, 2.f);
+			obj->Move(pos.x, pos.y, pos.z);
+		}
 	}
 }
 

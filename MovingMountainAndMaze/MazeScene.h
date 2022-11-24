@@ -38,13 +38,14 @@ private:
 	void ReleaseObject(std::vector<Object*>* object);
 	void ViewProjection(std::shared_ptr<class Shader>& shader);
 	void Render(std::vector<Object*>* object, std::shared_ptr<Shader>& shader);
+	void RenderMaze();
 
 	void CreateMaze();
 	void CreatePlayer();
 	void ChangeCamera(define::CAMERA_TYPE type);
 	void ScalePillar();
 	void RotateCamera(int32_t direction);
-	void RemakeMaze();
+	void MakeMaze();
 	void ShowPlayer();
 	void ShowMaze();
 	void MovePlayer(DIRECTION direction);
@@ -68,7 +69,7 @@ private:
 private:
 	std::vector<std::vector<char>> _maze;
 	std::list<std::pair<int32_t, int32_t>> _block_pos_index;
-	std::vector<Object*> _block;
+	std::vector<std::vector<Object*>> _block;
 	std::vector<Object*> _player;
 	DIRECTION _direction;
 
