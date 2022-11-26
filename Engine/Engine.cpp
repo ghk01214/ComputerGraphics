@@ -1,7 +1,6 @@
 ﻿#include "pch.h"
 #include "SceneMgr.h"
 #include "Engine.h"
-#include "DebugScene.h"
 
 Engine::Engine() :
 	_window{ nullptr },

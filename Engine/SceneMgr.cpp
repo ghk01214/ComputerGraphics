@@ -1,7 +1,6 @@
 ﻿#include "pch.h"
 #include "Scene.h"
 #include "SceneMgr.h"
-#include "DebugScene.h"
 
 SceneMgr::SceneMgr() :
 	_current{ define::SCENE_TYPE::NONE }
