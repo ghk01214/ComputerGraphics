@@ -159,9 +159,9 @@ move $(TargetDir)Engine.lib $(SolutionDir)Dependencies\lib\$(Configuration)\</Co
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PreBuildEvent>
-      <Command>if not exist $(OutDir)Dependencies\shader mkdir $(OutDir)Dependencies\shader
+      <Command>if not exist $(OutDir)Data\Shader mkdir $(OutDir)Data\Shader
 if not exist $(OutDir)*.dll xcopy /y $(SolutionDir)Dependencies\bin\*.dll $(OutDir)
-xcopy /y /e $(SolutionDir)Dependencies\shader $(OutDir)Dependencies\shader</Command>
+xcopy /y /e $(SolutionDir)Dependencies\shader $(OutDir)Data\Shader</Command>
     </PreBuildEvent>
     <PostBuildEvent>
       <Command>move $(TargetDir)Engine.lib $(SolutionDir)Dependencies\lib\</Command>
