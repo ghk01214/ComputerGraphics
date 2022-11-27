@@ -2,6 +2,7 @@
 #include <Shader.h>
 #include <Figure.h>
 #include <Camera.h>
+#include "Player.h"
 #include "MazeScene.h"
 #include <Engine.h>
 #include "MazeGenerator.h"
@@ -9,10 +10,10 @@
 extern Engine engine;
 
 std::uniform_real_distribution<float> urd_scale{ 5.f, 15.f };
+std::uniform_real_distribution<float> urd_speed{ 0.1f, 0.5f };
 
 MazeScene::MazeScene(int32_t width, int32_t height) :
 #pragma region [BASE ATTRIBUTE]
-	_camera{ std::make_unique<Camera>(glm::vec3{ 0.f, 1.f, 3.f }, vec3::up(), 0.f, -90.f) },
 	_color_shader{ std::make_shared<Shader>() },
 	_light_shader{ std::make_shared<Shader>() },
 	_stop_animation{ true },
@@ -23,12 +24,23 @@ MazeScene::MazeScene(int32_t width, int32_t height) :
 	_old_time{ _time },
 	_delta_time{ 0.f },
 #pragma endregion
+	_first_camera{ std::make_shared<Camera>(glm::vec3{ 0.f, 1.f, 0.f }, vec3::up(), 0.f, -90.f) },
+	_third_camera{ std::make_shared<Camera>(glm::vec3{ 0.f, 1.f, 2.f }, vec3::up(), 0.f, -90.f) },
+	_top_camera{ std::make_shared<Camera>(glm::vec3{ width / 2 + 10.f, 50.f, -(height / 2) - 10.f }, vec3::up(), -90.f, 90.f) },
+	_camera{},
 	_maze{},
-	_block_pos_index{},
-	_block_num{},
-	_direction{ DIRECTION::NONE },
+	_maze_width{ width },
+	_maze_height{ height },
 	_render_player{ true },
-	_wait_time{ 0.f }
+	_wait_time{ 0.f },
+	_show_maze{ false },
+	_player_speed{ 5.f },
+	_scale_size{},
+	_scale_speed{},
+	_scale_up{},
+	_player{},
+	_current_scale{},
+	_animation_speed{ 100 }
 {
 #if _DEBUG
 	_color_shader->OnLoad("../Dependencies/shader/Vertex.glsl", "../Dependencies/shader/Color.glsl");
@@ -38,6 +50,8 @@ MazeScene::MazeScene(int32_t width, int32_t height) :
 	_light_shader->OnLoad("Data/Shader/Vertex.glsl", "Data/Shader/Light.glsl");
 #endif
 	MazeGenerator generator{ _maze, width, height };
+
+	_camera = _third_camera;
 
 	CreateMaze();
 	CreatePlayer();
@@ -56,7 +70,10 @@ void MazeScene::OnLoad()
 		LoadObject(&_block[z], _light_shader);
 	}
 
-	LoadObject(&_player, _light_shader);
+	for (auto& obj : _player)
+	{
+		obj->OnLoad(_light_shader);
+	}
 }
 
 void MazeScene::OnRelease()
@@ -66,7 +83,11 @@ void MazeScene::OnRelease()
 		ReleaseObject(&_block[z]);
 	}
 
-	ReleaseObject(&_player);
+	for (auto& obj : _player)
+	{
+		delete obj;
+		obj = nullptr;
+	}
 }
 
 void MazeScene::OnIdleMessage()
@@ -76,12 +97,6 @@ void MazeScene::OnIdleMessage()
 
 void MazeScene::OnKeyboardMessage(uchar key, int32_t x, int32_t y)
 {
-	if (_wait_time < 0.002f)
-	{
-		_wait_time += _delta_time;
-		return;
-	}
-
 	switch (key)
 	{
 		// 직각 투영
@@ -102,7 +117,10 @@ void MazeScene::OnKeyboardMessage(uchar key, int32_t x, int32_t y)
 		case 'M': FALLTHROUGH
 		case 'm':
 		{
-			ScalePillar();
+			_stop_animation = !_stop_animation;
+
+			if (_stop_animation == false)
+				glutTimerFunc(_animation_speed, Engine::OnAnimate, 1);
 		}
 		break;
 		// 카메라 회전(반시계)
@@ -115,6 +133,20 @@ void MazeScene::OnKeyboardMessage(uchar key, int32_t x, int32_t y)
 		case 'y':
 		{
 			RotateCamera(-1);
+		}
+		break;
+		// 플레이어 반시계 방향 회전
+		case 'J': FALLTHROUGH
+		case 'j':
+		{
+			RotatePlayer(-1);
+		}
+		break;
+		// 플레이어 시계 방향 회전
+		case 'L': FALLTHROUGH
+		case 'l':
+		{
+			RotatePlayer(1);
 		}
 		break;
 		// 미로 제작
@@ -152,13 +184,13 @@ void MazeScene::OnKeyboardMessage(uchar key, int32_t x, int32_t y)
 		// 육면체 이동 속도 증가
 		case '+':
 		{
-			ChangePlayerSpeed(1);
+			ChangeBlockSpeed(-10);
 		}
 		break;
 		// 육면체 이동 속도 감소
 		case '-':
 		{
-			ChangePlayerSpeed(-1);
+			ChangeBlockSpeed(10);
 		}
 		break;
 		// 초기화
@@ -172,7 +204,6 @@ void MazeScene::OnKeyboardMessage(uchar key, int32_t x, int32_t y)
 	}
 
 	std::cout << std::format("Key : {:c}\n", key);
-	_wait_time = 0.f;
 }
 
 void MazeScene::OnSpecialKeyMessage(int32_t key, int32_t x, int32_t y)
@@ -211,7 +242,7 @@ void MazeScene::OnSpecialKeyMessage(int32_t key, int32_t x, int32_t y)
 		break;
 	}
 
-	_camera->OnSpecialKeyMessage(key, x, y, 1.f);
+	_camera->OnSpecialKeyMessage(key, x, y, _delta_time * _player_speed);
 	_wait_time = 0.f;
 }
 
@@ -243,7 +274,7 @@ void MazeScene::OnMouseMotionMessage(int32_t x, int32_t y)
 	_old_x = x;
 	_old_y = y;
 
-	_camera->OnMouseMotionMessage(delta_x, delta_y);
+	//_camera->OnMouseMotionMessage(delta_x, delta_y);
 }
 
 void MazeScene::OnMouseUpMessage(int32_t button, int32_t x, int32_t y)
@@ -252,8 +283,10 @@ void MazeScene::OnMouseUpMessage(int32_t button, int32_t x, int32_t y)
 
 void MazeScene::OnAnimate(int32_t index)
 {
+	ScalePillar();
+
 	if (_stop_animation == false)
-		glutTimerFunc(10, Engine::OnAnimate, index);
+		glutTimerFunc(_animation_speed, Engine::OnAnimate, index);
 }
 
 void MazeScene::OnRender()
@@ -266,10 +299,19 @@ void MazeScene::OnRender()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// TODO : Object render
+	glViewport(0, 0, engine.GetWindowWidth() - 200, engine.GetWindowHeight());
+	ViewProjection(_light_shader);
 	RenderMaze();
 
-	if (_render_player)
-		Render(&_player, _light_shader);
+	if (_render_player == true)
+		RenderPlayer();
+
+	glViewport(engine.GetWindowWidth() - 200, engine.GetWindowHeight() - 200, 200, 200);
+	TopViewProjection(_light_shader);
+	RenderMaze();
+
+	if (_render_player == true)
+		RenderPlayer();
 }
 #pragma endregion
 
@@ -339,6 +381,9 @@ void MazeScene::RenderMaze()
 
 	_light_shader->OnUse();
 
+	//ViewProjection(_light_shader);
+	//TopViewProjection(_light_shader);
+
 	for (int32_t z = 0; z < _block.size(); ++z)
 	{
 		for (int32_t x = 0; x < _block[z].size(); ++x)
@@ -351,7 +396,6 @@ void MazeScene::RenderMaze()
 			obj->BindVAO();
 
 			obj->Transform(_light_shader);
-			ViewProjection(_light_shader);
 
 			obj->ApplyColor();
 			//obj->SetLightPos(_light.back()->GetPos());
@@ -361,31 +405,85 @@ void MazeScene::RenderMaze()
 	}
 }
 
+void MazeScene::RenderPlayer()
+{
+	glm::vec3 view_pos{ _camera->GetPos() };
+	_light_shader->SetVec3("view_pos", &view_pos);
+
+	_light_shader->OnUse();
+
+	//ViewProjection(_light_shader);
+	//TopViewProjection(_light_shader);
+
+	for (auto& obj : _player)
+	{
+		obj->BindVAO();
+
+		obj->Transform(_light_shader);
+
+		obj->ApplyColor();
+		//obj->SetLightPos(_light.back()->GetPos());
+
+		glDrawElements(obj->GetDrawType(), obj->GetIndexNum(), GL_UNSIGNED_INT, 0);
+	}
+}
+
+void MazeScene::TopViewProjection(std::shared_ptr<Shader>& shader)
+{
+	auto view{ _top_camera->GetViewMatrix() };
+	auto projection{ _top_camera->GetProjectionMatrix() };
+
+	shader->SetMat4("view", &view);
+	shader->SetMat4("projection", &projection);
+}
+
 void MazeScene::CreateMaze()
 {
 	std::vector<Object*> temp;
 	_block.resize(_maze.size(), temp);
 
+	std::vector<float> temp2;
+	_scale_size.resize(_block.size(), temp2);
+	_scale_speed.resize(_block.size(), temp2);
+
+	std::vector<bool> temp3;
+	_scale_up.resize(_block.size(), temp3);
+
+	std::vector<std::pair<float, float>> temp4;
+	_scale_min_max.resize(_block.size(), temp4);
+
+	std::uniform_real_distribution<float> urd_min{ 1.f, 5.f };
+	std::uniform_real_distribution<float> urd_max{ 5.f, 15.f };
+
 	for (int32_t z = 0; z < _maze.size(); ++z)
 	{
 		_block[z].resize(_maze[z].size(), nullptr);
+		_scale_size[z].resize(_block[z].size(), 0.f);
+		_scale_speed[z].resize(_block[z].size(), 0.f);
+		_scale_up[z].resize(_block[z].size(), false);
+		_scale_min_max[z].resize(_block[z].size(), std::make_pair(0.f, 0.f));
 
 		for (int32_t x = 0; x < _maze[z].size(); ++x)
 		{
-			float scale_size{ urd_scale(dre) };
+			_scale_size[z][x] = urd_scale(dre);
+			_scale_speed[z][x] = urd_speed(dre);
+			_scale_up[z][x] = false;
+			_scale_min_max[z][x] = std::make_pair(urd_min(dre), urd_max(dre));
 
 			_block[z][x] = new Cube{};
 			_block[z][x]->SetShader(_light_shader);
-			_block[z][x]->Scale(2.f, scale_size, 2.f);
+			_block[z][x]->Scale(2.f, _scale_size[z][x], 2.f);
 			_block[z][x]->SetColor(RAND_COLOR);
-			_block[z][x]->Move((x - 1) * 2, scale_size / 2, -(z * 2));
+			_block[z][x]->Move((x - 1) * 2, _scale_size[z][x] / 2, -(z * 2));
 		}
 	}
+
+	_current_scale = _scale_size;
 }
 
 void MazeScene::CreatePlayer()
 {
-	_player.push_back(new Sphere{});
+	_player.push_back(new Player{});
 	_player.back()->SetShader(_light_shader);
 	_player.back()->SetColor(RAND_COLOR);
 	_player.back()->ApplyColor();
@@ -396,19 +494,65 @@ void MazeScene::CreatePlayer()
 void MazeScene::ChangeCamera(define::CAMERA_TYPE type)
 {
 	if (type == define::CAMERA_TYPE::PERSPECTIVE)
+	{
 		_camera->SetCameraMode(true);
+	}
 	else if (type == define::CAMERA_TYPE::ORTHOGRAPHIC)
+	{
 		_camera->SetCameraMode(false);
-
+	}
+	else if (type == define::CAMERA_TYPE::FIRST)
+	{
+		_render_player = false;
+		_camera = _first_camera;
+	}
+	else
+	{
+		_render_player = true;
+		_camera = _third_camera;
+	}
 }
 
 void MazeScene::ScalePillar()
 {
+	for (int32_t z = 0; z < _block.size(); ++z)
+	{
+		for (int32_t x = 0; x < _block[z].size(); ++x)
+		{
+			if (_block[z][x] == nullptr)
+				continue;
+
+			auto min{ _scale_min_max[z][x].first };
+			auto max{ _scale_min_max[z][x].second };
+			auto pos{ _block[z][x]->GetPos() };
+
+			if (_scale_up[z][x] == true and _current_scale[z][x] > max)
+				_scale_up[z][x] = false;
+			else if (_scale_up[z][x] == false and _current_scale[z][x] < min)
+				_scale_up[z][x] = true;
+
+			_block[z][x]->Move(-pos);
+			
+			if (_scale_up[z][x] == true)
+			{
+				_block[z][x]->Scale(1.f, 1.f + _scale_speed[z][x], 1.f);
+				_current_scale[z][x] *= (1.f + _scale_speed[z][x]);
+			}
+			else
+			{
+				_block[z][x]->Scale(1.f, 1.f - _scale_speed[z][x], 1.f);
+				_current_scale[z][x] *= (1.f - _scale_speed[z][x]);
+			}
+
+			_block[z][x]->Move(pos.x, _current_scale[z][x] / 2, pos.z);
+		}
+	}
 }
 
 void MazeScene::RotateCamera(int32_t direction)
 {
-	_camera->RotateY(2 * direction);
+	_first_camera->RotateY(2 * direction);
+	_third_camera->RotateY(2 * direction);
 }
 
 void MazeScene::MakeMaze()
@@ -433,57 +577,81 @@ void MazeScene::ShowPlayer()
 
 void MazeScene::ShowMaze()
 {
-	_stop_animation = true;
+	_stop_animation = !_stop_animation;
+	float scale;
 
 	for (int32_t z = 0; z < _maze.size(); ++z)
 	{
 		for (int32_t x = 0; x < _maze[z].size(); ++x)
 		{
 			auto obj{ _block[z][x] };
+
+			if (obj == nullptr)
+				continue;
+
 			auto pos{ obj->GetPos() };
 
+			if (_show_maze == false)
+				scale = 1.f / _scale_size[z][x];
+			else
+				scale = _scale_size[z][x];
+
 			obj->Move(-pos);
-			obj->Scale(2.f, 0.1f, 2.f);
-			obj->Move(pos.x, pos.y, pos.z);
+			obj->Scale(1.f, scale, 1.f);
+			obj->Move(pos.x, scale * 0.5f, pos.z);
 		}
 	}
+
+	_show_maze = !_show_maze;
 }
 
 void MazeScene::MovePlayer(DIRECTION direction)
 {
-	switch (direction)
-	{
-		case DIRECTION::LEFT:
-		{
-			_camera->RotateY(-90);
-			_player.back()->Move(vec3::left(1.f));
-		}
-		break;
-		case DIRECTION::RIGHT:
-		{
-			_camera->RotateY(90);
-			_player.back()->Move(vec3::right(1.f));
-		}
-		break;
-		case DIRECTION::FRONT:
-		{
-			_player.back()->Move(vec3::front(1.f));
-		}
-		break;
-		case DIRECTION::BACK:
-		{
-			_player.back()->Move(vec3::back(1.f));
-		}
-		break;
-	}
+	_player.back()->MovePlayer(direction, _delta_time * _player_speed * 2.5f);
 }
 
-void MazeScene::ChangePlayerSpeed(int32_t delta)
+void MazeScene::RotatePlayer(int32_t direction)
 {
+	_third_camera->Move(Camera::DIRECTION::FRONT, 2.f);
+	_third_camera->RotateY(90.f * direction);
+	_third_camera->Move(Camera::DIRECTION::BACK, 2.f);
+
+	_first_camera->RotateY(90.f * direction);
+	_player.back()->RotatePlayer(1 * direction);
+}
+
+void MazeScene::ChangeBlockSpeed(int32_t delta)
+{
+	if (delta < 0 and _animation_speed == 10)
+		return;
+
+	_animation_speed += delta;
 }
 
 void MazeScene::Reset()
 {
+	OnRelease();
+
+	_render_player = true;
+	_wait_time = 0.f;
+	_show_maze = false;
+	_player_speed = 5.f;
+	_delta_time = 0.f;
+
+	_first_camera.reset();
+	_third_camera.reset();
+
+	_first_camera = std::make_shared<Camera>(glm::vec3{ 0.f, 1.f, 0.f }, vec3::up(), 0.f, -90.f);
+	_third_camera = std::make_shared<Camera>(glm::vec3{ 0.f, 1.f, 3.f }, vec3::up(), 0.f, -90.f);
+
+	_camera = _third_camera;
+
+	MazeGenerator generator{ _maze, _maze_width, _maze_height };
+
+	CreateMaze();
+	CreatePlayer();
+
+	OnLoad();
 }
 
 #pragma endregion

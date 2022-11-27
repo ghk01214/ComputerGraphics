@@ -6,26 +6,19 @@ class Camera;
 
 class Player : public Sphere
 {
-private:
-	enum class DIRECTION
-	{
-		NONE = 0,
-		LEFT,
-		RIGHT,
-		FRONT,
-		BACK,
-		MAX
-	};
 public:
-	Player(std::shared_ptr<Camera>& camera);
+	Player();
 	~Player();
 
-	void Move(DIRECTION direction, float distance);
-	void Rotate(int32_t direction);
+	void MovePlayer(DIRECTION direction, float distance);
+	void RotatePlayer(int32_t direction);
+	void Update();
 
 	glm::vec3 GetUp() { return _up; }
 	glm::vec3 GetRight() { return _right; }
 	glm::vec3 GetLook() { return _look; }
+
+	void ChangeVectors(glm::vec3 front, glm::vec3 up, glm::vec3 right);
 
 private:
 	glm::vec3 _front;

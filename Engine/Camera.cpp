@@ -18,7 +18,8 @@ Camera::Camera(glm::vec3 pos, glm::vec3 up, float pitch, float yaw) :
 	_near{ 1.f },
 	_far{ 1000.f },
 	_aspect{ 1.f / 1.f },
-	_perspective{ true }
+	_perspective{ true },
+	_old_pos{ pos }
 {
 	Update();
 }
@@ -33,7 +34,7 @@ void Camera::OnKeyboardMessage(uchar key, int32_t x, int32_t y)
 
 void Camera::OnSpecialKeyMessage(int32_t key, int32_t x, int32_t y, float delta)
 {
-	float velocity{ 1.f * delta };
+	float velocity{ 2.5f * delta };
 
 	switch (key)
 	{
@@ -155,6 +156,13 @@ void Camera::RotateX(int32_t direction)
 void Camera::RotateY(int32_t direction)
 {
 	_yaw += _sensitivity * 10 * direction;
+
+	Update();
+}
+
+void Camera::Rotate90(int32_t direction)
+{
+	_yaw += 90.f * direction;
 
 	Update();
 }

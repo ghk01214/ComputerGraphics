@@ -2,7 +2,7 @@
 #include "MazeScene.h"
 #include <Engine.h>
 
-Window window{ 800, 800, true };
+Window window{ 1000, 800, true };
 Engine engine;
 
 int32_t main(int32_t argc, char** argv)
@@ -22,12 +22,18 @@ int32_t main(int32_t argc, char** argv)
 			std::cout << std::format("Set the size of maze greater than 5(click any key to continue)");
 			std::system("pause");
 			std::system("cls");
+
+			std::cin.clear();
+			std::cin.ignore();
 		}
 		else if (width > 25 or height > 25)
 		{
 			std::cout << std::format("Set the size of maze less than 25(click any key to continue)");
 			std::system("pause");
 			std::system("cls");
+
+			std::cin.clear();
+			std::cin.ignore();
 		}
 	} while (width < 5 or width > 25 or height < 5 or height > 25);
 	

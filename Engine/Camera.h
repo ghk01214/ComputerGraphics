@@ -8,7 +8,7 @@ class Shader;
 
 class Camera
 {
-private:
+public:
 	enum class DIRECTION
 	{
 		NONE = 0,
@@ -34,10 +34,14 @@ public:
 	void Move(DIRECTION direction, float velocity);
 	void RotateX(int32_t direction);
 	void RotateY(int32_t direction);
+	void Rotate90(int32_t direction);
 	void Zoom(float delta);
 	void Update();
 
 	glm::vec3 GetPos() { return _pos; }
+	glm::vec3 GetRight() { return _right; }
+	glm::vec3 GetUp() { return _up; }
+	glm::vec3 GetFront() { return _front; }
 	glm::mat4 GetViewMatrix();
 	glm::mat4 GetProjectionMatrix();
 
@@ -45,6 +49,9 @@ public:
 	void SetPos(float x, float y, float z) { SetPos(glm::vec3{ x, y, z }); }
 	void SetLook(glm::vec3 look) { _look = look; }
 	void SetLook(float x, float y, float z) { SetLook(glm::vec3{ x, y, z }); }
+	void SetRight(glm::vec3 right) { _right = right; }
+	void SetUp(glm::vec3 up) { _up = up; }
+	void SetFront(glm::vec3 front) { _front = front; }
 
 	void SetCameraMode(bool perspective) { _perspective = perspective; }
 
@@ -63,6 +70,7 @@ private:
 
 	glm::mat4 _view;
 	glm::mat4 _projection;
+	glm::vec3 _old_pos;
 
 	float _fov;
 	float _near;

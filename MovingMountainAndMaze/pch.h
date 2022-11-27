@@ -10,3 +10,13 @@
 #endif
 
 using uchar = unsigned char;
+
+enum class DIRECTION
+{
+	NONE = 0,
+	LEFT,
+	RIGHT,
+	FRONT,
+	BACK,
+	MAX
+};
