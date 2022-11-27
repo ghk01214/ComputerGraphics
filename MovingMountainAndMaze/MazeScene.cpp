@@ -283,10 +283,12 @@ void MazeScene::OnMouseUpMessage(int32_t button, int32_t x, int32_t y)
 
 void MazeScene::OnAnimate(int32_t index)
 {
-	ScalePillar();
-
 	if (_stop_animation == false)
+	{
+		ScalePillar();
+
 		glutTimerFunc(_animation_speed, Engine::OnAnimate, index);
+	}
 }
 
 void MazeScene::OnRender()
@@ -578,6 +580,7 @@ void MazeScene::ShowPlayer()
 void MazeScene::ShowMaze()
 {
 	_stop_animation = !_stop_animation;
+
 	float scale;
 
 	for (int32_t z = 0; z < _maze.size(); ++z)
@@ -603,6 +606,9 @@ void MazeScene::ShowMaze()
 	}
 
 	_show_maze = !_show_maze;
+
+	if (_stop_animation == false and _show_maze == false)
+		glutTimerFunc(_animation_speed, Engine::OnAnimate, 1);
 }
 
 void MazeScene::MovePlayer(DIRECTION direction)
@@ -632,17 +638,46 @@ void MazeScene::Reset()
 {
 	OnRelease();
 
+	_stop_animation = true;
+	_click = false;
 	_render_player = true;
 	_wait_time = 0.f;
 	_show_maze = false;
 	_player_speed = 5.f;
 	_delta_time = 0.f;
+	_animation_speed = 100;
 
 	_first_camera.reset();
 	_third_camera.reset();
+	_top_camera.reset();
+
+	_maze.clear();
+	_maze.shrink_to_fit();
+
+	_block.clear();
+	_block.shrink_to_fit();
+
+	_scale_size.clear();
+	_scale_size.shrink_to_fit();
+
+	_scale_min_max.clear();
+	_scale_min_max.shrink_to_fit();
+
+	_scale_speed.clear();
+	_scale_speed.shrink_to_fit();
+
+	_current_scale.clear();
+	_current_scale.shrink_to_fit();
+
+	_scale_up.clear();
+	_scale_up.shrink_to_fit();
+
+	_player.clear();
+	_player.shrink_to_fit();
 
 	_first_camera = std::make_shared<Camera>(glm::vec3{ 0.f, 1.f, 0.f }, vec3::up(), 0.f, -90.f);
 	_third_camera = std::make_shared<Camera>(glm::vec3{ 0.f, 1.f, 3.f }, vec3::up(), 0.f, -90.f);
+	_top_camera = std::make_shared<Camera>(glm::vec3{ _maze_width / 2 + 10.f, 50.f, -(_maze_height / 2) - 10.f }, vec3::up(), -90.f, 90.f);
 
 	_camera = _third_camera;
 
