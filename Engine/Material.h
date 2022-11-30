@@ -16,6 +16,13 @@ struct Light
 	bool on{ true };
 };
 
+struct Texture
+{
+	uint32_t id;
+	bool flip_horizontal;
+	bool flip_vertical;
+};
+
 class Material
 {
 public:
@@ -24,13 +31,19 @@ public:
 
 	void ApplyColor();
 	void ApplyLight();
+	void ApplyTexture();
+	void ApplySkybox();
+
+	void CreateTexture(const std::string& path, bool flip_vertical = true, bool flip_horizontal = false);
+	void CreateSkybox(const std::vector<std::string>* path, bool flip_vertical = true, bool flip_horizontal = false);
+	void BindTexture();
 
 	glm::vec3 GetColor() { return _color; }
 	Light GetLight() { return _light; }
 
 	void SetShader(std::shared_ptr<Shader>& shader) { _shader = shader; }
-	void SetColor(glm::vec3 color) { _color = color; }
-	void SetObjectColor(glm::vec3 color);
+	void SetObjectColor(glm::vec4 color);
+	void SetObjectAlpha(float alpha);
 	void SetLight(Light light);
 	void SetLight(float ambient, float specular, int32_t shininess, glm::vec3 pos, glm::vec3 color) { SetLight(Light{ ambient, specular, shininess, pos, color }); }
 	void SetAmbient(float ambient);
@@ -38,13 +51,20 @@ public:
 	void SetShininess(int32_t shininess);
 	void SetLightPos(glm::vec3 pos);
 	void SetLightColor(glm::vec3 color);
+	void SetTexture(uint32_t index);
 
 	void ChangeLightState();
 	void TurnOnLight();
 	void TurnOffLight();
+	
+	void FlipTextureHorizontal(bool flip);
+	void FlipTextureVertical(bool flip);
 
 private:
 	std::shared_ptr<Shader> _shader;
 	Light _light;
-	glm::vec3 _color;
+	glm::vec4 _color;
+
+	Texture _texture;
+	bool _have_texture;
 };

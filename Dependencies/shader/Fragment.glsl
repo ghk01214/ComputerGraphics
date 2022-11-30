@@ -2,11 +2,11 @@
 
 in vec3 f_normal;
 in vec2 f_texture;
-in vec3 f_color;
+in vec4 f_color;
 
 out vec4 color;
 
 void main()
 {
-	color = vec4(f_color, 1.0);
+	color = f_color;
 }

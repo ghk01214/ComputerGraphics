@@ -33,6 +33,10 @@ public:
 
 	void ApplyColor() { _material->ApplyColor(); }
 	void ApplyLight() { _material->ApplyLight(); }
+	void ApplyTexture() { _material->ApplyTexture(); }
+	void ApplySkybox() { _material->ApplySkybox(); }
+	void CreateTexture(const std::string& path, bool flip_vertical = true, bool flip_horizontal = false) { _material->CreateTexture(path, flip_vertical, flip_horizontal); }
+	void CreateSkybox(const std::vector<std::string>* path, bool flip_vertical = true, bool flip_horizontal = false) { _material->CreateSkybox(path, flip_vertical, flip_horizontal); }
 	void ChangeLightState() { _material->ChangeLightState(); }
 	void TurnOnLight() { _material->TurnOnLight(); }
 	void TurnOffLight() { _material->TurnOffLight(); }
@@ -45,8 +49,9 @@ public:
 	
 	void SetPos(glm::vec3 pos) { _pos = pos; }
 	void SetPos(float x, float y, float z) { SetPos(glm::vec3{ x, y, z }); }
-	void SetColor(glm::vec3 color) { _material->SetColor(color); }
-	void SetColor(float r, float g, float b) { SetColor(glm::vec3(r, g, b)); }
+	void SetObjectColor(glm::vec4 color) { _material->SetObjectColor(color); }
+	void SetObjectColor(float r, float g, float b, float a) { SetObjectColor(glm::vec4{ r, g, b, a }); }
+	void SetObjectAlpha(float alpha) { _material->SetObjectAlpha(alpha); }
 	void SetDrawType(uint32_t type) { _draw_type = type; }
 	void SetShader(std::shared_ptr<Shader>& shader) { _material->SetShader(shader); }
 	void SetLight(Light light) { _material->SetLight(light); }
@@ -57,6 +62,7 @@ public:
 	void SetLightPos(float x, float y, float z) { _material->SetLightPos(glm::vec3{ x, y, z }); }
 	void SetLightColor(glm::vec3 color) { _material->SetLightColor(color); }
 	void SetLightColor(float r, float g, float b) { _material->SetLightColor(glm::vec3{ r, g, b }); }
+	void SetTexture(uint32_t index) { _material->SetTexture(index); }
 
 protected:
 	std::shared_ptr<Mesh> _mesh;

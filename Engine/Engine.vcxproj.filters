@@ -138,6 +138,9 @@
     <ClInclude Include="Figure.h">
       <Filter>Resource\Object</Filter>
     </ClInclude>
+    <ClInclude Include="..\Dependencies\include\stb_image.h">
+      <Filter>Util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine.cpp">
@@ -230,6 +233,12 @@
       <Filter>Resource\Shader</Filter>
     </None>
     <None Include="..\Dependencies\shader\Light.glsl">
+      <Filter>Resource\Shader</Filter>
+    </None>
+    <None Include="..\Dependencies\shader\Skybox_f.glsl">
+      <Filter>Resource\Shader</Filter>
+    </None>
+    <None Include="..\Dependencies\shader\Skybox_v.glsl">
       <Filter>Resource\Shader</Filter>
     </None>
   </ItemGroup>

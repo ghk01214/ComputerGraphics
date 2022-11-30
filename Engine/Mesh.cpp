@@ -48,23 +48,23 @@ void Mesh::BindIndex()
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, &_index);
 }
 
-void Mesh::CreateVertex2(std::shared_ptr<Shader>& _shader)
+void Mesh::CreateVertex2(std::shared_ptr<Shader>& shader)
 {
 	BindVAO();
 
-	CreateVBO(_vertex_vbo, &_vertex, _shader, "v_pos", 3);
-	CreateVBO(_color_vbo, &_color, _shader, "v_color", 4);
+	CreateVBO(_vertex_vbo, &_vertex, shader, "v_pos", 3);
+	CreateVBO(_color_vbo, &_color, shader, "v_color", 4);
 
 	BindIndex();
 }
 
-void Mesh::CreateVertex3(std::shared_ptr<Shader>& _shader)
+void Mesh::CreateVertex3(std::shared_ptr<Shader>& shader)
 {
 	BindVAO();
 
-	CreateVBO(_vertex_vbo, &_vertex, _shader, "v_pos", 3);
-	CreateVBO(_normal_vbo, &_normal, _shader, "v_normal", 3);
-	CreateVBO(_texture_vbo, &_texture, _shader, "v_texture", 2);
+	CreateVBO(_vertex_vbo, &_vertex, shader, "v_pos", 3);
+	CreateVBO(_normal_vbo, &_normal, shader, "v_normal", 3);
+	CreateVBO(_texture_vbo, &_texture, shader, "v_texture", 2);
 
 	BindIndex();
 }

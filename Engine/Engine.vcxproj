@@ -170,6 +170,7 @@ xcopy /y /e $(SolutionDir)Dependencies\shader $(OutDir)Data\Shader</Command>
   <ItemGroup>
     <ClInclude Include="..\Dependencies\include\Define.h" />
     <ClInclude Include="..\Dependencies\include\Singleton.hpp" />
+    <ClInclude Include="..\Dependencies\include\stb_image.h" />
     <ClInclude Include="..\Dependencies\include\Util.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Circle.h" />
@@ -235,6 +236,8 @@ xcopy /y /e $(SolutionDir)Dependencies\shader $(OutDir)Data\Shader</Command>
     <None Include="..\Dependencies\shader\Fragment.glsl" />
     <None Include="..\Dependencies\shader\Color.glsl" />
     <None Include="..\Dependencies\shader\Light.glsl" />
+    <None Include="..\Dependencies\shader\Skybox_f.glsl" />
+    <None Include="..\Dependencies\shader\Skybox_v.glsl" />
     <None Include="..\Dependencies\shader\Vertex.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

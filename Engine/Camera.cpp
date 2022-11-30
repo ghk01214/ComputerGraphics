@@ -2,7 +2,7 @@
 #include "Shader.h"
 #include "Camera.h"
 
-Camera::Camera(glm::vec3 pos, glm::vec3 up, float pitch, float yaw) :
+Camera::Camera(glm::vec3 pos, float yaw, float pitch, glm::vec3 up) :
 	_pos{ pos },
 	_front{ vec3::front() },
 	_up{ vec3::zero() },
@@ -156,13 +156,6 @@ void Camera::RotateX(int32_t direction)
 void Camera::RotateY(int32_t direction)
 {
 	_yaw += _sensitivity * 10 * direction;
-
-	Update();
-}
-
-void Camera::Rotate90(int32_t direction)
-{
-	_yaw += 90.f * direction;
 
 	Update();
 }

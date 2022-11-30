@@ -18,8 +18,8 @@ public:
 	void BindVAO();
 	void BindIndex();
 
-	void CreateVertex2(std::shared_ptr<Shader>& _shader);
-	void CreateVertex3(std::shared_ptr<Shader>& _shader);
+	void CreateVertex2(std::shared_ptr<Shader>& shader);
+	void CreateVertex3(std::shared_ptr<Shader>& shader);
 
 	size_t GetIndexNum() { return _index.size(); }
 

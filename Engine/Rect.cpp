@@ -5,7 +5,7 @@ Rect::Rect(glm::vec3 pos, glm::vec3 size)
 {
 	std::vector<float> vertex
 	{
-		 size.x,  -size.y, 0.f,
+		 size.x, -size.y, 0.f,
 		 size.x, size.y, 0.f,
 		 -size.x, size.y, 0.f,
 		 -size.x, -size.y, 0.f,
@@ -15,10 +15,10 @@ Rect::Rect(glm::vec3 pos, glm::vec3 size)
 
 	std::vector<float> color
 	{
-		rand_color.x, rand_color.y, rand_color.z, 1.f,
-		rand_color.x, rand_color.y, rand_color.z, 1.f,
-		rand_color.x, rand_color.y, rand_color.z, 1.f,
-		rand_color.x, rand_color.y, rand_color.z, 1.f,
+		rand_color.r, rand_color.g, rand_color.b, 1.f,
+		rand_color.r, rand_color.g, rand_color.b, 1.f,
+		rand_color.r, rand_color.g, rand_color.b, 1.f,
+		rand_color.r, rand_color.g, rand_color.b, 1.f
 	};
 
 	std::vector<uint32_t> index
@@ -27,8 +27,17 @@ Rect::Rect(glm::vec3 pos, glm::vec3 size)
 		0, 2, 3
 	};
 
+	std::vector<float> texture
+	{
+		1.f, 0.f,
+		1.f, 1.f,
+		0.f, 1.f,
+		0.f, 0.f
+	};
+
 	_mesh->SetVertex(&vertex);
 	_mesh->SetColor(&color);
+	_mesh->SetTexture(&texture);
 	_mesh->SetIndex(&index);
 
 	Move(pos);
@@ -36,4 +45,11 @@ Rect::Rect(glm::vec3 pos, glm::vec3 size)
 
 Rect::~Rect()
 {
+}
+
+void Rect::OnLoad(std::shared_ptr<Shader>& shader)
+{
+	Object::OnLoad(shader);
+
+	_mesh->CreateVertex2(shader);
 }

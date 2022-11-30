@@ -3,6 +3,7 @@
 in vec3 f_pos;
 in vec3 f_normal;
 in vec2 f_texture;
+in vec4 f_color;
 
 out vec4 color;
 
@@ -15,9 +16,14 @@ uniform vec3 light_pos;
 uniform vec3 light_color;
 
 uniform vec3 view_pos;
-uniform vec3 obj_color;
+uniform vec4 obj_color;
 
 uniform bool light_on;
+
+uniform bool have_texture;
+uniform sampler2D tex_sampler;
+uniform bool flip_horizontal;
+uniform bool flip_vertical;
 
 vec3 Ambient()
 {	
@@ -48,10 +54,44 @@ void main()
 	vec3 normal = normalize(f_normal);
 	vec3 light_direction = normalize(light_pos - f_pos);
 	
-	vec3 result = Phong(normal, light_direction) * obj_color;
+	vec4 result = vec4(Phong(normal, light_direction), 1.0) * obj_color;
 
 	if (light_on == true)
-		color = vec4(result, 1.0);
+	{
+		if (have_texture == true)
+		{
+			vec2 tex_pos = f_texture;
+			
+			if (flip_vertical == true)
+				tex_pos = vec2(tex_pos.x, 1.0 - tex_pos.y);
+			
+			if (flip_horizontal == true)
+				tex_pos = vec2(1.0 - tex_pos.x, tex_pos.y);
+
+			color = texture(tex_sampler, tex_pos) * result;
+		}
+		else
+		{
+			color = result;
+		}
+	}
 	else
-		color = vec4(obj_color, 1.0);
+	{
+		if (have_texture == true)
+		{
+			vec2 tex_pos = f_texture;
+			
+			if (flip_vertical == true)
+				tex_pos = vec2(tex_pos.x, 1.0 - tex_pos.y);
+			
+			if (flip_horizontal == true)
+				tex_pos = vec2(1.0 - tex_pos.x, tex_pos.y);
+
+			color = texture(tex_sampler, tex_pos);
+		}
+		else
+		{
+			color = obj_color;
+		}
+	}
 }

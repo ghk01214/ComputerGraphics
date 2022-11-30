@@ -24,27 +24,18 @@ public:
 	void OnRender() override;
 
 	void ViewProjection(std::shared_ptr<class Shader>& shader);
-
-	void Render2D(std::vector<Object*>* object, std::shared_ptr<Shader>& shader);
-	void Render3D(std::vector<Object*>* object, std::shared_ptr<Shader>& shader);
 private:
+	void CalculateDeltaTime();
 	void LoadObject(std::vector<Object*>* object, std::shared_ptr<Shader>& shader);
 	void ReleaseObject(std::vector<Object*>* object);
-	void Render(Object* obj, std::shared_ptr<Shader>& shader);
-
-public:
-	void CreateGrid();
-	void CreatePlanets();
-
-	void ChangeLightColor();
-	void RotateLight();
+	void Render(std::vector<Object*>* object, std::shared_ptr<Shader>& shader);
+	void RenderSkybox(std::vector<Object*>* object, std::shared_ptr<Shader>& shader);
 
 private:
 	std::unique_ptr<class Camera> _camera;
 	std::shared_ptr<Shader> _color_shader;
 	std::shared_ptr<Shader> _light_shader;
-
-	std::vector<Object*>* _object;
+	std::shared_ptr<Shader> _skybox_shader;
 
 	bool _stop_animation;
 	bool _click;
@@ -52,14 +43,12 @@ private:
 	int32_t _old_x;
 	int32_t _old_y;
 
-	float _delta_time;
+	int32_t _time;
 	int32_t _old_time;
+	float _delta_time;
 
 	glm::vec3 _light_pos;
-
 private:
-	std::vector<Object*> _grid;
-	std::vector<Object*> _planets;
-
-	glm::mat4 _light_mat;
+	std::vector<Object*> _rect;
+	std::vector<Object*> _sky;
 };

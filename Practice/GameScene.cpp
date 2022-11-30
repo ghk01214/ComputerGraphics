@@ -9,34 +9,55 @@ extern Engine engine;
 
 GameScene::GameScene() :
 #pragma region [BASE ATTRIBUTE]
-	_camera{ std::make_unique<Camera>(glm::vec3{ 5.f, 5.f, 5.f }, vec3::up(), -35.f, -90.f - 45.f) },
+	_camera{ std::make_unique<Camera>(glm::vec3{ 0.f, 0.f, 5.f }) },
 	_color_shader{ std::make_shared<Shader>() },
 	_light_shader{ std::make_shared<Shader>() },
-	_object{ nullptr },
+	_skybox_shader{ std::make_shared<Shader>() },
 	_stop_animation{ true },
 	_click{ false },
 	_old_x{ 0 },
 	_old_y{ 0 },
-	_old_time{ glutGet(GLUT_ELAPSED_TIME) },
+	_time{ 0 },
+	_old_time{ 0 },
 #pragma endregion
-	_grid{},
-	_planets{},
-	_light_pos{ vec3::zero() },
-	_light_mat{ mat4::unit() }
+	_light_pos{ vec3::back(3.f) }
 {
 #if _DEBUG
 	_color_shader->OnLoad("../Dependencies/shader/Vertex.glsl", "../Dependencies/shader/Color.glsl");
 	_light_shader->OnLoad("../Dependencies/shader/Vertex.glsl", "../Dependencies/shader/Light.glsl");
+	_skybox_shader->OnLoad("../Dependencies/shader/Skybox_v.glsl", "../Dependencies/shader/Skybox_f.glsl");
 #else
-	_2d->OnLoad("Data/Shader/Vertex.glsl", "Data/Shader/Fragment.glsl");
-	_3d->OnLoad("Data/Shader/Vertex.glsl", "Data/Shader/Color.glsl");
+	_color_shader->OnLoad("Data/Shader/Vertex.glsl", "Data/Shader/Color.glsl");
+	_light_shader->OnLoad("Data/Shader/Vertex.glsl", "Data/Shader/Light.glsl");
+	_skybox_shader->OnLoad("Data/Shader/Skybox_v.glsl", "Data/Shader/Skybox_f.glsl");
 #endif
 
-	CreateGrid();
-	CreatePlanets();
+	_rect.push_back(new Cube{});
+	_rect.back()->SetShader(_light_shader);
+	_rect.back()->ApplyLight();
+	_rect.back()->SetObjectColor(WHITE, 1.f);
 
-	_light_mat = glm::translate(mat4::unit(), vec3::back(4.f));
-	_light_pos = _light_mat[3];
+	_rect.back()->CreateTexture("rgb.jpg");
+
+	_sky.push_back(new Skybox{});
+	_sky.back()->SetShader(_skybox_shader);
+	_sky.back()->ApplyLight();
+	_sky.back()->SetObjectColor(WHITE, 1.f);
+
+	std::vector<std::string> path
+	{
+		"rgba.jpg",
+		"rgba.jpg",
+		"rgba.jpg",
+		"rgba.jpg",
+		"rgba.jpg",
+		"rgba.jpg"
+	};
+
+	_sky.back()->CreateSkybox(&path);
+
+	_old_time = glutGet(GLUT_ELAPSED_TIME);
+	CalculateDeltaTime();
 }
 
 GameScene::~GameScene()
@@ -44,60 +65,26 @@ GameScene::~GameScene()
 	OnRelease();
 }
 
+#pragma region [PUBLIC]
 void GameScene::OnLoad()
 {
-	LoadObject(&_grid, _color_shader);
-	LoadObject(&_planets, _light_shader);
+	LoadObject(&_rect, _light_shader);
+	LoadObject(&_sky, _skybox_shader);
 }
 
 void GameScene::OnRelease()
 {
-	ReleaseObject(&_grid);
-	ReleaseObject(&_planets);
-}
-
-void GameScene::LoadObject(std::vector<Object*>* object, std::shared_ptr<Shader>& shader)
-{
-	for (auto& obj : *object)
-	{
-		obj->OnLoad(shader);
-	}
-}
-
-void GameScene::ReleaseObject(std::vector<Object*>* object)
-{
-	for (auto& obj : *object)
-	{
-		delete obj;
-		obj = nullptr;
-	}
+	ReleaseObject(&_rect);
+	ReleaseObject(&_sky);
 }
 
 void GameScene::OnIdleMessage()
 {
-	int32_t time{ glutGet(GLUT_ELAPSED_TIME) };
-
-	_delta_time = Convert::ToFloat((time - _old_time)) / 1000.f;
-	_old_time = time;
+	CalculateDeltaTime();
 }
 
 void GameScene::OnKeyboardMessage(uchar key, int32_t x, int32_t y)
 {
-	switch (key)
-	{
-		case 'r':
-		{
-			RotateLight();
-		}
-		break;
-		case 'c':
-		{
-			ChangeLightColor();
-		}
-		break;
-		default:
-		break;
-	}
 }
 
 void GameScene::OnSpecialKeyMessage(int32_t key, int32_t x, int32_t y)
@@ -145,15 +132,20 @@ void GameScene::OnMouseUpMessage(int32_t button, int32_t x, int32_t y)
 
 void GameScene::OnRender()
 {
-	glClearColor(BLACK, 1.f);
+	glClearColor(GRAY, 1.f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glEnable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	
+	Render(&_rect, _light_shader);
+	RenderSkybox(&_sky, _skybox_shader);
 
-	Render2D(&_grid, _color_shader);
-	Render3D(&_planets, _light_shader);
+	glDisable(GL_CULL_FACE);
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);
 }
 
 void GameScene::ViewProjection(std::shared_ptr<Shader>& shader)
@@ -165,129 +157,77 @@ void GameScene::ViewProjection(std::shared_ptr<Shader>& shader)
 	shader->SetMat4("projection", &projection);
 }
 
-void GameScene::Render(Object* obj, std::shared_ptr<Shader>& shader)
+void GameScene::OnAnimate(int32_t value)
 {
-	obj->BindVAO();
-
-	obj->Transform(shader);
-	ViewProjection(shader);
-
-	obj->ApplyColor();
-
-	glDrawElements(obj->GetDrawType(), obj->GetIndexNum(), GL_UNSIGNED_INT, 0);
-}
-
-void GameScene::CreateGrid()
-{
-	_grid.push_back(new Line{ vec3::zero(), vec3::x(100.f) });
-	_grid.back()->SetShader(_color_shader);
-	_grid.back()->SetColor(RED);
-
-	_grid.push_back(new Line{ vec3::zero(), vec3::y(100.f) });
-	_grid.back()->SetShader(_color_shader);
-	_grid.back()->SetColor(GREEN);
-
-	_grid.push_back(new Line{ vec3::zero(), vec3::z(100.f) });
-	_grid.back()->SetShader(_color_shader);
-	_grid.back()->SetColor(BLUE);
-}
-
-void GameScene::CreatePlanets()
-{
-	_planets.push_back(new Sphere{});
-	_planets.back()->Scale(glm::vec3{ 0.1f });
-	_planets.back()->SetShader(_light_shader);
-	_planets.back()->SetLight(0.3f, 0.5f, 128, _light_pos, vec3::unit());
-	_planets.back()->SetColor(RAND_COLOR);
-
-	_planets.push_back(new Sphere{});
-	_planets.push_back(new Sphere{});
-	_planets.push_back(new Sphere{});
-
-	for (auto iter = ++_planets.begin(); iter != _planets.end(); ++iter)
+	if (_stop_animation == false)
 	{
-		(*iter)->Scale(glm::vec3{ 0.05f });
-		(*iter)->Move(vec3::back(2.5f));
-		(*iter)->SetShader(_light_shader);
-		(*iter)->SetLight(0.3f, 0.5f, 128, _light_pos, vec3::unit());
-		(*iter)->SetColor(RAND_COLOR);
-	}
-
-	_planets.push_back(new Sphere{});
-	_planets.push_back(new Sphere{});
-	_planets.push_back(new Sphere{});
-
-	for (auto iter = _planets.begin(); iter != _planets.end(); ++iter)
-	{
-		if (iter == _planets.begin())
-			std::advance(iter, 4);
-
-		(*iter)->Scale(glm::vec3{ 0.01f });
-		(*iter)->Move(vec3::back(1.f));
-		(*iter)->RotateY(-90.f);
-		(*iter)->Move(vec3::back(2.5f));
-		(*iter)->SetShader(_light_shader);
-		(*iter)->SetLight(0.3f, 0.5f, 128, _light_pos, vec3::unit());
-		(*iter)->SetColor(RAND_COLOR);
+		glutTimerFunc(10, Engine::OnAnimate, value);
 	}
 }
+#pragma endregion
 
-void GameScene::ChangeLightColor()
+void GameScene::CalculateDeltaTime()
 {
-	for (auto& obj : _planets)
-	{
-		obj->SetLightColor(RAND_COLOR);
-	}
+	_time = glutGet(GLUT_ELAPSED_TIME);
+
+	_delta_time = Convert::ToFloat((_time - _old_time)) / 1000.f;
+	_old_time = _time;
 }
 
-void GameScene::RotateLight()
+void GameScene::LoadObject(std::vector<Object*>* object, std::shared_ptr<Shader>& shader)
 {
-	_light_mat = glm::rotate(mat4::unit(), glm::radians(2.f), vec3::y()) * _light_mat;
-
-	_light_pos = _light_mat[3];
-}
-
-void GameScene::Render2D(std::vector<Object*>* object, std::shared_ptr<Shader>& shader)
-{
-	shader->OnUse();
-
 	for (auto& obj : *object)
 	{
-		obj->BindVAO();
-
-		obj->Transform(shader);
-		ViewProjection(shader);
-
-		obj->ApplyColor();
-
-		glDrawElements(obj->GetDrawType(), obj->GetIndexNum(), GL_UNSIGNED_INT, 0);
+		obj->OnLoad(shader);
 	}
 }
 
-void GameScene::Render3D(std::vector<Object*>* object, std::shared_ptr<Shader>& shader)
+void GameScene::ReleaseObject(std::vector<Object*>* object)
+{
+	for (auto& obj : *object)
+	{
+		delete obj;
+		obj = nullptr;
+	}
+}
+
+void GameScene::Render(std::vector<Object*>* object, std::shared_ptr<Shader>& shader)
 {
 	glm::vec3 view_pos{ _camera->GetPos() };
 	shader->SetVec3("view_pos", &view_pos);
 
 	shader->OnUse();
+	ViewProjection(shader);
 
 	for (auto& obj : *object)
 	{
 		obj->BindVAO();
-
 		obj->Transform(shader);
-		ViewProjection(shader);
 
 		obj->ApplyColor();
-		obj->TurnOnLight();
+		obj->TurnOffLight();
 		obj->SetLightPos(_light_pos);
+		obj->ApplyTexture();
 
 		glDrawElements(obj->GetDrawType(), obj->GetIndexNum(), GL_UNSIGNED_INT, 0);
 	}
 }
 
-void GameScene::OnAnimate(int32_t value)
+void GameScene::RenderSkybox(std::vector<Object*>* object, std::shared_ptr<Shader>& shader)
 {
-	if (_stop_animation == false)
-		glutTimerFunc(10, Engine::OnAnimate, value);
+	glDepthFunc(GL_LEQUAL);
+
+	shader->OnUse();
+	ViewProjection(shader);
+
+	for (auto& obj : *object)
+	{
+		obj->BindVAO();
+
+		obj->ApplySkybox();
+
+		glDrawElements(obj->GetDrawType(), obj->GetIndexNum(), GL_UNSIGNED_INT, 0);
+	}
+
+	glDepthFunc(GL_LESS);
 }
