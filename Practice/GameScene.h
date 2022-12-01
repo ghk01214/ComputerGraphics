@@ -28,8 +28,17 @@ private:
 	void CalculateDeltaTime();
 	void LoadObject(std::vector<Object*>* object, std::shared_ptr<Shader>& shader);
 	void ReleaseObject(std::vector<Object*>* object);
-	void Render(std::vector<Object*>* object, std::shared_ptr<Shader>& shader);
+	void Render(std::vector<Object*>* object, std::shared_ptr<Shader>& shader, bool apply_light);
 	void RenderSkybox(std::vector<Object*>* object, std::shared_ptr<Shader>& shader);
+
+	void CreateCrane();
+	void CreatePlane();
+	void CreateLight();
+
+	void MoveCrane(glm::vec3 direction);
+	void RotateCamera();
+	void ChangeLightColor();
+	void RotateLight(int32_t direction);
 
 private:
 	std::unique_ptr<class Camera> _camera;
@@ -48,7 +57,9 @@ private:
 	float _delta_time;
 
 	glm::vec3 _light_pos;
+	bool _apply_light;
 private:
-	std::vector<Object*> _rect;
-	std::vector<Object*> _sky;
+	std::vector<Object*> _crane;
+	std::vector<Object*> _plane;
+	std::vector<Object*> _light;
 };

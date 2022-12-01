@@ -36,7 +36,6 @@ public:
 
 	void CreateTexture(const std::string& path, bool flip_vertical = true, bool flip_horizontal = false);
 	void CreateSkybox(const std::vector<std::string>* path, bool flip_vertical = true, bool flip_horizontal = false);
-	void BindTexture();
 
 	glm::vec3 GetColor() { return _color; }
 	Light GetLight() { return _light; }

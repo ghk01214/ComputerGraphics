@@ -106,11 +106,6 @@ void Material::CreateSkybox(const std::vector<std::string>* path, bool flip_vert
 	ApplySkybox();
 }
 
-void Material::BindTexture()
-{
-	glBindTexture(GL_TEXTURE_2D, _texture.id);
-}
-
 void Material::SetObjectColor(glm::vec4 color)
 {
 	_color = color;
