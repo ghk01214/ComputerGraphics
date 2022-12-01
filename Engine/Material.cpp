@@ -43,6 +43,8 @@ void Material::ApplyTexture()
 void Material::ApplySkybox()
 {
 	_shader->SetInt("tex_sampler", _texture.id);
+	_shader->SetBool("flip_horizontal", _texture.flip_horizontal);
+	_shader->SetBool("flip_vertical", _texture.flip_vertical);
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, _texture.id);
@@ -71,15 +73,12 @@ void Material::CreateTexture(const std::string& path, bool flip_vertical, bool f
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB + number_of_channel / 4, width, height, 0, GL_RGB + number_of_channel / 4, GL_UNSIGNED_BYTE, texture.get());
 
 	ApplyTexture();
-	FlipTextureHorizontal(flip_horizontal);
-	FlipTextureVertical(flip_vertical);
 }
 
 void Material::CreateSkybox(const std::vector<std::string>* path, bool flip_vertical, bool flip_horizontal)
 {
 	_texture.flip_horizontal = flip_horizontal;
 	_texture.flip_vertical = flip_vertical;
-	_have_texture = true;
 
 	int32_t width;
 	int32_t height;
@@ -92,7 +91,10 @@ void Material::CreateSkybox(const std::vector<std::string>* path, bool flip_vert
 	{
 		std::shared_ptr<uint8_t> texture{ stbi_load((*path)[i].c_str(), &width, &height, &number_of_channel, 0)};
 
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB + number_of_channel / 4, width, height, 0, GL_RGB + number_of_channel / 4, GL_UNSIGNED_BYTE, texture.get());
+		if (texture != nullptr)
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB + number_of_channel / 4, width, height, 0, GL_RGB + number_of_channel / 4, GL_UNSIGNED_BYTE, texture.get());
+		else
+			std::cout << "error" << std::endl;
 	}
 
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);

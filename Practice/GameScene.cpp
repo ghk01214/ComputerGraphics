@@ -37,7 +37,7 @@ GameScene::GameScene() :
 	_rect.back()->ApplyLight();
 	_rect.back()->SetObjectColor(WHITE, 1.f);
 
-	_rect.back()->CreateTexture("rgb.jpg");
+	_rect.back()->CreateTexture("rgb.png");
 
 	_sky.push_back(new Skybox{});
 	_sky.back()->SetShader(_skybox_shader);
@@ -46,12 +46,12 @@ GameScene::GameScene() :
 
 	std::vector<std::string> path
 	{
-		"rgba.jpg",
-		"rgba.jpg",
-		"rgba.jpg",
-		"rgba.jpg",
-		"rgba.jpg",
-		"rgba.jpg"
+		"rgba.png",
+		"rgba.png",
+		"rgba.png",
+		"rgba.png",
+		"rgba.png",
+		"rgba.png"
 	};
 
 	_sky.back()->CreateSkybox(&path);
