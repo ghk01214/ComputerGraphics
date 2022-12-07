@@ -2,8 +2,13 @@
 #include "Material.h"
 #include "Shader.h"
 
+#ifndef STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_IMPLEMENTATION
+#endif
+#include <stb_image.h>
+
 Material::Material() :
-	_color{ glm::vec4{-1} },
+	_color{ glm::vec4{ RAND_COLOR, 1.f } },
 	_light{ 0.3f, 0.5f, 128, vec3::back(3.f), vec3::unit(), true },
 	_texture{ 0, false, true },
 	_have_texture{ false }
@@ -27,6 +32,7 @@ void Material::ApplyLight()
 	_shader->SetVec3("light_pos", &_light.pos);
 	_shader->SetVec3("light_color", &_light.color);
 	_shader->SetBool("light_on", _light.on);
+	_shader->SetBool("have_texture", _have_texture);
 }
 
 void Material::ApplyTexture()

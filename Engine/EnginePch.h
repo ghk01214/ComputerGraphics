@@ -19,7 +19,7 @@
 #include <Singleton.hpp>
 #include <Util.h>
 #include <Define.h>
-#include <stb_image.h>
+//#include <stb_image.h>
 
 #pragma comment(lib, "glew32")
 #pragma comment(lib, "glew32s")
