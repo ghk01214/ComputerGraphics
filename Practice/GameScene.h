@@ -3,6 +3,7 @@
 #include "Scene.h"
 
 class Shader;
+class Camera;
 class Object;
 
 class GameScene : public Scene
@@ -23,14 +24,15 @@ public:
 	void OnAnimate(int32_t index) override;
 	void OnRender() override;
 
-	void ViewProjection(std::shared_ptr<class Shader>& shader);
+	void ViewProjection(std::unique_ptr<Camera>& camera, std::shared_ptr<Shader>& shader);
 private:
 	void CalculateDeltaTime();
 	void LoadObject(std::vector<Object*>* object, std::shared_ptr<Shader>& shader);
 	void ReleaseObject(std::vector<Object*>* object);
-	void Render(std::vector<Object*>* object, std::shared_ptr<Shader>& shader, bool apply_light, bool apply_texture);
-	void RenderSkybox(std::vector<Object*>* object, std::shared_ptr<Shader>& shader);
+	void Render(std::vector<Object*>* object, std::unique_ptr<Camera>& camera, std::shared_ptr<Shader>& shader, bool apply_light, bool apply_texture);
+	void RenderSkybox(std::vector<Object*>* object, std::unique_ptr<Camera>& camera, std::shared_ptr<Shader>& shader);
 
+	void CreateSkybox();
 	void CreateGrid();
 	void CreateCube();
 	void CreatePyramid();
@@ -39,7 +41,8 @@ private:
 	void Reset();
 
 private:
-	std::unique_ptr<class Camera> _camera;
+	std::unique_ptr<Camera> _camera;
+	std::unique_ptr<Camera> _ui_camera;
 	std::shared_ptr<Shader> _color_shader;
 	std::shared_ptr<Shader> _light_shader;
 	std::shared_ptr<Shader> _skybox_shader;
@@ -59,6 +62,7 @@ private:
 	bool _apply_light;
 	bool _apply_texture;
 private:
+	std::vector<Object*> _skybox;
 	std::vector<Object*> _grid;
 	std::vector<Object*> _cube;
 	std::vector<Object*> _pyramid;

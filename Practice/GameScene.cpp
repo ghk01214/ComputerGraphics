@@ -12,7 +12,7 @@ extern Engine engine;
 GameScene::GameScene() :
 #pragma region [BASE ATTRIBUTE]
 	_camera{ std::make_unique<Camera>(glm::vec3{ 3.f, 3.f, 3.f }, -90 - 45.f, -40.f) },
-	//_camera{ std::make_unique<Camera>(glm::vec3{ 0.f, 0.f, 3.f }) },
+	_ui_camera{ std::make_unique<Camera>(vec3::back(3.f)) },
 	_color_shader{ std::make_shared<Shader>() },
 	_light_shader{ std::make_shared<Shader>() },
 	_skybox_shader{ std::make_shared<Shader>() },
@@ -27,6 +27,7 @@ GameScene::GameScene() :
 	_apply_light{ false },
 	_apply_texture{ false },
 #pragma endregion
+	_skybox{},
 	_grid{},
 	_cube{},
 	_pyramid{},
@@ -42,12 +43,14 @@ GameScene::GameScene() :
 	_skybox_shader->OnLoad("Data/Shader/Skybox_v.glsl", "Data/Shader/Skybox_f.glsl");
 #endif
 
+	CreateSkybox();
 	CreateGrid();
 	CreateCube();
 	CreatePyramid();
 
 	_apply_texture = true;
 	_render_object = &_cube;
+	_ui_camera->SetCameraMode(false);
 
 	_old_time = glutGet(GLUT_ELAPSED_TIME);
 	CalculateDeltaTime();
@@ -61,6 +64,7 @@ GameScene::~GameScene()
 #pragma region [PUBLIC]
 void GameScene::OnLoad()
 {
+	LoadObject(&_skybox, _skybox_shader);
 	LoadObject(&_grid, _light_shader);
 	LoadObject(&_cube, _light_shader);
 	LoadObject(&_pyramid, _light_shader);
@@ -68,6 +72,7 @@ void GameScene::OnLoad()
 
 void GameScene::OnRelease()
 {
+	ReleaseObject(&_skybox);
 	ReleaseObject(&_grid);
 	ReleaseObject(&_cube);
 	ReleaseObject(&_pyramid);
@@ -202,17 +207,18 @@ void GameScene::OnRender()
 	glEnable(GL_DEPTH_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	Render(&_grid, _light_shader, false, false);
-	Render(_render_object, _light_shader, _apply_light, _apply_texture);
+	RenderSkybox(&_skybox, _camera, _skybox_shader);
+	Render(&_grid, _camera, _light_shader, false, false);
+	Render(_render_object, _camera, _light_shader, _apply_light, _apply_texture);
 
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
 }
 
-void GameScene::ViewProjection(std::shared_ptr<Shader>& shader)
+void GameScene::ViewProjection(std::unique_ptr<Camera>& camera, std::shared_ptr<Shader>& shader)
 {
-	auto view{ _camera->GetViewMatrix() };
-	auto projection{ _camera->GetProjectionMatrix() };
+	auto view{ camera->GetViewMatrix() };
+	auto projection{ camera->GetProjectionMatrix() };
 
 	shader->SetMat4("view", &view);
 	shader->SetMat4("projection", &projection);
@@ -259,13 +265,13 @@ void GameScene::ReleaseObject(std::vector<Object*>* object)
 	object->clear();
 }
 
-void GameScene::Render(std::vector<Object*>* object, std::shared_ptr<Shader>& shader, bool apply_light, bool apply_texture)
+void GameScene::Render(std::vector<Object*>* object, std::unique_ptr<Camera>& camera, std::shared_ptr<Shader>& shader, bool apply_light, bool apply_texture)
 {
 	glm::vec3 view_pos{ _camera->GetPos() };
 	shader->SetVec3("view_pos", &view_pos);
 
 	shader->OnUse();
-	ViewProjection(shader);
+	ViewProjection(camera, shader);
 
 	for (auto& obj : *object)
 	{
@@ -292,17 +298,16 @@ void GameScene::Render(std::vector<Object*>* object, std::shared_ptr<Shader>& sh
 	}
 }
 
-void GameScene::RenderSkybox(std::vector<Object*>* object, std::shared_ptr<Shader>& shader)
+void GameScene::RenderSkybox(std::vector<Object*>* object, std::unique_ptr<Camera>& camera, std::shared_ptr<Shader>& shader)
 {
 	glDepthFunc(GL_LEQUAL);
 
 	shader->OnUse();
-	ViewProjection(shader);
+	ViewProjection(camera, shader);
 
 	for (auto& obj : *object)
 	{
 		obj->BindVAO();
-
 		obj->ApplySkybox();
 
 		glDrawElements(obj->GetDrawType(), obj->GetIndexNum(), GL_UNSIGNED_INT, 0);
@@ -331,6 +336,32 @@ void GameScene::CreateGrid()
 	_grid[2]->RotateY(90.f);
 	_grid[2]->SetShader(_light_shader);
 	_grid[2]->SetObjectColor(BLUE, 1.f);
+}
+
+void GameScene::CreateSkybox()
+{
+	_skybox.resize(6, nullptr);
+
+	std::vector<std::string> path
+	{
+		"../Dependencies/texture/sky.jpg",
+		"../Dependencies/texture/sky.jpg",
+		"../Dependencies/texture/sky.jpg",
+		"../Dependencies/texture/sky.jpg",
+		"../Dependencies/texture/sky.jpg",
+		"../Dependencies/texture/sky.jpg"
+	};
+
+	for (auto& obj : _skybox)
+	{
+		obj = new Rect{};
+		obj->SetShader(_skybox_shader);
+		obj->CreateSkybox(&path);
+		//obj->CreateTexture("../Dependencies/texture/sky.jpg");
+		obj->Scale(glm::vec3{ 10.f });
+	}
+
+	_apply_texture = true;
 }
 
 void GameScene::CreateCube()
@@ -434,7 +465,10 @@ void GameScene::Reset()
 	_apply_light = false;
 
 	_camera = std::make_unique<Camera>(glm::vec3{ 3.f, 3.f, 3.f }, -90 - 45.f, -40.f);
+	_ui_camera = std::make_unique<Camera>(vec3::back(3.f));
+	_ui_camera->SetCameraMode(false);
 
+	CreateSkybox();
 	CreateGrid();
 	CreateCube();
 	CreatePyramid();
