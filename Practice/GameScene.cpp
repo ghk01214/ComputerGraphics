@@ -346,23 +346,12 @@ void GameScene::CreateSkybox()
 {
 	_skybox.resize(6, nullptr);
 
-	std::vector<std::string> path
-	{
-		"../Dependencies/texture/sky2.jpg",
-		"../Dependencies/texture/sky2.jpg",
-		"../Dependencies/texture/sky2.jpg",
-		"../Dependencies/texture/sky2.jpg",
-		"../Dependencies/texture/sky2.jpg",
-		"../Dependencies/texture/sky2.jpg"
-	};
-
 	float scale{ 1000.f };
 
 	for (auto& obj : _skybox)
 	{
 		obj = new Rect{};
 		obj->SetShader(_light_shader);
-		//obj->CreateSkybox(&path);
 		obj->Scale(glm::vec3{ scale });
 	}
 
