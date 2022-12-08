@@ -64,7 +64,7 @@ GameScene::~GameScene()
 #pragma region [PUBLIC]
 void GameScene::OnLoad()
 {
-	LoadObject(&_skybox, _skybox_shader);
+	LoadObject(&_skybox, _light_shader);
 	LoadObject(&_grid, _light_shader);
 	LoadObject(&_cube, _light_shader);
 	LoadObject(&_pyramid, _light_shader);
@@ -207,7 +207,10 @@ void GameScene::OnRender()
 	glEnable(GL_DEPTH_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	RenderSkybox(&_skybox, _camera, _skybox_shader);
+	//RenderSkybox(&_skybox, _camera, _light_shader);
+	glDepthFunc(GL_LEQUAL);
+	Render(&_skybox, _camera, _light_shader, false, _apply_texture);
+	glDepthFunc(GL_LESS);
 	Render(&_grid, _camera, _light_shader, false, false);
 	Render(_render_object, _camera, _light_shader, _apply_light, _apply_texture);
 
@@ -310,7 +313,8 @@ void GameScene::RenderSkybox(std::vector<Object*>* object, std::unique_ptr<Camer
 		obj->BindVAO();
 		obj->ApplySkybox();
 
-		glDrawElements(obj->GetDrawType(), obj->GetIndexNum(), GL_UNSIGNED_INT, 0);
+		//glDrawElements(obj->GetDrawType(), obj->GetIndexNum(), GL_UNSIGNED_INT, 0);
+		glDrawArrays(obj->GetDrawType(), 0, 36);
 	}
 
 	glDepthFunc(GL_LESS);
@@ -344,22 +348,46 @@ void GameScene::CreateSkybox()
 
 	std::vector<std::string> path
 	{
-		"../Dependencies/texture/sky.jpg",
-		"../Dependencies/texture/sky.jpg",
-		"../Dependencies/texture/sky.jpg",
-		"../Dependencies/texture/sky.jpg",
-		"../Dependencies/texture/sky.jpg",
-		"../Dependencies/texture/sky.jpg"
+		"../Dependencies/texture/sky2.jpg",
+		"../Dependencies/texture/sky2.jpg",
+		"../Dependencies/texture/sky2.jpg",
+		"../Dependencies/texture/sky2.jpg",
+		"../Dependencies/texture/sky2.jpg",
+		"../Dependencies/texture/sky2.jpg"
 	};
+
+	float scale{ 1000.f };
 
 	for (auto& obj : _skybox)
 	{
 		obj = new Rect{};
-		obj->SetShader(_skybox_shader);
-		obj->CreateSkybox(&path);
-		//obj->CreateTexture("../Dependencies/texture/sky.jpg");
-		obj->Scale(glm::vec3{ 10.f });
+		obj->SetShader(_light_shader);
+		//obj->CreateSkybox(&path);
+		obj->Scale(glm::vec3{ scale });
 	}
+
+	_skybox[0]->CreateTexture("../Dependencies/texture/right.jpg");
+	_skybox[0]->RotateY(-90.f);
+	_skybox[0]->Move(vec3::right(scale / 2));
+
+	_skybox[1]->CreateTexture("../Dependencies/texture/left.jpg");
+	_skybox[1]->RotateY(90.f);
+	_skybox[1]->Move(vec3::left(scale / 2));
+
+	_skybox[2]->CreateTexture("../Dependencies/texture/top.jpg");
+	_skybox[2]->RotateX(90.f);
+	_skybox[2]->Move(vec3::up(scale / 2));
+
+	_skybox[3]->CreateTexture("../Dependencies/texture/bottom.jpg");
+	_skybox[3]->RotateX(-90.f);
+	_skybox[3]->Move(vec3::down(scale / 2));
+
+	_skybox[4]->CreateTexture("../Dependencies/texture/front.jpg");
+	_skybox[4]->Move(vec3::front(scale / 2));
+
+	_skybox[5]->CreateTexture("../Dependencies/texture/back.jpg");
+	_skybox[5]->RotateY(180.f);
+	_skybox[5]->Move(vec3::back(scale / 2));
 
 	_apply_texture = true;
 }
